@@ -1,0 +1,343 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Junicode Italic Font */
+@font-face {
+    font-family: 'Junicode';
+    src: url('/Junicode-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Brand Display Fonts */
+@font-face {
+    font-family: 'QurovademoBold';
+    src: url('/fonts/QurovademoBold-Zp2aK.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Geogola';
+    src: url('/fonts/Gegola DEMO.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Quizlo';
+    src: url('/fonts/quizlo-demo.regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+    :root {
+        --background: 40 15% 96%;
+        --foreground: 80 15% 25%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 80 15% 25%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 80 15% 25%;
+
+        --primary: 150 20% 45%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 35 25% 85%;
+        --secondary-foreground: 80 15% 25%;
+
+        --muted: 40 15% 92%;
+        --muted-foreground: 80 10% 45%;
+
+        --accent: 25 50% 60%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 40 12% 88%;
+        --input: 40 12% 88%;
+        --ring: 150 20% 45%;
+
+        --radius: 0.75rem;
+
+        /* Salon-specific colors - Sage Green & Copper/Rose Gold */
+        --sage-green: 150 20% 45%;
+        --sage-light: 150 15% 70%;
+        --copper: 25 50% 60%;
+        --rose-gold: 15 55% 65%;
+        --warm-beige: 35 25% 85%;
+        --taupe: 30 15% 55%;
+
+        /* Gradients */
+        --gradient-hero: linear-gradient(135deg, hsl(150 20% 45% / 0.95), hsl(150 25% 35% / 0.98));
+        --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 15% 96%));
+        --gradient-accent: linear-gradient(135deg, hsl(25 50% 60%), hsl(15 55% 65%));
+
+        /* Shadows */
+        --shadow-soft: 0 4px 20px hsl(150 20% 45% / 0.12);
+        --shadow-medium: 0 8px 30px hsl(150 20% 45% / 0.18);
+        --shadow-glow: 0 0 40px hsl(25 50% 60% / 0.25);
+
+        /* Transitions */
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .dark {
+        --background: 150 15% 12%;
+        --foreground: 40 15% 90%;
+
+        --card: 150 12% 16%;
+        --card-foreground: 40 15% 90%;
+
+        --popover: 150 12% 16%;
+        --popover-foreground: 40 15% 90%;
+
+        --primary: 150 20% 50%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 150 10% 22%;
+        --secondary-foreground: 40 15% 90%;
+
+        --muted: 150 10% 22%;
+        --muted-foreground: 40 12% 60%;
+
+        --accent: 25 50% 55%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 150 10% 25%;
+        --input: 150 10% 25%;
+        --ring: 150 20% 50%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-serif;
+    }
+}
+
+@layer components {
+    .section-padding {
+        @apply py-16 md:py-24 px-4 md:px-8;
+    }
+
+    .container-custom {
+        @apply max-w-7xl mx-auto;
+    }
+
+    .heading-primary {
+        @apply text-4xl md:text-6xl font-bold tracking-tight;
+    }
+
+    .heading-secondary {
+        @apply text-3xl md:text-5xl font-semibold tracking-tight;
+    }
+
+    .heading-tertiary {
+        @apply text-2xl md:text-3xl font-semibold;
+    }
+
+    .text-body {
+        @apply text-base md:text-lg leading-relaxed;
+    }
+
+    .btn-primary {
+        @apply bg-primary hover:bg-accent text-primary-foreground px-8 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105;
+    }
+
+    .btn-secondary {
+        @apply bg-secondary hover:bg-secondary/80 text-secondary-foreground px-8 py-3 rounded-full font-medium transition-all duration-300;
+    }
+
+    .card-service {
+        @apply bg-card rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1;
+    }
+
+    .nav-link {
+        @apply relative text-foreground/80 hover:text-foreground transition-colors duration-300 after:content-[''] after:absolute after:w-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes gradient {
+        0%, 100% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .animate-gradient {
+        animation: gradient 3s ease infinite;
+    }
+
+    .font-junicode {
+        font-family: 'Junicode', serif;
+        font-style: italic;
+    }
+
+    /* Burger Toggle Menu Styles */
+    #mobile-menu-checkbox {
+        display: none;
+    }
+
+    .mobile-toggle {
+        position: relative;
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 6px;
+        transition-duration: 0.5s;
+    }
+
+    .mobile-toggle-bars {
+        width: 100%;
+        height: 3px;
+        background-color: hsl(var(--primary));
+        border-radius: 3px;
+        transition-duration: 0.5s;
+    }
+
+    .mobile-toggle-bar2 {
+        transition-duration: 0.8s;
+    }
+
+    .mobile-toggle-bar1 {
+        width: 50%;
+    }
+
+    .mobile-toggle-bar2 {
+        width: 75%;
+    }
+
+    #mobile-menu-checkbox:checked + .mobile-toggle .mobile-toggle-bar1 {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        margin-top: -1.5px;
+        transform: rotate(45deg);
+        transition-duration: 0.5s;
+    }
+
+    #mobile-menu-checkbox:checked + .mobile-toggle .mobile-toggle-bar2 {
+        transform: scaleX(0);
+        opacity: 0;
+        transition-duration: 0.1s;
+    }
+
+    #mobile-menu-checkbox:checked + .mobile-toggle .mobile-toggle-bar3 {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        margin-top: -1.5px;
+        transform: rotate(-45deg);
+        transition-duration: 0.5s;
+    }
+
+    /* Custom Scrollbar - Thin and Beautiful */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+    }
+
+    *::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: hsl(var(--primary) / 0.3);
+        border-radius: 10px;
+        transition: background 0.3s ease;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--primary) / 0.5);
+    }
+
+    .dark *::-webkit-scrollbar-thumb {
+        background: hsl(var(--primary) / 0.4);
+    }
+
+    .dark *::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--primary) / 0.6);
+    }
+}
