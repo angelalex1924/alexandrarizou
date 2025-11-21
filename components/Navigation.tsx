@@ -293,6 +293,22 @@ const Navigation = () => {
                   </span>
                 </a>
 
+                {/* Email Bubble */}
+                <a 
+                  href="mailto:ar.hairbeauty.healthservices@gmail.com"
+                  className={`group relative h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
+                    isScrolled 
+                      ? 'bg-foreground/10 border-foreground/20 hover:bg-foreground/20 hover:border-foreground/30' 
+                      : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30'
+                  }`}
+                >
+                  <Mail className={`h-4 w-4 transition-colors ${
+                    isScrolled 
+                      ? 'text-foreground group-hover:text-primary' 
+                      : 'text-white group-hover:text-primary'
+                  }`} />
+                </a>
+
                 {/* Social Media Bubbles */}
                 <a 
                   href="https://www.facebook.com/p/AR-Hair-Beauty-Health-Services-100087760983195/?locale=el_GR" 
@@ -505,12 +521,42 @@ const Navigation = () => {
                     type="checkbox"
                     checked={isOpen}
                     onChange={(e) => setIsOpen(e.target.checked)}
+                    className="hidden"
                   />
-                  <label className="mobile-toggle" htmlFor="mobile-menu-checkbox" style={{ position: 'relative', zIndex: 110 }}>
-                    <div className="mobile-toggle-bars mobile-toggle-bar1"></div>
-                    <div className="mobile-toggle-bars mobile-toggle-bar2"></div>
-                    <div className="mobile-toggle-bars mobile-toggle-bar3"></div>
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`group relative h-9 w-9 rounded-lg backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
+                      isScrolled 
+                        ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
+                        : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
+                    } ${isOpen ? 'bg-primary/20 border-primary/50' : ''}`}
+                    aria-label="Toggle menu"
+                  >
+                    <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 rounded-lg transition-colors duration-300" />
+                    <div className="relative z-10 flex flex-col items-center justify-center gap-1 w-5 h-5">
+                      <div 
+                        className={`h-1 w-full rounded-full bg-current transition-all duration-300 ease-in-out ${
+                          isScrolled 
+                            ? 'text-foreground group-hover:text-primary' 
+                            : 'text-white group-hover:text-primary'
+                        } ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`}
+                        style={{ 
+                          transformOrigin: 'center',
+                        }}
+                      />
+                      <div 
+                        className={`h-1 w-full rounded-full bg-current transition-all duration-300 ease-in-out ${
+                          isScrolled 
+                            ? 'text-foreground group-hover:text-primary' 
+                            : 'text-white group-hover:text-primary'
+                        } ${isOpen ? '-rotate-45 -translate-y-1.5' : ''}`}
+                        style={{ 
+                          transformOrigin: 'center',
+                        }}
+                      />
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -573,9 +619,9 @@ const Navigation = () => {
               type="button"
               onClick={closeMenu}
               aria-label={language === "el" ? "Κλείσιμο μενού" : "Close menu"}
-              className="absolute top-6 right-6 z-20 h-11 w-11 rounded-full border border-white/25 bg-white text-foreground flex items-center justify-center shadow-lg transition-transform duration-200 hover:scale-105 active:scale-95"
+              className="absolute top-6 right-6 z-20 h-11 w-11 rounded-full border border-white/25 bg-white text-gray-900 flex items-center justify-center shadow-lg transition-transform duration-200 hover:scale-105 active:scale-95"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 text-gray-900" />
             </button>
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute inset-y-0 left-6 w-px bg-white/5" />

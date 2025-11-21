@@ -2381,7 +2381,6 @@ const AIChatbot = () => {
                   position: 'sticky',
                   bottom: 0,
                   zIndex: 50,
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   paddingBottom: `calc(1rem + env(safe-area-inset-bottom, 0px) + 60px)`,
                   paddingTop: '1rem',
                   paddingLeft: '1rem',

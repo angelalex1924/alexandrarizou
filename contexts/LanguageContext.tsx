@@ -118,6 +118,13 @@ const translations = {
     "contact.info.late": "Καθυστερημένες Αφίξεις: Σας παρακαλούμε να φτάσετε 10 λεπτά πριν το ραντεβού σας. Οι καθυστερημένες αφίξεις μπορεί να οδηγήσουν σε μειωμένο χρόνο εξυπηρέτησης.",
     "contact.info.payment": "Πληρωμή: Δεχόμαστε μετρητά, πιστωτικές κάρτες και ψηφιακές πληρωμές. Η πληρωμή γίνεται κατά την παροχή της υπηρεσίας.",
     
+    // 404 Page
+    "404.title": "Η Σελίδα Δεν Βρέθηκε",
+    "404.description": "Λυπάμαι, αλλά η σελίδα που αναζητάτε δεν υπάρχει ή έχει μετακινηθεί. Επιστρέψτε στην αρχική σελίδα για να συνεχίσετε.",
+    "404.homeButton": "Επιστροφή στην Αρχική",
+    "404.backButton": "Πίσω",
+    "404.quickLinks": "Γρήγοροι Σύνδεσμοι:",
+    
     // Booking Page
     "booking.hero.title": "Κλείστε το Ραντεβού σας",
     "booking.hero.subtitle": "Επιλέξτε την υπηρεσία, ημερομηνία και ώρα που προτιμάτε. Εμείς θα αναλάβουμε τα υπόλοιπα!",
@@ -277,6 +284,13 @@ const translations = {
     "contact.info.cancellation": "Cancellation Policy: Please notify us at least 24 hours in advance if you need to cancel or reschedule your appointment.",
     "contact.info.late": "Late Arrivals: We kindly ask that you arrive 10 minutes before your appointment. Late arrivals may result in reduced service time.",
     "contact.info.payment": "Payment: We accept cash, credit cards, and digital payments. Payment is due at the time of service.",
+    
+    // 404 Page
+    "404.title": "Page Not Found",
+    "404.description": "Sorry, but the page you're looking for doesn't exist or has been moved. Return to the home page to continue.",
+    "404.homeButton": "Return to Home",
+    "404.backButton": "Go Back",
+    "404.quickLinks": "Quick Links:",
     
     // Booking Page
     "booking.hero.title": "Book Your Appointment",
