@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Facebook, Instagram, Mail, Phone, MapPin, Clock3 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { getLocalizedPath } from "@/lib/i18n-routes";
+import { CookieSettingsButton } from "@/components/cookies-settings-button";
 
 const logo = "/assets/logo.png";
 const logoWhite = "/assets/rizou_logo_white.png";
@@ -140,14 +142,14 @@ const Footer = () => {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/services"
-                className="inline-flex items-center justify-center rounded-full bg-primary/80 px-6 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-white shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] hover:bg-primary"
+                href={getLocalizedPath("/services", language as 'el' | 'en')}
+                className="inline-flex items-center justify-center rounded-lg bg-primary/90 hover:bg-primary px-5 py-2.5 text-sm font-medium text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
               >
                 {heroCopy.primaryCta}
               </Link>
               <a
                 href="tel:+302106818011"
-                className="inline-flex items-center justify-center rounded-full border border-white/30 px-6 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-foreground/80 transition-all hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-lg border border-white/20 hover:border-white/30 px-5 py-2.5 text-sm font-medium text-foreground/90 dark:text-white/90 transition-all duration-300 hover:bg-white/5 dark:hover:bg-white/5 hover:scale-[1.02]"
               >
                 {heroCopy.secondaryCta}
               </a>
@@ -190,17 +192,32 @@ const Footer = () => {
               {t("footer.quicklinks")}
             </h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              {navLinks.map((link) => (
+              {navLinks.map((link) => {
+                const isBooking = link.href === "/booking";
+                return (
                 <li key={link.href}>
+                    {isBooking ? (
+                      <div className="relative inline-block group">
+                        <span className="group inline-flex items-center gap-3 font-medium opacity-75 cursor-not-allowed">
+                          <span className="h-px w-6 bg-muted-foreground/40" />
+                          {link.label}
+                        </span>
+                        <div className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap z-10 border border-white/20">
+                          {t("comingSoon")}
+                        </div>
+                      </div>
+                    ) : (
                   <Link
-                    href={link.href}
+                        href={getLocalizedPath(link.href, language as 'el' | 'en')}
                     className="group inline-flex items-center gap-3 font-medium transition-all hover:text-foreground"
                   >
                     <span className="h-px w-6 bg-muted-foreground/40 transition-all group-hover:w-10 group-hover:bg-primary" />
                     {link.label}
                   </Link>
+                    )}
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </div>
 
@@ -380,6 +397,8 @@ const Footer = () => {
               >
                 {privacyLabel}
               </Link>
+              <span className="text-gray-300 dark:text-gray-600">|</span>
+              <CookieSettingsButton language={language} />
             </div>
 
             <div className="flex flex-col items-center gap-4 md:flex-row">

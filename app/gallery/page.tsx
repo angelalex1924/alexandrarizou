@@ -2,12 +2,14 @@
 
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { useState } from "react";
+import PageHeader from "@/components/PageHeader";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type GalleryCategory = 'our_space' | 'before_after' | 'hair_creations' | 'nails_beauty' | 'team_moments';
 
@@ -24,18 +26,30 @@ interface GalleryItem {
   display_order: number;
 }
 
-const categoryLabels = {
-  our_space: "Our Space",
-  before_after: "Before & After",
-  hair_creations: "Hair Creations",
-  nails_beauty: "Nails & Beauty",
-  team_moments: "Team Moments"
+const getCategoryLabel = (category: GalleryCategory, t: (key: string) => string) => {
+  return t(`gallery.category.${category}`);
 };
 
 export default function Gallery() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // Hide navbar when lightbox is open
+  useEffect(() => {
+    const nav = document.querySelector('nav');
+    if (selectedImage) {
+      if (nav) nav.style.display = 'none';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (nav) nav.style.display = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      if (nav) nav.style.display = '';
+      document.body.style.overflow = '';
+    };
+  }, [selectedImage]);
 
   const { data: items = [] } = useQuery({
     queryKey: ['gallery-items'],
@@ -94,21 +108,21 @@ export default function Gallery() {
         <div className="relative">
           <img
             src={item.before_image_url || ''}
-            alt="Before"
+            alt={t("gallery.before")}
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-2 left-2 bg-background/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
-            Before
+          <div className="absolute bottom-2 left-2 bg-background/90 dark:bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold border border-primary/20 shadow-md">
+            {t("gallery.before")}
           </div>
         </div>
         <div className="relative">
           <img
             src={item.after_image_url || ''}
-            alt="After"
+            alt={t("gallery.after")}
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-2 right-2 bg-primary/80 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-primary-foreground">
-            After
+          <div className="absolute bottom-2 right-2 bg-primary/90 dark:bg-primary/80 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground shadow-md border border-primary-foreground/20">
+            {t("gallery.after")}
           </div>
         </div>
       </div>
@@ -155,12 +169,13 @@ export default function Gallery() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-16 section-padding bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="container-custom text-center">
-          <h1 className="heading-primary mb-6">{t("gallery.hero.title")}</h1>
-          <p className="text-body text-muted-foreground max-w-2xl mx-auto">
-            {t("gallery.hero.subtitle")}
-          </p>
+      <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-4 md:px-8">
+        <div className="container-custom max-w-7xl mx-auto">
+          <PageHeader
+            title={t("gallery.hero.title")}
+            subtitle={t("gallery.hero.subtitle")}
+            icon="/images_5225097.png"
+          />
         </div>
       </section>
 
@@ -168,55 +183,96 @@ export default function Gallery() {
       <section className="section-padding">
         <div className="container-custom">
           <Tabs defaultValue="our_space" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-8">
-              {Object.entries(categoryLabels).map(([value, label]) => (
-                <TabsTrigger key={value} value={value}>
-                  {label}
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 mb-12 p-1.5 bg-muted/50 dark:bg-muted/30 rounded-2xl border border-primary/10">
+              {(['our_space', 'before_after', 'hair_creations', 'nails_beauty', 'team_moments'] as GalleryCategory[]).map((category) => (
+                <TabsTrigger 
+                  key={category} 
+                  value={category}
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-xl font-medium transition-all duration-300"
+                >
+                  {getCategoryLabel(category, t)}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            <TabsContent value="our_space" className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="heading-secondary mb-4">Our Space</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Take a virtual tour of our beautiful salon interior and atmosphere
+            <TabsContent value="our_space" className="space-y-6 mt-16 md:mt-12">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-3 mb-6">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/60 to-primary/60"></div>
+                  <span className="text-xs md:text-sm font-semibold text-primary tracking-[0.3em] uppercase">
+                    {t("gallery.section.our_space.title")}
+                  </span>
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent via-primary/60 to-primary/60"></div>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-junicode bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent mb-4">
+                  {t("gallery.section.our_space.title")}
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                  {t("gallery.section.our_space.desc")}
                 </p>
               </div>
               {renderGalleryGrid(getItemsByCategory('our_space'))}
             </TabsContent>
 
-            <TabsContent value="before_after" className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="heading-secondary mb-4">Before & After</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Witness the stunning transformations we create for our clients
+            <TabsContent value="before_after" className="space-y-6 mt-16 md:mt-12">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-3 mb-6">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/60 to-primary/60"></div>
+                  <span className="text-xs md:text-sm font-semibold text-primary tracking-[0.3em] uppercase">
+                    {t("gallery.section.before_after.title")}
+                  </span>
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent via-primary/60 to-primary/60"></div>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-junicode bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent mb-4">
+                  {t("gallery.section.before_after.title")}
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                  {t("gallery.section.before_after.desc")}
                 </p>
               </div>
               {renderGalleryGrid(getItemsByCategory('before_after'), true)}
             </TabsContent>
 
-            <TabsContent value="hair_creations" className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="heading-secondary mb-4">Hair Creations</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
-                  Browse our portfolio of hairstyles, coloring techniques, and treatments
+            <TabsContent value="hair_creations" className="space-y-6 mt-16 md:mt-12">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-3 mb-6">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/60 to-primary/60"></div>
+                  <span className="text-xs md:text-sm font-semibold text-primary tracking-[0.3em] uppercase">
+                    {t("gallery.section.hair_creations.title")}
+                  </span>
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent via-primary/60 to-primary/60"></div>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-junicode bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent mb-4">
+                  {t("gallery.section.hair_creations.title")}
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
+                  {t("gallery.section.hair_creations.desc")}
                 </p>
 
                 {getUniqueTags().length > 0 && (
-                  <div className="flex flex-wrap gap-2 justify-center">
+                  <div className="flex flex-wrap gap-3 justify-center">
                     <Badge
                       variant={selectedTag === null ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={cn(
+                        "cursor-pointer px-4 py-1.5 text-sm font-semibold transition-all duration-300 hover:scale-105",
+                        selectedTag === null 
+                          ? "bg-primary text-primary-foreground shadow-md hover:shadow-lg" 
+                          : "border-2 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20"
+                      )}
                       onClick={() => setSelectedTag(null)}
                     >
-                      All
+                      {t("gallery.all")}
                     </Badge>
                     {getUniqueTags().map(tag => (
                       <Badge
                         key={tag}
                         variant={selectedTag === tag ? "default" : "outline"}
-                        className="cursor-pointer"
+                        className={cn(
+                          "cursor-pointer px-4 py-1.5 text-sm font-semibold transition-all duration-300 hover:scale-105",
+                          selectedTag === tag
+                            ? "bg-primary text-primary-foreground shadow-md hover:shadow-lg"
+                            : "border-2 hover:border-primary/50 hover:bg-primary/10 dark:hover:bg-primary/20"
+                        )}
                         onClick={() => setSelectedTag(tag)}
                       >
                         {tag}
@@ -228,21 +284,39 @@ export default function Gallery() {
               {renderGalleryGrid(filteredHairCreations)}
             </TabsContent>
 
-            <TabsContent value="nails_beauty" className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="heading-secondary mb-4">Nails & Beauty</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Explore our manicure, pedicure, and beauty treatment services
+            <TabsContent value="nails_beauty" className="space-y-6 mt-16 md:mt-12">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-3 mb-6">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/60 to-primary/60"></div>
+                  <span className="text-xs md:text-sm font-semibold text-primary tracking-[0.3em] uppercase">
+                    {t("gallery.section.nails_beauty.title")}
+                  </span>
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent via-primary/60 to-primary/60"></div>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-junicode bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent mb-4">
+                  {t("gallery.section.nails_beauty.title")}
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                  {t("gallery.section.nails_beauty.desc")}
                 </p>
               </div>
               {renderGalleryGrid(getItemsByCategory('nails_beauty'))}
             </TabsContent>
 
-            <TabsContent value="team_moments" className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="heading-secondary mb-4">Team Moments</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Get to know our talented team and see us in action
+            <TabsContent value="team_moments" className="space-y-6 mt-16 md:mt-12">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center gap-3 mb-6">
+                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/60 to-primary/60"></div>
+                  <span className="text-xs md:text-sm font-semibold text-primary tracking-[0.3em] uppercase">
+                    {t("gallery.section.team_moments.title")}
+                  </span>
+                  <div className="h-px w-12 bg-gradient-to-l from-transparent via-primary/60 to-primary/60"></div>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-junicode bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent mb-4">
+                  {t("gallery.section.team_moments.title")}
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                  {t("gallery.section.team_moments.desc")}
                 </p>
               </div>
               {renderGalleryGrid(getItemsByCategory('team_moments'))}

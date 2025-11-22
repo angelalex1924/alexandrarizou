@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import AIChatbot from "@/components/chatbot";
 import Providers from "./providers";
+import { CookieConsent } from "@/components/cookie-consent";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
                         <Toaster />
                         <Sonner />
                         <AIChatbot />
+                        <CookieConsent />
                         {children}
                     </TooltipProvider>
                 </Providers>

@@ -11,7 +11,7 @@ export const useMobileNav = () => {
   const scrollPositionRef = useRef(0);
   const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Αποθήκευση και αποκλεισμός scroll όταν ανοίγει το menu
+  // Αποθήκευση και αποκλεισμός scroll όταν ανοίγει το menu - Optimized to prevent flickering
   useEffect(() => {
     if (isOpen) {
       // Αποθήκευση της τρέχουσας θέσης scroll
@@ -21,7 +21,7 @@ export const useMobileNav = () => {
         document.documentElement.scrollTop;
 
       // Αποκλεισμός scroll με requestAnimationFrame για smooth transition
-      requestAnimationFrame(() => {
+      const lockScroll = () => {
         document.body.style.position = 'fixed';
         document.body.style.top = `-${scrollPositionRef.current}px`;
         document.body.style.left = '0';
@@ -33,10 +33,17 @@ export const useMobileNav = () => {
         // Αποκλεισμός iOS bounce
         document.documentElement.style.overflow = 'hidden';
         document.documentElement.style.position = 'relative';
+      };
+      
+      // Use double RAF for smoother transition
+      requestAnimationFrame(() => {
+        requestAnimationFrame(lockScroll);
       });
     } else {
-      // Επαναφορά scroll position
-      requestAnimationFrame(() => {
+      // Επαναφορά scroll position - Optimized
+      const unlockScroll = () => {
+        const scrollY = scrollPositionRef.current;
+        
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.left = '';
@@ -47,15 +54,17 @@ export const useMobileNav = () => {
         document.documentElement.style.overflow = '';
         document.documentElement.style.position = '';
         
-        // Επαναφορά scroll position μετά την επαναφορά των styles - με delay για να αποφύγουμε flickering
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            window.scrollTo({
-              top: scrollPositionRef.current,
-              behavior: 'auto'
-            });
+        // Επαναφορά scroll position μετά την επαναφορά των styles
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: scrollY,
+            behavior: 'auto'
           });
-        }, 50);
+        });
+      };
+      
+      requestAnimationFrame(() => {
+        requestAnimationFrame(unlockScroll);
       });
     }
     

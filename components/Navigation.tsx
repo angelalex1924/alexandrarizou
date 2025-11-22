@@ -3,16 +3,32 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Phone, Facebook, Instagram, MapPin, Clock3, X, Mail, Moon, Sun } from "lucide-react";
+import { Phone, Facebook, Instagram, MapPin, Clock3, X, Mail, Moon, Sun, ChevronRight } from "lucide-react";
+
+// TikTok Icon Component
+const TikTokIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+  </svg>
+);
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useMobileNav } from "@/hooks/useMobileNav";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { getLocalizedPath } from "@/lib/i18n-routes";
 
 const logo = "/assets/logo.png";
 const logoWhite = "/assets/rizou_logo_white.png";
 
 // SVG Icons Components
+const HomeIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
 const ServicesIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 26 26" fill="currentColor" className={className}>
     <g fill="currentColor">
@@ -61,7 +77,10 @@ const ContactIcon = ({ className }: { className?: string }) => (
 
 const Navigation = () => {
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
+  // Check if we're on home page (both / and /en after rewrite)
+  // Use window.location.pathname to detect /en before rewrite
+  const actualPath = typeof window !== 'undefined' ? window.location.pathname : pathname;
+  const isHomePage = pathname === "/" || actualPath === "/en";
 
   const {
     isOpen,
@@ -71,6 +90,7 @@ const Navigation = () => {
     setIsOpen
   } = useMobileNav();
   const [isScrolled, setIsScrolled] = useState(() => !isHomePage);
+  const [glassbarVisible, setGlassbarVisible] = useState(false);
   const heroHeightRef = useRef(0);
   const scrollFrame = useRef<number | null>(null);
   const {
@@ -79,32 +99,78 @@ const Navigation = () => {
     t
   } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const isMobile = useIsMobile();
 
-  // Detect scroll position only on home page
+  // Scroll detection for glassbar visibility - Works on all pages and all devices
+  useEffect(() => {
+    // Don't run scroll detection when mobile menu is open
+    if (isOpen) {
+      return;
+    }
+
+    let ticking = false;
+    const updateGlassbarState = () => {
+      const scrolled = window.scrollY > 20; // Show glassbar after 20px scroll
+      setGlassbarVisible((prev) => {
+        if (prev === scrolled) return prev;
+        return scrolled;
+      });
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateGlassbarState);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    updateGlassbarState();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isOpen]);
+
+  // Detect scroll position only on home page - Optimized to prevent flickering
   useEffect(() => {
     if (!isHomePage) {
       setIsScrolled(true);
       return;
     }
 
+    // Don't run scroll detection when mobile menu is open
+    if (isOpen) {
+      return;
+    }
+
     heroHeightRef.current = window.innerHeight;
 
+    let ticking = false;
     const updateScrollState = () => {
       const threshold = heroHeightRef.current || window.innerHeight;
       const next = window.scrollY > threshold * 0.8;
-      setIsScrolled((prev) => (prev === next ? prev : next));
+      setIsScrolled((prev) => {
+        if (prev === next) return prev;
+        return next;
+      });
+      ticking = false;
     };
 
     const handleScroll = () => {
-      if (scrollFrame.current !== null) {
-        cancelAnimationFrame(scrollFrame.current);
+      if (!ticking) {
+        window.requestAnimationFrame(updateScrollState);
+        ticking = true;
       }
-      scrollFrame.current = window.requestAnimationFrame(updateScrollState);
     };
 
     const handleResize = () => {
       heroHeightRef.current = window.innerHeight;
-      updateScrollState();
+      if (!ticking) {
+        window.requestAnimationFrame(updateScrollState);
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -119,28 +185,43 @@ const Navigation = () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-  }, [isHomePage]);
+  }, [isHomePage, isOpen]);
 
   const navLinks = [
     {
+      name: t("nav.home"),
+      path: getLocalizedPath("/", language as 'el' | 'en'),
+      icon: HomeIcon,
+      subtitle: t("nav.home.subtitle"),
+      action: t("nav.home.action")
+    },
+    {
       name: t("nav.services"),
-      path: "/services",
-      icon: ServicesIcon
+      path: getLocalizedPath("/services", language as 'el' | 'en'),
+      icon: ServicesIcon,
+      subtitle: t("nav.services.subtitle"),
+      action: t("nav.services.action")
     },
     {
       name: t("nav.gallery"),
-      path: "/gallery",
-      icon: GalleryIcon
+      path: getLocalizedPath("/gallery", language as 'el' | 'en'),
+      icon: GalleryIcon,
+      subtitle: t("nav.gallery.subtitle"),
+      action: t("nav.gallery.action")
     },
     {
       name: t("nav.about"),
-      path: "/about",
-      icon: AboutIcon
+      path: getLocalizedPath("/about", language as 'el' | 'en'),
+      icon: AboutIcon,
+      subtitle: t("nav.about.subtitle"),
+      action: t("nav.about.action")
     },
     {
       name: t("nav.contact"),
-      path: "/contact",
-      icon: ContactIcon
+      path: getLocalizedPath("/contact", language as 'el' | 'en'),
+      icon: ContactIcon,
+      subtitle: t("nav.contact.subtitle"),
+      action: t("nav.contact.action")
     }
   ];
 
@@ -168,34 +249,61 @@ const Navigation = () => {
   const year = new Date().getFullYear();
   const rightsMessage = "All Rights Reserved.";
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => {
+    // Check if current pathname matches the localized path
+    if (pathname === path) return true;
+    
+    // Also check base paths for Greek SEO-friendly URLs
+    const basePath = pathname.replace(/^\/en/, '');
+    const pathBase = path.replace(/^\/en/, '');
+    
+    // Map Greek SEO-friendly to base paths
+    const greekToBase: Record<string, string> = {
+      '/ypiresies': '/services',
+      '/galeri': '/gallery',
+      '/sxetika': '/about',
+      '/epikoinonia': '/contact',
+    };
+    
+    const normalizedPathname = greekToBase[pathname] || basePath;
+    const normalizedPath = greekToBase[path] || pathBase;
+    
+    return normalizedPathname === normalizedPath;
+  };
 
+
+  // Calculate glassbar opacity (only for background, not navlinks) - Works on all devices and pages
+  const glassbarOpacity = glassbarVisible ? 1 : 0;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] px-4 pt-4">
       {/* Floating Glass Container */}
       <div className="max-w-7xl mx-auto">
-        <div
-          className="relative transition-all duration-300"
-          style={{
-            background: "rgba(255, 255, 255, 0.16)",
-            borderRadius: "16px",
-            boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-            backdropFilter: "blur(10.3px)",
-            WebkitBackdropFilter: "blur(10.3px)",
-            ...(theme === "dark" && {
-              background: "rgba(0, 0, 0, 0.4)",
-              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.3)",
-            }),
-          }}
-        >
-
+        <div className="relative">
+          {/* Glassbar Background - Only this fades on mobile */}
+          <div
+            className="absolute inset-0 transition-opacity duration-300 ease-in-out"
+            style={{
+              background: "rgba(255, 255, 255, 0.16)",
+              borderRadius: "16px",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+              backdropFilter: "blur(10.3px)",
+              WebkitBackdropFilter: "blur(10.3px)",
+              opacity: glassbarOpacity,
+              ...(theme === "dark" && {
+                background: "rgba(0, 0, 0, 0.4)",
+                boxShadow: "0 4px 30px rgba(0, 0, 0, 0.3)",
+              }),
+            }}
+          />
+          
+          {/* Navigation Content - Always visible */}
           <div className="relative px-6 py-1"> {/* Slim padding - reduced from py-2 */}
             <div className="flex items-center justify-between h-12 md:h-14"> {/* Reduced height on mobile */}
               {/* Logo */}
-              <Link href="/" className="relative flex items-center justify-center md:justify-center justify-start w-24 h-full group z-50 -ml-6 md:ml-0">
+              <Link href={language === 'en' ? '/en' : '/'} className="relative flex items-center justify-center md:justify-center justify-start w-24 h-full group z-50 -ml-6 md:ml-0">
                 <img
-                  src={theme === "dark" || (isHomePage && !isScrolled) ? logoWhite : logo}
+                  src={theme === "dark" || (isHomePage && !isScrolled && !isMobile) ? logoWhite : logo}
                   alt="Alexandra Rizou"
                   className="absolute h-16 md:h-20 w-auto max-w-none object-contain transition-all duration-500 group-hover:scale-105 drop-shadow-lg left-0 md:left-auto"
                 />
@@ -206,7 +314,7 @@ const Navigation = () => {
                 {navLinks.map(link => {
                   const Icon = link.icon;
                   const active = isActive(link.path);
-                  const isWhiteNav = isHomePage && !isScrolled;
+                  const isWhiteNav = isHomePage && !isScrolled && !isMobile;
                   return (
                     <Link
                       key={link.path}
@@ -242,7 +350,7 @@ const Navigation = () => {
                             : "text-foreground/60 group-hover:text-primary group-hover:scale-110 group-hover:rotate-12"
                       }`} />
                       <span className={`
-                        relative z-10 text-sm font-semibold tracking-wide transition-all duration-500 ease-out
+                        relative z-10 text-sm font-semibold tracking-wide transition-all duration-500 ease-out font-junicode
                         ${active
                           ? isWhiteNav
                             ? "text-white translate-x-0"
@@ -274,18 +382,18 @@ const Navigation = () => {
                 <a 
                   href="tel:+302106818011"
                   className={`group relative flex items-center gap-2 h-9 px-3 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-105 ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'bg-foreground/10 border-foreground/20 hover:bg-foreground/20 hover:border-foreground/30' 
                       : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30'
                   }`}
                 >
                   <Phone className={`h-4 w-4 transition-colors ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-primary' 
                       : 'text-white group-hover:text-primary'
                   }`} />
                   <span className={`text-[10px] tracking-tight leading-none whitespace-nowrap font-medium transition-colors hidden lg:inline ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-primary' 
                       : 'text-white group-hover:text-primary'
                   }`}>
@@ -297,13 +405,13 @@ const Navigation = () => {
                 <a 
                   href="mailto:ar.hairbeauty.healthservices@gmail.com"
                   className={`group relative h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'bg-foreground/10 border-foreground/20 hover:bg-foreground/20 hover:border-foreground/30' 
                       : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30'
                   }`}
                 >
                   <Mail className={`h-4 w-4 transition-colors ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-primary' 
                       : 'text-white group-hover:text-primary'
                   }`} />
@@ -315,13 +423,13 @@ const Navigation = () => {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className={`group h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'bg-foreground/10 border-foreground/20 hover:bg-blue-500/20 hover:border-blue-400/40' 
                       : 'bg-white/10 border-white/20 hover:bg-blue-500/20 hover:border-blue-400/40'
                   }`}
                 >
                   <Facebook className={`h-4 w-4 transition-colors ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-blue-400' 
                       : 'text-white group-hover:text-blue-400'
                   }`} />
@@ -332,20 +440,37 @@ const Navigation = () => {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className={`group h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'bg-foreground/10 border-foreground/20 hover:bg-pink-500/20 hover:border-pink-400/40' 
                       : 'bg-white/10 border-white/20 hover:bg-pink-500/20 hover:border-pink-400/40'
                   }`}
                 >
                   <Instagram className={`h-4 w-4 transition-colors ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-pink-400' 
                       : 'text-white group-hover:text-pink-400'
                   }`} />
                 </a>
 
+                <a 
+                  href="https://www.tiktok.com/@ar_healthbeauty" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`group h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
+                    isScrolled || isMobile
+                      ? 'bg-foreground/10 border-foreground/20 hover:bg-black/20 hover:border-gray-400/40' 
+                      : 'bg-white/10 border-white/20 hover:bg-black/20 hover:border-gray-400/40'
+                  }`}
+                >
+                  <TikTokIcon className={`h-4 w-4 transition-colors ${
+                    isScrolled || isMobile
+                      ? 'text-foreground group-hover:text-gray-300' 
+                      : 'text-white group-hover:text-gray-300'
+                  }`} />
+                </a>
+
                 <div className={`h-6 w-px mx-1 transition-colors ${
-                  isScrolled ? 'bg-foreground/20' : 'bg-white/20'
+                  isScrolled || isMobile ? 'bg-foreground/20' : 'bg-white/20'
                 }`} />
 
                 {/* Dark Mode Toggle */}
@@ -353,7 +478,7 @@ const Navigation = () => {
                   <button
                     onClick={toggleTheme}
                     className={`group relative h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
-                      isScrolled 
+                      isScrolled || isMobile
                         ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
                         : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
                     } ${theme === "dark" ? 'bg-primary/15 border-primary/40' : ''}`}
@@ -367,13 +492,13 @@ const Navigation = () => {
                     <div className="relative z-10 flex items-center justify-center">
                       {theme === "dark" ? (
                         <Sun className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled 
+                          isScrolled || isMobile
                             ? 'text-primary group-hover:text-primary group-hover:rotate-180' 
                             : 'text-white group-hover:text-primary group-hover:rotate-180'
                         }`} />
                       ) : (
                         <Moon className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled 
+                          isScrolled || isMobile
                             ? 'text-foreground group-hover:text-primary group-hover:rotate-12' 
                             : 'text-white group-hover:text-primary group-hover:rotate-12'
                         }`} />
@@ -386,7 +511,7 @@ const Navigation = () => {
                   <button
                     onClick={toggleLanguage}
                     className={`group relative h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
-                      isScrolled 
+                      isScrolled || isMobile
                         ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
                         : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
                     }`}
@@ -395,7 +520,7 @@ const Navigation = () => {
                     <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 rounded-full transition-colors duration-300" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="relative z-10">
                       <path fill="currentColor" d="M21.056 12h-2a1 1 0 0 0 0 2v2H17.87a2.965 2.965 0 0 0 .185-1a3 3 0 0 0-5.598-1.5a1 1 0 1 0 1.732 1a1 1 0 0 1 .866-.5a1 1 0 0 1 0 2a1 1 0 0 0 0 2a1 1 0 1 1 0 2a1 1 0 0 1-.866-.5a1 1 0 1 0-1.732 1a3 3 0 0 0 5.598-1.5a2.965 2.965 0 0 0-.185-1h1.185v3a1 1 0 0 0 2 0v-7a1 1 0 1 0 0-2Zm-11.97-.757a1 1 0 1 0 1.94-.486l-1.757-7.03a2.28 2.28 0 0 0-4.425 0l-1.758 7.03a1 1 0 1 0 1.94.486L5.585 9h2.94ZM6.086 7l.697-2.787a.292.292 0 0 1 .546 0L8.026 7Zm7.97 0h1a1.001 1.001 0 0 1 1 1v1a1 1 0 0 0 2 0V8a3.003 3.003 0 0 0-3-3h-1a1 1 0 0 0 0 2Zm-4 9h-1a1.001 1.001 0 0 1-1-1v-1a1 1 0 0 0-2 0v1a3.003 3.003 0 0 0 3 3h1a1 1 0 0 0 0-2Z" className={`transition-colors ${
-                      isScrolled 
+                      isScrolled || isMobile
                         ? 'text-foreground group-hover:text-primary' 
                         : 'text-white group-hover:text-primary'
                     }`} />
@@ -413,7 +538,7 @@ const Navigation = () => {
                     {t("nav.bookNow")}
                   </Button>
                   <div className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full shadow-lg whitespace-nowrap border border-white/20">
-                    Έρχεται σύντομα
+                    {t("comingSoon")}
                   </div>
                 </div>
               </div>
@@ -426,13 +551,13 @@ const Navigation = () => {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className={`group h-9 w-9 rounded-full backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'bg-foreground/10 border-foreground/20 hover:bg-blue-500/20 hover:border-blue-400/40' 
                       : 'bg-white/10 border-white/20 hover:bg-blue-500/20 hover:border-blue-400/40'
                   }`}
                 >
                   <Facebook className={`h-4 w-4 transition-colors ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-blue-400' 
                       : 'text-white group-hover:text-blue-400'
                   }`} />
@@ -443,20 +568,20 @@ const Navigation = () => {
                   target="_blank" 
                   rel="noopener noreferrer"
                   className={`group h-9 w-9 rounded-full backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'bg-foreground/10 border-foreground/20 hover:bg-pink-500/20 hover:border-pink-400/40' 
                       : 'bg-white/10 border-white/20 hover:bg-pink-500/20 hover:border-pink-400/40'
                   }`}
                 >
                   <Instagram className={`h-4 w-4 transition-colors ${
-                    isScrolled 
+                    isScrolled || isMobile
                       ? 'text-foreground group-hover:text-pink-400' 
                       : 'text-white group-hover:text-pink-400'
                   }`} />
                 </a>
 
                 <div className={`h-6 w-px mx-1 transition-colors ${
-                  isScrolled ? 'bg-foreground/20' : 'bg-white/20'
+                  isScrolled || isMobile ? 'bg-foreground/20' : 'bg-white/20'
                 }`} />
 
                 {/* Dark Mode Toggle */}
@@ -464,7 +589,7 @@ const Navigation = () => {
                   <button
                     onClick={toggleTheme}
                     className={`group relative h-9 w-9 rounded-full backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
-                      isScrolled 
+                      isScrolled || isMobile
                         ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
                         : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
                     } ${theme === "dark" ? 'bg-primary/15 border-primary/40' : ''}`}
@@ -478,13 +603,13 @@ const Navigation = () => {
                     <div className="relative z-10 flex items-center justify-center">
                       {theme === "dark" ? (
                         <Sun className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled 
+                          isScrolled || isMobile
                             ? 'text-primary group-hover:text-primary group-hover:rotate-180' 
                             : 'text-white group-hover:text-primary group-hover:rotate-180'
                         }`} />
                       ) : (
                         <Moon className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled 
+                          isScrolled || isMobile
                             ? 'text-foreground group-hover:text-primary group-hover:rotate-12' 
                             : 'text-white group-hover:text-primary group-hover:rotate-12'
                         }`} />
@@ -496,7 +621,7 @@ const Navigation = () => {
                   <button
                     onClick={toggleLanguage}
                     className={`group relative h-9 w-9 rounded-full backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
-                      isScrolled 
+                      isScrolled || isMobile
                         ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
                         : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
                     }`}
@@ -505,10 +630,10 @@ const Navigation = () => {
                     <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 rounded-full transition-colors duration-300" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" className="relative z-10">
                       <path fill="currentColor" d="M21.056 12h-2a1 1 0 0 0 0 2v2H17.87a2.965 2.965 0 0 0 .185-1a3 3 0 0 0-5.598-1.5a1 1 0 1 0 1.732 1a1 1 0 0 1 .866-.5a1 1 0 0 1 0 2a1 1 0 0 0 0 2a1 1 0 1 1 0 2a1 1 0 0 1-.866-.5a1 1 0 1 0-1.732 1a3 3 0 0 0 5.598-1.5a2.965 2.965 0 0 0-.185-1h1.185v3a1 1 0 0 0 2 0v-7a1 1 0 1 0 0-2Zm-11.97-.757a1 1 0 1 0 1.94-.486l-1.757-7.03a2.28 2.28 0 0 0-4.425 0l-1.758 7.03a1 1 0 1 0 1.94.486L5.585 9h2.94ZM6.086 7l.697-2.787a.292.292 0 0 1 .546 0L8.026 7Zm7.97 0h1a1.001 1.001 0 0 1 1 1v1a1 1 0 0 0 2 0V8a3.003 3.003 0 0 0-3-3h-1a1 1 0 0 0 0 2Zm-4 9h-1a1.001 1.001 0 0 1-1-1v-1a1 1 0 0 0-2 0v1a3.003 3.003 0 0 0 3 3h1a1 1 0 0 0 0-2Z" className={`transition-colors ${
-                        isScrolled 
-                          ? 'text-foreground group-hover:text-primary' 
-                          : 'text-white group-hover:text-primary'
-                      }`} />
+                      isScrolled || isMobile
+                        ? 'text-foreground group-hover:text-primary' 
+                        : 'text-white group-hover:text-primary'
+                    }`} />
                     </svg>
                   </button>
                   <div className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-primary text-white text-[8px] font-bold flex items-center justify-center border border-white/30 shadow-md">
@@ -527,7 +652,7 @@ const Navigation = () => {
                     type="button"
                     onClick={() => setIsOpen(!isOpen)}
                     className={`group relative h-9 w-9 rounded-lg backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
-                      isScrolled 
+                      isScrolled || isMobile
                         ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
                         : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
                     } ${isOpen ? 'bg-primary/20 border-primary/50' : ''}`}
@@ -537,7 +662,7 @@ const Navigation = () => {
                     <div className="relative z-10 flex flex-col items-center justify-center gap-1 w-5 h-5">
                       <div 
                         className={`h-1 w-full rounded-full bg-current transition-all duration-300 ease-in-out ${
-                          isScrolled 
+                          isScrolled || isMobile
                             ? 'text-foreground group-hover:text-primary' 
                             : 'text-white group-hover:text-primary'
                         } ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`}
@@ -547,7 +672,7 @@ const Navigation = () => {
                       />
                       <div 
                         className={`h-1 w-full rounded-full bg-current transition-all duration-300 ease-in-out ${
-                          isScrolled 
+                          isScrolled || isMobile
                             ? 'text-foreground group-hover:text-primary' 
                             : 'text-white group-hover:text-primary'
                         } ${isOpen ? '-rotate-45 -translate-y-1.5' : ''}`}
@@ -571,18 +696,17 @@ const Navigation = () => {
             isMenuVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
           }`}
           style={{
-            willChange: isMenuVisible ? 'opacity' : 'auto',
             transform: 'translateZ(0)',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             isolation: 'isolate',
             contain: 'layout style paint',
-            // Εξασφάλιση ότι είναι πάνω από όλα
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
-            bottom: 0
+            bottom: 0,
+            transition: 'opacity 300ms cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           aria-hidden={!isOpen}
         >
@@ -593,9 +717,8 @@ const Navigation = () => {
             aria-hidden="true"
             style={{
               transform: 'translateZ(0)',
-              willChange: 'auto',
               backfaceVisibility: 'hidden',
-              // 100% opacity για να κρύβει πλήρως
+              WebkitBackfaceVisibility: 'hidden',
               opacity: 1,
               zIndex: 0
             }}
@@ -607,8 +730,7 @@ const Navigation = () => {
               isMenuVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
             }`}
             style={{
-              transition: isMenuVisible ? 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
-              willChange: isMenuVisible ? 'transform, opacity' : 'auto',
+              transition: 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms cubic-bezier(0.16, 1, 0.3, 1)',
               transform: 'translateZ(0)',
               WebkitOverflowScrolling: 'touch',
               backfaceVisibility: 'hidden',
@@ -640,7 +762,6 @@ const Navigation = () => {
                   className="h-28 w-auto drop-shadow-2xl"
                   style={{ 
                     animation: isMenuVisible ? "fadeIn 0.5s ease-out 0.1s both" : 'none',
-                    willChange: isMenuVisible ? 'opacity, transform' : 'auto',
                     backfaceVisibility: 'hidden',
                     WebkitBackfaceVisibility: 'hidden',
                   }}
@@ -665,7 +786,6 @@ const Navigation = () => {
                       className="group relative overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-xl"
                       style={{
                         animation: isMenuVisible ? `slideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.07}s both` : 'none',
-                        willChange: isMenuVisible ? 'transform, opacity' : 'auto',
                         backfaceVisibility: 'hidden',
                         WebkitBackfaceVisibility: 'hidden',
                       }}
@@ -677,17 +797,17 @@ const Navigation = () => {
                             <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-foreground/70 group-hover:text-primary"}`} />
                           </div>
                           <div>
-                            <span className={`text-2xl font-light tracking-tight ${active ? "text-primary" : "text-foreground"}`}>
+                            <span className={`text-2xl font-light tracking-tight font-junicode ${active ? "text-primary" : "text-foreground"}`}>
                               {link.name}
                             </span>
                             <p className="text-xs tracking-[0.3em] text-muted-foreground/60 mt-1">
-                              {language === "el" ? "ανακαλύψτε" : "explore"}
+                              {link.subtitle}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
                           <span className="h-px w-6 bg-muted-foreground/40" />
-                          <span>{language === "el" ? "μπείτε" : "view"}</span>
+                          <span>{link.action}</span>
                         </div>
                       </div>
                       {active && <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-1 rounded-full bg-primary" />}
@@ -858,7 +978,45 @@ const Navigation = () => {
                     >
                       <Instagram className="h-4 w-4" />
                     </a>
+                    <a
+                      href="https://www.tiktok.com/@ar_healthbeauty"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-11 w-11 rounded-full border border-white/10 bg-white/[0.04] flex items-center justify-center hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all duration-300 hover:scale-110"
+                    >
+                      <TikTokIcon className="h-4 w-4" />
+                    </a>
                   </div>
+                </div>
+
+                {/* Review Link */}
+                <div className="max-w-md mx-auto w-full pt-4">
+                  <a
+                    href="https://share.google/7pvTEQrb6uwIYmNT5"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm px-4 py-3 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.05]"
+                    style={{
+                      animation: isMenuVisible ? `slideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${navLinks.length * 0.07 + 0.3}s both` : 'none',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden',
+                    }}
+                  >
+                    <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-4 h-4 text-amber-400"
+                      >
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium text-foreground flex-1">
+                      {language === "el" ? "Αφήστε μας μια αξιολόγηση" : "Leave us a review"}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-foreground group-hover:translate-x-1 transition-all duration-300" />
+                  </a>
                 </div>
 
                 {/* Mobile footer lockup */}

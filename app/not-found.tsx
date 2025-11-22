@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, Scissors } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getLocalizedPath } from "@/lib/i18n-routes";
 
 export default function NotFound() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     useEffect(() => {
         // Hide chatbot, navigation and footer on 404 page
@@ -107,19 +108,19 @@ export default function NotFound() {
                             {t("404.quickLinks") || "Γρήγοροι Σύνδεσμοι:"}
                         </p>
                         <div className="flex flex-wrap justify-center gap-4">
-                            <Link href="/services" className="text-primary hover:text-accent transition-colors text-sm font-medium">
+                            <Link href={getLocalizedPath("/services", language as 'el' | 'en')} className="text-primary hover:text-accent transition-colors text-sm font-medium">
                                 {t("nav.services") || "Υπηρεσίες"}
                             </Link>
                             <span className="text-muted-foreground">•</span>
-                            <Link href="/gallery" className="text-primary hover:text-accent transition-colors text-sm font-medium">
+                            <Link href={getLocalizedPath("/gallery", language as 'el' | 'en')} className="text-primary hover:text-accent transition-colors text-sm font-medium">
                                 {t("nav.gallery") || "Γκαλερί"}
                             </Link>
                             <span className="text-muted-foreground">•</span>
-                            <Link href="/about" className="text-primary hover:text-accent transition-colors text-sm font-medium">
+                            <Link href={getLocalizedPath("/about", language as 'el' | 'en')} className="text-primary hover:text-accent transition-colors text-sm font-medium">
                                 {t("nav.about") || "Σχετικά"}
                             </Link>
                             <span className="text-muted-foreground">•</span>
-                            <Link href="/contact" className="text-primary hover:text-accent transition-colors text-sm font-medium">
+                            <Link href={getLocalizedPath("/contact", language as 'el' | 'en')} className="text-primary hover:text-accent transition-colors text-sm font-medium">
                                 {t("nav.contact") || "Επικοινωνία"}
                             </Link>
                         </div>
