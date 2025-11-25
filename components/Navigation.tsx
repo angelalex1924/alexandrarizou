@@ -16,6 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useMobileNav } from "@/hooks/useMobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useChristmasSchedule } from "@/hooks/useChristmasSchedule";
 import { getLocalizedPath } from "@/lib/i18n-routes";
 
 const logo = "/assets/logo.png";
@@ -100,6 +101,16 @@ const Navigation = () => {
   } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const isMobile = useIsMobile();
+  const { schedule: christmasSchedule, isActive: isChristmasActive, getHoursForDay, getHolidayStyle } = useChristmasSchedule();
+  const holidayStyle = getHolidayStyle();
+  
+  // Helper to get style based on holiday type
+  const getHolidayClass = (newyearClass: string, easterClass: string, otherClass: string, christmasClass: string) => {
+    if (holidayStyle.type === 'newyear') return newyearClass;
+    if (holidayStyle.type === 'easter') return easterClass;
+    if (holidayStyle.type === 'other') return otherClass;
+    return christmasClass;
+  };
 
   // Scroll detection for glassbar visibility - Works on all pages and all devices
   useEffect(() => {
@@ -235,12 +246,25 @@ const Navigation = () => {
     "contact.hours.sunday"
   ];
 
-  const operatingHours = hourKeys.map((key) => {
+  // Get operating hours - use Christmas schedule if active, otherwise use regular hours
+  const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+  const operatingHours = hourKeys.map((key, index) => {
     const translation = t(key);
     const [day, ...rest] = translation.split(":");
+    const dayKey = dayKeys[index];
+    
+    // If Christmas schedule is active, use it
+    let time = rest.join(":").trim() || "";
+    if (isChristmasActive && christmasSchedule && dayKey) {
+      const christmasHours = getHoursForDay(dayKey, language as 'el' | 'en');
+      if (christmasHours) {
+        time = christmasHours;
+      }
+    }
+    
     return {
       day: day.trim(),
-      time: rest.join(":").trim() || ""
+      time: time
     };
   });
 
@@ -311,7 +335,7 @@ const Navigation = () => {
 
               {/* Desktop Navigation - Luxury Minimal */}
               <div className="hidden md:flex items-center gap-6">
-                {navLinks.map(link => {
+                {navLinks.filter(link => link.path !== getLocalizedPath("/", language as 'el' | 'en')).map(link => {
                   const Icon = link.icon;
                   const active = isActive(link.path);
                   const isWhiteNav = isHomePage && !isScrolled && !isMobile;
@@ -893,34 +917,144 @@ const Navigation = () => {
                   </div>
                 </div>
                 {/* Operating hours */}
-                <div className="rounded-3xl border border-white/10 bg-background/80 backdrop-blur-xl p-5 space-y-4">
+                <div className={`rounded-3xl border backdrop-blur-xl p-5 space-y-4 ${
+                  isChristmasActive 
+                    ? getHolidayClass(
+                        "border-yellow-300/30 bg-gradient-to-br from-yellow-50/20 via-white/10 to-amber-50/20 dark:from-yellow-950/20 dark:via-slate-900/80 dark:to-amber-950/20 shadow-lg shadow-yellow-500/10",
+                        "border-green-300/30 bg-gradient-to-br from-green-50/20 via-white/10 to-pink-50/20 dark:from-green-950/20 dark:via-slate-900/80 dark:to-pink-950/20 shadow-lg shadow-green-500/10",
+                        "border-purple-300/30 bg-gradient-to-br from-purple-50/20 via-white/10 to-indigo-50/20 dark:from-purple-950/20 dark:via-slate-900/80 dark:to-indigo-950/20 shadow-lg shadow-purple-500/10",
+                        "border-red-300/30 bg-gradient-to-br from-red-50/20 via-white/10 to-green-50/20 dark:from-red-950/20 dark:via-slate-900/80 dark:to-green-950/20 shadow-lg shadow-red-500/10"
+                      )
+                    : "border-white/10 bg-background/80"
+                }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-11 w-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <Clock3 className="h-5 w-5 text-primary" />
+                      <div className={`h-11 w-11 rounded-2xl flex items-center justify-center ${
+                        isChristmasActive 
+                          ? getHolidayClass(
+                              "bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg",
+                              "bg-gradient-to-br from-green-500 to-pink-500 shadow-lg",
+                              "bg-gradient-to-br from-purple-500 to-indigo-500 shadow-lg",
+                              "bg-gradient-to-br from-red-500 to-green-500 shadow-lg"
+                            )
+                          : "bg-primary/10"
+                      }`}>
+                        {isChristmasActive ? (
+                          <span className="text-xl">{holidayStyle.icon}</span>
+                        ) : (
+                          <Clock3 className={`h-5 w-5 ${isChristmasActive ? "text-white" : "text-primary"}`} />
+                        )}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{language === "el" ? "Ωράριο Λειτουργίας" : "Operating Hours"}</p>
+                        <p className={`text-sm font-semibold ${
+                          isChristmasActive 
+                            ? getHolidayClass(
+                                "text-yellow-700 dark:text-yellow-300",
+                                "text-green-700 dark:text-green-300",
+                                "text-purple-700 dark:text-purple-300",
+                                "text-red-700 dark:text-red-300"
+                              )
+                            : "text-foreground"
+                        }`}>
+                          {isChristmasActive 
+                            ? (language === "el" ? holidayStyle.title?.el : holidayStyle.title?.en) || (language === "el" ? "Ωράριο Λειτουργίας" : "Operating Hours")
+                            : (language === "el" ? "Ωράριο Λειτουργίας" : "Operating Hours")
+                          }
+                        </p>
                       </div>
                     </div>
-                    <span className="text-[11px] tracking-[0.3em] text-muted-foreground border border-white/15 rounded-full px-3 py-1">
+                    <span className={`text-[11px] tracking-[0.3em] border rounded-full px-3 py-1 ${
+                      isChristmasActive
+                        ? getHolidayClass(
+                            "text-yellow-700 dark:text-yellow-300 border-yellow-300/50 bg-yellow-50/50 dark:bg-yellow-950/30",
+                            "text-green-700 dark:text-green-300 border-green-300/50 bg-green-50/50 dark:bg-green-950/30",
+                            "text-purple-700 dark:text-purple-300 border-purple-300/50 bg-purple-50/50 dark:bg-purple-950/30",
+                            "text-red-700 dark:text-red-300 border-red-300/50 bg-red-50/50 dark:bg-red-950/30"
+                          )
+                        : "text-muted-foreground border-white/15"
+                    }`}>
                       {todayLabel}
                     </span>
                   </div>
-                  <div className="rounded-2xl border border-white/8 overflow-hidden divide-y divide-white/5">
+                  <div className={`rounded-2xl border overflow-hidden divide-y ${
+                    isChristmasActive
+                      ? getHolidayClass(
+                          "border-yellow-200/30 dark:border-yellow-800/30 divide-yellow-200/20 dark:divide-yellow-800/20",
+                          "border-green-200/30 dark:border-green-800/30 divide-green-200/20 dark:divide-green-800/20",
+                          "border-purple-200/30 dark:border-purple-800/30 divide-purple-200/20 dark:divide-purple-800/20",
+                          "border-red-200/30 dark:border-red-800/30 divide-red-200/20 dark:divide-red-800/20"
+                        )
+                      : "border-white/8 divide-white/5"
+                  }`}>
                     {operatingHours.map((entry, idx) => {
                       const isToday = idx === todayIndex;
+                      const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+                      const dayKey = dayKeys[idx];
+                      const christmasDate = isChristmasActive && christmasSchedule?.dates?.[dayKey];
+                      const formattedDate = christmasDate ? new Date(christmasDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'numeric' }) : null;
+                      
                       return (
                         <div
                           key={entry.day}
                           className={`flex items-center justify-between px-3 py-2 text-[13px] ${
-                            isToday ? "bg-primary/10 text-primary font-semibold" : "text-foreground/80"
+                            isToday 
+                              ? isChristmasActive
+                                ? getHolidayClass(
+                                    "bg-gradient-to-r from-yellow-100/50 to-amber-100/50 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-700 dark:text-yellow-300 font-semibold",
+                                    "bg-gradient-to-r from-green-100/50 to-pink-100/50 dark:from-green-900/30 dark:to-pink-900/30 text-green-700 dark:text-green-300 font-semibold",
+                                    "bg-gradient-to-r from-purple-100/50 to-indigo-100/50 dark:from-purple-900/30 dark:to-indigo-900/30 text-purple-700 dark:text-purple-300 font-semibold",
+                                    "bg-gradient-to-r from-red-100/50 to-green-100/50 dark:from-red-900/30 dark:to-green-900/30 text-red-700 dark:text-red-300 font-semibold"
+                                  )
+                                : "bg-primary/10 text-primary font-semibold"
+                              : isChristmasActive
+                                ? getHolidayClass(
+                                    "text-yellow-800/90 dark:text-yellow-200/90",
+                                    "text-green-800/90 dark:text-green-200/90",
+                                    "text-purple-800/90 dark:text-purple-200/90",
+                                    "text-red-800/90 dark:text-red-200/90"
+                                  )
+                                : "text-foreground/80"
                           }`}
                         >
-                          <span className="tracking-wide text-[11px]">
+                          <span className="tracking-wide text-[11px] flex items-center gap-1.5">
+                            {isChristmasActive && (
+                              holidayStyle.type === 'christmas' ? <span className="text-xs">❄️</span> :
+                              holidayStyle.type === 'newyear' ? <span className="text-xs">✨</span> :
+                              holidayStyle.type === 'easter' ? <span className="text-xs">🌸</span> :
+                              holidayStyle.type === 'other' ? <span className="text-xs">✨</span> :
+                              null
+                            )}
                             {entry.day}
+                            {formattedDate && (
+                              <span className={`text-[10px] font-semibold ${
+                                isToday && isChristmasActive
+                                  ? getHolidayClass(
+                                      "text-yellow-800 dark:text-yellow-200",
+                                      "text-green-800 dark:text-green-200",
+                                      "text-purple-800 dark:text-purple-200",
+                                      "text-red-800 dark:text-red-200"
+                                    )
+                                  : getHolidayClass(
+                                      "text-yellow-600 dark:text-yellow-400",
+                                      "text-green-600 dark:text-green-400",
+                                      "text-purple-600 dark:text-purple-400",
+                                      "text-red-600 dark:text-red-400"
+                                    )
+                              }`}>
+                                {formattedDate}
                           </span>
-                          <span className="text-right text-sm font-medium">
+                            )}
+                          </span>
+                          <span className={`text-right text-sm font-medium ${
+                            isChristmasActive && isToday 
+                              ? getHolidayClass(
+                                  "text-yellow-800 dark:text-yellow-200",
+                                  "text-green-800 dark:text-green-200",
+                                  "text-purple-800 dark:text-purple-200",
+                                  "text-red-800 dark:text-red-200"
+                                )
+                              : ""
+                          }`}>
                             {entry.time}
                           </span>
                         </div>
@@ -992,7 +1126,7 @@ const Navigation = () => {
                 {/* Review Link */}
                 <div className="max-w-md mx-auto w-full pt-4">
                   <a
-                    href="https://share.google/7pvTEQrb6uwIYmNT5"
+                    href="https://share.google/NTHvLOlobEIU7Ajm4"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm px-4 py-3 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.05]"

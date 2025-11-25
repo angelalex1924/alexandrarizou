@@ -3,6 +3,9 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import SEOPlugin from "@/components/SEOPlugin";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
@@ -94,10 +97,12 @@ export default function Gallery() {
       );
     }
     return (
-      <img
+      <Image
         src={item.media_url}
         alt={item.title || item.description || 'Gallery item'}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        fill
+        className="object-cover transition-transform duration-500 group-hover:scale-110"
+        unoptimized
       />
     );
   };
@@ -106,20 +111,24 @@ export default function Gallery() {
     return (
       <div className="grid grid-cols-2 gap-2 w-full h-full">
         <div className="relative">
-          <img
+          <Image
             src={item.before_image_url || ''}
             alt={t("gallery.before")}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
           />
           <div className="absolute bottom-2 left-2 bg-background/90 dark:bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold border border-primary/20 shadow-md">
             {t("gallery.before")}
           </div>
         </div>
         <div className="relative">
-          <img
+          <Image
             src={item.after_image_url || ''}
             alt={t("gallery.after")}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            unoptimized
           />
           <div className="absolute bottom-2 right-2 bg-primary/90 dark:bg-primary/80 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground shadow-md border border-primary-foreground/20">
             {t("gallery.after")}
@@ -166,10 +175,12 @@ export default function Gallery() {
 
   return (
     <div className="min-h-screen">
+      <SEOPlugin pageType="gallery" />
       <Navigation />
+      <Breadcrumbs />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-4 md:px-8">
+      <section className="pt-24 pb-12 md:pt-32 md:pb-16 px-4 md:px-8">
         <div className="container-custom max-w-7xl mx-auto">
           <PageHeader
             title={t("gallery.hero.title")}
@@ -358,11 +369,15 @@ export default function Gallery() {
           >
             ×
           </button>
-          <img
+          <div className="relative w-[90vw] h-[90vh] max-w-[90vw] max-h-[90vh]">
+            <Image
             src={selectedImage}
             alt="Gallery preview"
-            className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl"
+              fill
+              className="object-contain rounded-2xl shadow-2xl"
+              unoptimized
           />
+          </div>
         </div>
       )}
 

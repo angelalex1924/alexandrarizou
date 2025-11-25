@@ -3,6 +3,8 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import SEOPlugin from "@/components/SEOPlugin";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,32 +17,67 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export default function Contact() {
     const { toast } = useToast();
     const { t } = useLanguage();
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         phone: "",
+        subject: "",
         message: "",
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast({
-            title: t("contact.form.success.title"),
-            description: t("contact.form.success.desc"),
-        });
-        setFormData({ name: "", email: "", phone: "", message: "" });
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                toast({
+                    title: t("contact.form.success.title"),
+                    description: t("contact.form.success.desc"),
+                });
+                setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+            } else {
+                toast({
+                    title: "Σφάλμα",
+                    description: data.error || "Προέκυψε σφάλμα κατά την αποστολή του μηνύματος. Παρακαλώ δοκιμάστε ξανά.",
+                    variant: "destructive",
+                });
+            }
+        } catch (error) {
+            console.error('Error submitting contact form:', error);
+            toast({
+                title: "Σφάλμα",
+                description: "Προέκυψε σφάλμα κατά την αποστολή του μηνύματος. Παρακαλώ δοκιμάστε ξανά.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     return (
         <div className="min-h-screen">
+            <SEOPlugin pageType="contact" />
             <Navigation />
+            <Breadcrumbs />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-4 md:px-8">
+            <section className="pt-24 pb-12 md:pt-32 md:pb-16 px-4 md:px-8">
                 <div className="container-custom max-w-7xl mx-auto">
                     <PageHeader
                         title={t("contact.hero.title")}
@@ -199,6 +236,30 @@ export default function Contact() {
                                     </div>
 
                                     <div className="space-y-2">
+                                        <label htmlFor="subject" className="block text-sm font-medium text-foreground dark:text-white">
+                                            {t("contact.form.subject")}
+                                        </label>
+                                        <select
+                                            id="subject"
+                                            name="subject"
+                                            value={formData.subject}
+                                            onChange={handleChange}
+                                            required
+                                            className="w-full h-11 rounded-lg border border-primary/20 dark:border-white/10 bg-white dark:bg-[#1a2e1f] focus:border-primary/40 dark:focus:border-primary/40 transition-colors duration-300 px-3 text-sm text-foreground dark:text-white"
+                                        >
+                                            <option value="">{t("contact.form.subjectPlaceholder")}</option>
+                                            <option value="appointment">{t("contact.form.subject.appointment")}</option>
+                                            <option value="services">{t("contact.form.subject.services")}</option>
+                                            <option value="pricing">{t("contact.form.subject.pricing")}</option>
+                                            <option value="hours">{t("contact.form.subject.hours")}</option>
+                                            <option value="location">{t("contact.form.subject.location")}</option>
+                                            <option value="complaint">{t("contact.form.subject.complaint")}</option>
+                                            <option value="compliment">{t("contact.form.subject.compliment")}</option>
+                                            <option value="other">{t("contact.form.subject.other")}</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-2">
                                         <label htmlFor="message" className="block text-sm font-medium text-foreground dark:text-white">
                                             {t("contact.form.message")}
                                         </label>
@@ -216,9 +277,10 @@ export default function Contact() {
 
                                     <Button 
                                         type="submit" 
-                                        className="w-full h-12 rounded-lg text-base font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
+                                        disabled={isLoading}
+                                        className="w-full h-12 rounded-lg text-base font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        {t("contact.form.submit")}
+                                        {isLoading ? "Αποστολή..." : t("contact.form.submit")}
                                     </Button>
                                 </form>
                             </div>
@@ -252,6 +314,29 @@ export default function Contact() {
                     </div>
                 </div>
             </section>
+
+            {/* SEO Hidden Content - Contact Page */}
+            <div className="sr-only" aria-hidden="true">
+                <h1>Επικοινωνία | Alexandra Rizou Hair-Beauty & Health Services</h1>
+                <h2>Επικοινωνήστε με το Κομμωτήριο Alexandra Rizou στο Χαλάνδρι</h2>
+                <p>
+                    <strong>Επικοινωνία κομμωτηρίου Χαλάνδρι</strong>. Επικοινωνήστε με το 
+                    <strong>κομμωτήριο Alexandra Rizou στο Χαλάνδρι</strong> για 
+                    <strong>ραντεβού γυναικείου κουρέματος</strong>, <strong>balayage Χαλάνδρι</strong>, 
+                    <strong>highlights Χαλάνδρι</strong>, <strong>χρωματισμού μαλλιών</strong>. 
+                    <strong>Τηλέφωνο κομμωτηρίου Χαλάνδρι: +30 210 6818 011</strong>. 
+                    <strong>Email: ar.hairbeauty.healthservices@gmail.com</strong>. 
+                    <strong>Διεύθυνση: Ανδρέα Παπανδρέου 52, Χαλάνδρι 152 32</strong>.
+                </p>
+                <address>
+                    Alexandra Rizou Hair-Beauty & Health Services<br />
+                    Ανδρέα Παπανδρέου 52<br />
+                    Χαλάνδρι, 152 32<br />
+                    Αττική, Ελλάδα<br />
+                    Τηλέφωνο: +30 210 6818 011<br />
+                    Email: ar.hairbeauty.healthservices@gmail.com
+                </address>
+            </div>
 
             <Footer />
         </div>

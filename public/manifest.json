@@ -1,0 +1,28 @@
+{
+  "name": "Alexandra Rizou hair-beauty & health services",
+  "short_name": "Alexandra Rizou",
+  "description": "Premium hair, beauty & health services in Chalandri, Athens",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6B9A7A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["beauty", "health", "lifestyle"],
+  "lang": "el",
+  "dir": "ltr"
+}
+

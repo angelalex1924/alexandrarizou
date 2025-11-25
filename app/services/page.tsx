@@ -3,6 +3,8 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import SEOPlugin from "@/components/SEOPlugin";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -182,10 +184,12 @@ export default function Services() {
 
     return (
         <div className="min-h-screen">
+            <SEOPlugin pageType="services" />
             <Navigation />
+            <Breadcrumbs />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-4 md:px-8">
+            <section className="pt-24 pb-12 md:pt-32 md:pb-16 px-4 md:px-8">
                 <div className="container-custom max-w-7xl mx-auto">
                     <PageHeader
                         title={t("services.hero.title")}
@@ -378,6 +382,31 @@ export default function Services() {
                     </div>
                 </div>
             </section>
+
+            {/* SEO Hidden Content - Services Page */}
+            <div className="sr-only" aria-hidden="true">
+                <h1>Υπηρεσίες | Alexandra Rizou Hair-Beauty & Health Services</h1>
+                <h2>Υπηρεσίες Κομμωτηρίου Χαλάνδρι</h2>
+                <p>
+                    <strong>Υπηρεσίες κομμωτηρίου Χαλάνδρι</strong>. Το 
+                    <strong>κομμωτήριο Alexandra Rizou στο Χαλάνδρι</strong> προσφέρει 
+                    <strong>εξειδικευμένο γυναικείο κούρεμα Χαλάνδρι</strong>, 
+                    <strong>balayage Χαλάνδρι</strong>, <strong>highlights Χαλάνδρι</strong>, 
+                    <strong>χρωματισμό μαλλιών Χαλάνδρι</strong>, <strong>θεραπείες μαλλιών Χαλάνδρι</strong>, 
+                    <strong>manicure Χαλάνδρι</strong>, <strong>pedicure Χαλάνδρι</strong>, 
+                    <strong>waxing Χαλάνδρι</strong>. Ανδρέα Παπανδρέου 52, Χαλάνδρι 152 32.
+                </p>
+                <ul>
+                    <li>Γυναικείο Κούρεμα Χαλάνδρι - 25€</li>
+                    <li>Balayage Χαλάνδρι - 55€</li>
+                    <li>Highlights Χαλάνδρι - Από 30€</li>
+                    <li>Χρωματισμός Μαλλιών Χαλάνδρι - Από 38€</li>
+                    <li>Θεραπεία Μαλλιών Χαλάνδρι - 10€</li>
+                    <li>Manicure Χαλάνδρι - 5€</li>
+                    <li>Pedicure Χαλάνδρι - 5€</li>
+                    <li>Waxing Χαλάνδρι - 5€</li>
+                </ul>
+            </div>
 
             <Footer />
         </div>

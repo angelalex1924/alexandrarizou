@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow reads and writes to newsletter_subscribers collection
+    match /newsletter_subscribers/{document} {
+      // Allow reads for everyone (for admin dashboard and API routes)
+      allow read: if true;
+      // Allow creates with validation
+      allow create: if request.resource.data.email is string 
+                     && request.resource.data.email.matches('.*@.*\\..*')
+                     && request.resource.data.language is string
+                     && request.resource.data.isActive == true;
+      // Only allow updates/deletes from authenticated admin users
+      allow update, delete: if request.auth != null;
+    }
+    
+    // Allow reads for settings collection (for Christmas schedule)
+    match /settings/{document} {
+      allow read: if true;
+      // Only allow writes from authenticated admin users
+      allow write: if request.auth != null;
+    }
+    
+    // Allow reads for holiday_schedules collection (for holiday schedules)
+    match /holiday_schedules/{document} {
+      allow read: if true;
+      // Only allow writes from authenticated admin users
+      allow write: if request.auth != null;
+    }
+    
+    // Default rule: allow reads for authenticated users only
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false; // All writes should go through Admin SDK
+    }
+  }
+}
+

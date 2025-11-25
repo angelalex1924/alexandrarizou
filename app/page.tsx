@@ -11,6 +11,7 @@ import MobileCarousel from "@/components/MobileCarousel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronLeft, ChevronRight, Pause, Play, Sparkles, ShieldCheck, HeartHandshake, Stars, SunMoon, Phone, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useChristmasSchedule } from "@/hooks/useChristmasSchedule";
 import { getLocalizedPath } from "@/lib/i18n-routes";
 import { cn } from "@/lib/utils";
 import { Highlighter } from "@/components/ui/highlighter";
@@ -26,6 +27,16 @@ const servicesBackground = "/assets/salon-interior-bg.jpg";
 
 export default function Home() {
     const { t, language } = useLanguage();
+    const { schedule: christmasSchedule, isActive: isChristmasActive, getHoursForDay, getHolidayStyle } = useChristmasSchedule();
+    const holidayStyle = getHolidayStyle();
+    
+    // Helper to get style based on holiday type
+    const getHolidayClass = (newyearClass: string, easterClass: string, otherClass: string, christmasClass: string) => {
+      if (holidayStyle.type === 'newyear') return newyearClass;
+      if (holidayStyle.type === 'easter') return easterClass;
+      if (holidayStyle.type === 'other') return otherClass;
+      return christmasClass;
+    };
     const isMobile = useIsMobile();
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
@@ -740,9 +751,11 @@ export default function Home() {
                                                 "absolute inset-0 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500",
                                                 isMobile ? "bg-primary/5" : "bg-white/5"
                                             )}></div>
-                                <img 
+                                <Image 
                                     src="/gold_medal_2025.png" 
                                     alt="Gold Medal 2025" 
+                                    width={64}
+                                    height={64}
                                                 className={cn(
                                                     "relative w-auto drop-shadow-2xl group-hover:scale-110 transition-transform duration-300",
                                                     isMobile ? "h-12" : "h-14 md:h-16"
@@ -1277,11 +1290,40 @@ export default function Home() {
                         {/* Opening Hours */}
                         <div className="order-2 lg:order-1">
                             <div className="mb-8">
-                                <h2 className="text-3xl md:text-4xl lg:text-5xl font-junicode font-bold text-foreground dark:text-white mb-4 leading-tight">
-                                    {t("contact.hours.title")}
+                                <div className="flex items-center gap-3 mb-4">
+                                    {isChristmasActive && (
+                                        <span className="text-4xl">{holidayStyle.icon}</span>
+                                    )}
+                                    <h2 className={`text-3xl md:text-4xl lg:text-5xl font-junicode font-bold leading-tight ${
+                                        isChristmasActive
+                                            ? getHolidayClass(
+                                                "bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent",
+                                                "bg-gradient-to-r from-green-600 to-pink-600 bg-clip-text text-transparent",
+                                                "bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent",
+                                                "bg-gradient-to-r from-red-600 to-green-600 bg-clip-text text-transparent"
+                                              )
+                                            : "text-foreground dark:text-white"
+                                    }`}>
+                                        {isChristmasActive
+                                            ? (language === "el" ? holidayStyle.title?.el : holidayStyle.title?.en) || t("contact.hours.title")
+                                            : t("contact.hours.title")
+                                        }
                                 </h2>
-                                <p className="text-base text-muted-foreground dark:text-white/70">
-                                    {t("contact.info.subtitle")}
+                                </div>
+                                <p className={`text-base ${
+                                    isChristmasActive
+                                        ? getHolidayClass(
+                                            "text-yellow-700 dark:text-yellow-300",
+                                            "text-green-700 dark:text-green-300",
+                                            "text-purple-700 dark:text-purple-300",
+                                            "text-red-700 dark:text-red-300"
+                                          )
+                                        : "text-muted-foreground dark:text-white/70"
+                                }`}>
+                                    {isChristmasActive
+                                        ? (language === "el" ? "Ειδικό ωράριο για τις γιορτές" : "Special holiday hours")
+                                        : t("contact.info.subtitle")
+                                    }
                                 </p>
                             </div>
                             
@@ -1297,36 +1339,133 @@ export default function Home() {
                                 ].map((item, idx) => {
                                     const hourText = t(item.key);
                                     // Extract time part after the colon (e.g., "Τρίτη: 10:00 - 20:00" -> "10:00 - 20:00")
-                                    const time = hourText.includes(":") ? hourText.substring(hourText.indexOf(":") + 1).trim() : hourText;
+                                    let time = hourText.includes(":") ? hourText.substring(hourText.indexOf(":") + 1).trim() : hourText;
+                                    
                                     const todayIndex = ((new Date().getDay() + 6) % 7);
                                     const isToday = idx === todayIndex;
+                                    
+                                    // If Christmas schedule is active, use it
+                                    const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+                                    const dayKey = dayKeys[idx];
+                                    
+                                    if (isChristmasActive && christmasSchedule && dayKey) {
+                                        const christmasHours = getHoursForDay(dayKey, language as 'el' | 'en');
+                                        if (christmasHours) {
+                                            time = christmasHours;
+                                        }
+                                    }
+                                    
+                                    const christmasDate = isChristmasActive && christmasSchedule?.dates?.[dayKey];
+                                    const formattedDate = christmasDate ? new Date(christmasDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'numeric' }) : null;
                                     
                                     return (
                                         <div
                                             key={item.key}
                                             className={`group flex items-center justify-between p-4 rounded-xl border transition-all duration-300 ${
                                                 isToday
-                                                    ? "bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40 shadow-md shadow-primary/10"
+                                                    ? isChristmasActive
+                                                        ? getHolidayClass(
+                                                            "bg-gradient-to-r from-yellow-100/80 to-amber-100/80 dark:from-yellow-900/40 dark:to-amber-900/40 border-yellow-300/50 dark:border-yellow-700/50 shadow-md shadow-yellow-500/20",
+                                                            "bg-gradient-to-r from-green-100/80 to-pink-100/80 dark:from-green-900/40 dark:to-pink-900/40 border-green-300/50 dark:border-green-700/50 shadow-md shadow-green-500/20",
+                                                            "bg-gradient-to-r from-purple-100/80 to-indigo-100/80 dark:from-purple-900/40 dark:to-indigo-900/40 border-purple-300/50 dark:border-purple-700/50 shadow-md shadow-purple-500/20",
+                                                            "bg-gradient-to-r from-red-100/80 to-green-100/80 dark:from-red-900/40 dark:to-green-900/40 border-red-300/50 dark:border-red-700/50 shadow-md shadow-red-500/20"
+                                                          )
+                                                        : "bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40 shadow-md shadow-primary/10"
+                                                    : isChristmasActive
+                                                        ? getHolidayClass(
+                                                            "border-yellow-200/30 dark:border-yellow-800/30 bg-gradient-to-br from-yellow-50/40 to-amber-50/40 dark:from-yellow-950/20 dark:to-amber-950/20 backdrop-blur-sm hover:from-yellow-50/60 hover:to-amber-50/60",
+                                                            "border-green-200/30 dark:border-green-800/30 bg-gradient-to-br from-green-50/40 to-pink-50/40 dark:from-green-950/20 dark:to-pink-950/20 backdrop-blur-sm hover:from-green-50/60 hover:to-pink-50/60",
+                                                            "border-purple-200/30 dark:border-purple-800/30 bg-gradient-to-br from-purple-50/40 to-indigo-50/40 dark:from-purple-950/20 dark:to-indigo-950/20 backdrop-blur-sm hover:from-purple-50/60 hover:to-indigo-50/60",
+                                                            "border-red-200/30 dark:border-red-800/30 bg-gradient-to-br from-red-50/40 to-green-50/40 dark:from-red-950/20 dark:to-green-950/20 backdrop-blur-sm hover:from-red-50/60 hover:to-green-50/60"
+                                                          )
                                                     : "border-primary/10 dark:border-white/10 bg-white/60 dark:bg-[#1a2e1f]/60 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-[#1a2e1f]/80 hover:border-primary/20 dark:hover:border-white/20"
                                             }`}
                                         >
                                             <div className="flex items-center gap-3">
+                                                {isChristmasActive && (
+                                                  holidayStyle.type === 'christmas' ? <span className="text-sm">❄️</span> :
+                                                  holidayStyle.type === 'newyear' ? <span className="text-sm">✨</span> :
+                                                  holidayStyle.type === 'easter' ? <span className="text-sm">🌸</span> :
+                                                  holidayStyle.type === 'other' ? <span className="text-sm">✨</span> :
+                                                  null
+                                                )}
                                                 <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                                     isToday 
-                                                        ? "bg-primary shadow-lg shadow-primary/50" 
+                                                        ? isChristmasActive
+                                                            ? getHolidayClass(
+                                                                "bg-gradient-to-r from-yellow-500 to-amber-500 shadow-lg shadow-yellow-500/50",
+                                                                "bg-gradient-to-r from-green-500 to-pink-500 shadow-lg shadow-green-500/50",
+                                                                "bg-gradient-to-r from-purple-500 to-indigo-500 shadow-lg shadow-purple-500/50",
+                                                                "bg-gradient-to-r from-red-500 to-green-500 shadow-lg shadow-red-500/50"
+                                                              )
+                                                            : "bg-primary shadow-lg shadow-primary/50"
+                                                        : isChristmasActive
+                                                            ? getHolidayClass(
+                                                                "bg-yellow-400/40 group-hover:bg-yellow-400/60",
+                                                                "bg-green-400/40 group-hover:bg-green-400/60",
+                                                                "bg-purple-400/40 group-hover:bg-purple-400/60",
+                                                                "bg-red-400/40 group-hover:bg-red-400/60"
+                                                              )
                                                         : "bg-primary/20 group-hover:bg-primary/40"
                                                 }`} />
-                                                <span className={`text-sm md:text-base font-medium ${
+                                                <span className={`text-sm md:text-base font-medium flex items-center gap-2 ${
                                                     isToday 
-                                                        ? "text-primary dark:text-primary/90" 
+                                                        ? isChristmasActive
+                                                            ? getHolidayClass(
+                                                                "text-yellow-800 dark:text-yellow-200",
+                                                                "text-green-800 dark:text-green-200",
+                                                                "text-purple-800 dark:text-purple-200",
+                                                                "text-red-800 dark:text-red-200"
+                                                              )
+                                                            : "text-primary dark:text-primary/90"
+                                                        : isChristmasActive
+                                                            ? getHolidayClass(
+                                                                "text-yellow-700 dark:text-yellow-300",
+                                                                "text-green-700 dark:text-green-300",
+                                                                "text-purple-700 dark:text-purple-300",
+                                                                "text-red-700 dark:text-red-300"
+                                                              )
                                                         : "text-foreground dark:text-white"
                                                 }`}>
                                                     {item.day}
+                                                    {formattedDate && (
+                                                        <span className={`text-xs font-semibold ${
+                                                            isToday && isChristmasActive
+                                                                ? getHolidayClass(
+                                                                    "text-yellow-900 dark:text-yellow-100",
+                                                                    "text-green-900 dark:text-green-100",
+                                                                    "text-purple-900 dark:text-purple-100",
+                                                                    "text-red-900 dark:text-red-100"
+                                                                  )
+                                                                : getHolidayClass(
+                                                                    "text-yellow-600 dark:text-yellow-400",
+                                                                    "text-green-600 dark:text-green-400",
+                                                                    "text-purple-600 dark:text-purple-400",
+                                                                    "text-red-600 dark:text-red-400"
+                                                                  )
+                                                        }`}>
+                                                            {formattedDate}
+                                                        </span>
+                                                    )}
                                                 </span>
                                             </div>
                                             <span className={`text-sm md:text-base font-semibold ${
                                                 isToday 
-                                                    ? "text-primary dark:text-primary/90" 
+                                                    ? isChristmasActive
+                                                        ? getHolidayClass(
+                                                            "text-yellow-800 dark:text-yellow-200",
+                                                            "text-green-800 dark:text-green-200",
+                                                            "text-purple-800 dark:text-purple-200",
+                                                            "text-red-800 dark:text-red-200"
+                                                          )
+                                                        : "text-primary dark:text-primary/90"
+                                                    : isChristmasActive
+                                                        ? getHolidayClass(
+                                                            "text-yellow-700 dark:text-yellow-300",
+                                                            "text-green-700 dark:text-green-300",
+                                                            "text-purple-700 dark:text-purple-300",
+                                                            "text-red-700 dark:text-red-300"
+                                                          )
                                                     : "text-muted-foreground dark:text-white/70"
                                             }`}>
                                                 {time}
@@ -1399,6 +1538,53 @@ export default function Home() {
                     </div>
                 </div>
             </section>
+
+            {/* SEO Hidden Content - Keywords for Search Engines */}
+            <div className="sr-only" aria-hidden="true">
+                <h1>Alexandra Rizou Hair-Beauty & Health Services - Γυναικείο Κούρεμα Χαλάνδρι</h1>
+                <h2>Κορυφαίο Γυναικείο Κομμωτήριο στο Χαλάνδρι</h2>
+                <h3>Εξειδικευμένο Γυναικείο Κούρεμα Χαλάνδρι</h3>
+                <p>
+                    Το <strong>Alexandra Rizou Hair-Beauty & Health Services</strong> είναι το <strong>καλύτερο γυναικείο κομμωτήριο στο Χαλάνδρι</strong>, 
+                    εξειδικευμένο σε <strong>γυναικείο κούρεμα</strong>, <strong>balayage Χαλάνδρι</strong>, <strong>highlights Χαλάνδρι</strong>, 
+                    <strong>χρωματισμό μαλλιών Χαλάνδρι</strong>, <strong>θεραπείες μαλλιών</strong>, <strong>manicure Χαλάνδρι</strong>, 
+                    <strong>pedicure Χαλάνδρι</strong> και <strong>waxing Χαλάνδρι</strong>. 
+                    Βρίσκεται στην <strong>Ανδρέα Παπανδρέου 52, Χαλάνδρι 152 32</strong>. 
+                    Κλείστε ραντεβού στο <strong>+30 210 6818 011</strong>.
+                </p>
+                <p>
+                    <strong>Κομμωτήριο Χαλάνδρι</strong>, <strong>γυναικείο κούρεμα Χαλάνδρι</strong>, 
+                    <strong>κομμωτήριο γυναικείος Χαλάνδρι</strong>, <strong>κούρεμα Χαλάνδρι</strong>, 
+                    <strong>Alexandra Rizou Χαλάνδρι</strong>, <strong>balayage Χαλάνδρι</strong>, 
+                    <strong>highlights Χαλάνδρι</strong>, <strong>χρωματισμός μαλλιών Χαλάνδρι</strong>, 
+                    <strong>θεραπεία μαλλιών Χαλάνδρι</strong>, <strong>manicure Χαλάνδρι</strong>, 
+                    <strong>pedicure Χαλάνδρι</strong>, <strong>waxing Χαλάνδρι</strong>, 
+                    <strong>κομμωτήριο Βόρεια Προάστια</strong>, <strong>γυναικείο κούρεμα Αθήνα</strong>, 
+                    <strong>κομμωτήριο Μαρούσι</strong>, <strong>κομμωτήριο Κηφισιά</strong>, 
+                    <strong>women's haircut Chalandri</strong>, <strong>hair salon Chalandri</strong>, 
+                    <strong>women's hair salon Chalandri</strong>, <strong>haircut Chalandri</strong>, 
+                    <strong>hair color Chalandri</strong>, <strong>balayage Chalandri</strong>, 
+                    <strong>highlights Chalandri</strong>, <strong>hair treatment Chalandri</strong>.
+                </p>
+                <ul>
+                    <li>Γυναικείο Κούρεμα Χαλάνδρι - 25€</li>
+                    <li>Balayage Χαλάνδρι - 55€</li>
+                    <li>Highlights Χαλάνδρι - Από 30€</li>
+                    <li>Χρωματισμός Μαλλιών Χαλάνδρι - Από 38€</li>
+                    <li>Θεραπεία Μαλλιών Χαλάνδρι - 10€</li>
+                    <li>Manicure Χαλάνδρι - 5€</li>
+                    <li>Pedicure Χαλάνδρι - 5€</li>
+                    <li>Waxing Χαλάνδρι - 5€</li>
+                </ul>
+                <address>
+                    Alexandra Rizou Hair-Beauty & Health Services<br />
+                    Ανδρέα Παπανδρέου 52<br />
+                    Χαλάνδρι, 152 32<br />
+                    Αττική, Ελλάδα<br />
+                    Τηλέφωνο: +30 210 6818 011<br />
+                    Email: ar.hairbeauty.healthservices@gmail.com
+                </address>
+            </div>
 
             <Footer />
         </div>

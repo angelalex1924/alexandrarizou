@@ -3,6 +3,8 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import SEOPlugin from "@/components/SEOPlugin";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Award, Heart, Users, Sparkles, Calendar, Star, Trophy, Smile } from "lucide-react";
@@ -90,10 +92,12 @@ export default function About() {
 
     return (
         <div className="min-h-screen">
+            <SEOPlugin pageType="about" />
             <Navigation />
+            <Breadcrumbs />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-12 md:pt-40 md:pb-16 px-4 md:px-8">
+            <section className="pt-24 pb-12 md:pt-32 md:pb-16 px-4 md:px-8">
                 <div className="container-custom max-w-7xl mx-auto">
                     <PageHeader
                         title={t("about.hero.title")}
