@@ -6,8 +6,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
+import { HolidayHeroBanner } from "@/components/HolidayHeroBanner";
 import Footer from "@/components/Footer";
-import MobileCarousel from "@/components/MobileCarousel";
+import HoverExpandGallery from "@/components/HoverExpandGallery";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChevronLeft, ChevronRight, Pause, Play, Sparkles, ShieldCheck, HeartHandshake, Stars, SunMoon, Phone, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,11 +32,31 @@ export default function Home() {
     const holidayStyle = getHolidayStyle();
     
     // Helper to get style based on holiday type
-    const getHolidayClass = (newyearClass: string, easterClass: string, otherClass: string, christmasClass: string) => {
+    const getHolidayClass = (
+      newyearClass: string,
+      easterClass: string,
+      otherClass: string,
+      christmasClass: string,
+      summerClass?: string,
+    ) => {
       if (holidayStyle.type === 'newyear') return newyearClass;
       if (holidayStyle.type === 'easter') return easterClass;
       if (holidayStyle.type === 'other') return otherClass;
+      if (holidayStyle.type === 'summer') return summerClass ?? otherClass;
       return christmasClass;
+    };
+    const renderHolidayIcon = (emojiClass = "text-4xl", imageClass = "h-12 w-12") => {
+      if (!holidayStyle.icon) return null;
+      if (typeof holidayStyle.icon === "string") {
+        return <span className={emojiClass}>{holidayStyle.icon}</span>;
+      }
+      return (
+        <img
+          src={holidayStyle.icon.src}
+          alt={holidayStyle.icon.alt}
+          className={cn("object-contain", imageClass)}
+        />
+      );
     };
     const isMobile = useIsMobile();
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -104,7 +125,7 @@ export default function Home() {
     const chooseStats = [
         { value: "∞", label: t("home.choose.stats.clients") },
         { value: "5★", label: t("home.choose.stats.reviews") },
-        { value: "10", label: t("home.choose.stats.experience") }
+        { value: "4", label: t("home.choose.stats.experience") }
     ];
 
     useEffect(() => {
@@ -753,7 +774,7 @@ export default function Home() {
                                             )}></div>
                                 <Image 
                                     src="/gold_medal_2025.png" 
-                                    alt="Gold Medal 2025" 
+                                    alt="Gold beauty award for Alexandra Rizou Coiffure 2025" 
                                     width={64}
                                     height={64}
                                                 className={cn(
@@ -768,9 +789,11 @@ export default function Home() {
                                                 "absolute inset-0 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500",
                                                 isMobile ? "bg-primary/5" : "bg-white/5"
                                             )}></div>
-                                <img 
+                                            <Image
                                     src="/laureate_medal_2025.png" 
-                                    alt="Laureate Medal 2025" 
+                                                alt="Award-winning Alexandra Rizou Coiffure salon in Chalandri"
+                                                width={64}
+                                                height={64}
                                                 className={cn(
                                                     "relative w-auto drop-shadow-2xl group-hover:scale-110 transition-transform duration-300",
                                                     isMobile ? "h-12" : "h-14 md:h-16"
@@ -926,8 +949,11 @@ export default function Home() {
 
             {/* Mobile Carousel Section - Separate from Hero */}
             {isMobile && (
-                <section className="relative py-12 px-4 bg-gradient-to-b from-primary/20 via-primary/15 to-primary/22 dark:from-background dark:via-background/98 dark:to-background">
-                    <div className="container-custom max-w-4xl mx-auto">
+                <section 
+                    className="relative py-12 px-4 bg-gradient-to-b from-primary/20 via-primary/15 to-primary/22 dark:from-background dark:via-background/98 dark:to-background"
+                    style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
+                >
+                    <div className="container-custom max-w-4xl mx-auto" style={{ overscrollBehavior: 'contain' }}>
                         <div className="mb-6 text-center">
                             <h2 className="text-2xl font-junicode font-bold text-foreground dark:text-white mb-2">
                                 {t("gallery.hero.title")}
@@ -936,10 +962,12 @@ export default function Home() {
                                 {t("gallery.hero.subtitle")}
                             </p>
                         </div>
-                        <MobileCarousel images={heroImages} />
+                        <HoverExpandGallery images={heroImages} />
                     </div>
                 </section>
             )}
+
+            <HolidayHeroBanner />
 
             {/* Services Preview - Premium Modern Design */}
             <section className="relative overflow-hidden py-24 md:py-32 px-4 md:px-8">
@@ -1043,7 +1071,7 @@ export default function Home() {
                                                     
                                                     <Image
                                                         src={service.image}
-                                                        alt={service.title}
+                                                        alt={`${service.title} - Alexandra Rizou Coiffure Chalandri`}
                                                         width={48}
                                                         height={48}
                                                         className={`
@@ -1291,9 +1319,7 @@ export default function Home() {
                         <div className="order-2 lg:order-1">
                             <div className="mb-8">
                                 <div className="flex items-center gap-3 mb-4">
-                                    {isChristmasActive && (
-                                        <span className="text-4xl">{holidayStyle.icon}</span>
-                                    )}
+                                    {isChristmasActive && renderHolidayIcon("text-4xl", "h-12 w-12")}
                                     <h2 className={`text-3xl md:text-4xl lg:text-5xl font-junicode font-bold leading-tight ${
                                         isChristmasActive
                                             ? getHolidayClass(
@@ -1382,32 +1408,33 @@ export default function Home() {
                                             }`}
                                         >
                                             <div className="flex items-center gap-3">
-                                                {isChristmasActive && (
-                                                  holidayStyle.type === 'christmas' ? <span className="text-sm">❄️</span> :
-                                                  holidayStyle.type === 'newyear' ? <span className="text-sm">✨</span> :
-                                                  holidayStyle.type === 'easter' ? <span className="text-sm">🌸</span> :
-                                                  holidayStyle.type === 'other' ? <span className="text-sm">✨</span> :
-                                                  null
-                                                )}
+                                                {isChristmasActive && renderHolidayIcon("text-sm", "h-4 w-4")}
                                                 <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                                     isToday 
                                                         ? isChristmasActive
                                                             ? getHolidayClass(
                                                                 "bg-gradient-to-r from-yellow-500 to-amber-500 shadow-lg shadow-yellow-500/50",
-                                                                "bg-gradient-to-r from-green-500 to-pink-500 shadow-lg shadow-green-500/50",
+                                                                "",
                                                                 "bg-gradient-to-r from-purple-500 to-indigo-500 shadow-lg shadow-purple-500/50",
-                                                                "bg-gradient-to-r from-red-500 to-green-500 shadow-lg shadow-red-500/50"
+                                                                ""
                                                               )
                                                             : "bg-primary shadow-lg shadow-primary/50"
                                                         : isChristmasActive
                                                             ? getHolidayClass(
                                                                 "bg-yellow-400/40 group-hover:bg-yellow-400/60",
-                                                                "bg-green-400/40 group-hover:bg-green-400/60",
+                                                                "",
                                                                 "bg-purple-400/40 group-hover:bg-purple-400/60",
-                                                                "bg-red-400/40 group-hover:bg-red-400/60"
+                                                                ""
                                                               )
                                                         : "bg-primary/20 group-hover:bg-primary/40"
-                                                }`} />
+                                                }`}
+                                                style={isToday && isChristmasActive && (holidayStyle.type === 'christmas' || holidayStyle.type === 'easter') ? {
+                                                  backgroundColor: holidayStyle.colors.accent,
+                                                  boxShadow: `0 10px 40px ${holidayStyle.colors.accent}80`
+                                                } : !isToday && isChristmasActive && (holidayStyle.type === 'christmas' || holidayStyle.type === 'easter') ? {
+                                                  backgroundColor: `${holidayStyle.colors.accent}66`,
+                                                } : undefined}
+                                                />
                                                 <span className={`text-sm md:text-base font-medium flex items-center gap-2 ${
                                                     isToday 
                                                         ? isChristmasActive
@@ -1474,6 +1501,65 @@ export default function Home() {
                                     );
                                 })}
                             </div>
+
+                            {/* Closure Notices */}
+                            {isChristmasActive && christmasSchedule?.closureNotices && christmasSchedule.closureNotices.length > 0 && (
+                              <div 
+                                className={`mt-4 rounded-xl border p-3 space-y-2 ${
+                                  getHolidayClass(
+                                    "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
+                                    "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
+                                    "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
+                                    "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
+                                  )
+                                }`}
+                              >
+                                <p 
+                                  className={`text-xs font-semibold ${
+                                    getHolidayClass(
+                                      "text-yellow-800 dark:text-yellow-200",
+                                      "text-green-800 dark:text-green-200",
+                                      "text-purple-800 dark:text-purple-200",
+                                      "text-red-800 dark:text-red-200"
+                                    )
+                                  }`}
+                                >
+                                  {language === "en" ? 'The salon will remain closed:' : 'Το κατάστημα θα παραμείνει κλειστό:'}
+                                </p>
+                                {christmasSchedule.closureNotices.map((notice) => {
+                                  if (!notice.from && !notice.to) return null;
+                                  const formatDate = (value?: string, locale: 'el' | 'en' = 'el') => {
+                                    if (!value) return '';
+                                    const parsed = new Date(value);
+                                    if (Number.isNaN(parsed.getTime())) return '';
+                                    return parsed.toLocaleDateString(locale === 'en' ? 'en-US' : 'el-GR', { day: '2-digit', month: '2-digit' });
+                                  };
+                                  const fromDate = notice.from ? formatDate(notice.from, language as 'el' | 'en') : '';
+                                  const toDate = notice.to ? formatDate(notice.to, language as 'el' | 'en') : '';
+                                  if (!fromDate && !toDate) return null;
+                                  
+                                  return (
+                                    <p 
+                                      key={notice.id} 
+                                      className={`text-xs ${
+                                        getHolidayClass(
+                                          "text-yellow-700 dark:text-yellow-300",
+                                          "text-green-700 dark:text-green-300",
+                                          "text-purple-700 dark:text-purple-300",
+                                          "text-red-700 dark:text-red-300"
+                                        )
+                                      }`}
+                                    >
+                                      {fromDate && toDate
+                                        ? language === "en"
+                                          ? `From ${fromDate} to ${toDate}`
+                                          : `Από ${fromDate} έως ${toDate}`
+                                        : fromDate || toDate}
+                                    </p>
+                                  );
+                                })}
+                              </div>
+                            )}
 
                             {/* Contact Info */}
                             <div className="mt-8 space-y-4">

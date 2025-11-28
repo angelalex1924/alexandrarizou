@@ -5,7 +5,7 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy,
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Save, Sparkles, Snowflake, Check, Plus, Trash2, Star, X } from 'lucide-react';
-import { HolidaySchedule } from '@/hooks/useChristmasSchedule';
+import { ClosureNotice, HolidaySchedule } from '@/hooks/useChristmasSchedule';
 
 // Helper function to format date beautifully
 const formatDateBeautiful = (dateString: string): string => {
@@ -16,6 +16,21 @@ const formatDateBeautiful = (dateString: string): string => {
   const year = date.getFullYear();
   return `${day} ${month.charAt(0).toUpperCase() + month.slice(1)} ${year}`;
 };
+
+const normalizeClosureNotices = (items?: ClosureNotice[]) =>
+  (items ?? []).map((item, index) => ({
+    id: item?.id || `closure-${index}-${item?.from ?? ''}-${item?.to ?? ''}`,
+    title: item?.title ?? '',
+    from: item?.from ?? '',
+    to: item?.to ?? '',
+  }));
+
+const createClosureNotice = (): ClosureNotice => ({
+  id: `closure-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  title: '',
+  from: '',
+  to: '',
+});
 
 export default function HolidayScheduleAdmin() {
   const [schedules, setSchedules] = useState<HolidaySchedule[]>([]);
@@ -48,6 +63,7 @@ export default function HolidayScheduleAdmin() {
     { value: 'christmas', label: '🎄 Χριστουγεννιάτικο', icon: '🎄' },
     { value: 'newyear', label: '🎆 Πρωτοχρονιάτικο', icon: '🎆' },
     { value: 'easter', label: '🐰 Πασχαλινό', icon: '🐰' },
+    { value: 'summer', label: '🏖️ Θερινό', icon: '🏖️' },
     { value: 'other', label: '📅 Άλλο', icon: '📅' }
   ];
 
@@ -67,14 +83,28 @@ export default function HolidayScheduleAdmin() {
         ...doc.data()
       })) as HolidaySchedule[];
 
-      setSchedules(loadedSchedules);
+      const normalizedSchedules = loadedSchedules.map((schedule) => ({
+        ...schedule,
+        closureNotices: normalizeClosureNotices(schedule.closureNotices),
+      }));
+
+      setSchedules(normalizedSchedules);
       
       // Select the active schedule if exists
-      const activeSchedule = loadedSchedules.find(s => s.isActive);
+      const activeSchedule = normalizedSchedules.find(s => s.isActive);
       if (activeSchedule) {
-        setSelectedSchedule(activeSchedule);
-      } else if (loadedSchedules.length > 0) {
-        setSelectedSchedule(loadedSchedules[0]);
+        setSelectedSchedule({
+          ...activeSchedule,
+          showAnnouncement: activeSchedule.showAnnouncement ?? false,
+          closureNotices: normalizeClosureNotices(activeSchedule.closureNotices),
+        });
+      } else if (normalizedSchedules.length > 0) {
+        const firstSchedule = normalizedSchedules[0];
+        setSelectedSchedule({
+          ...firstSchedule,
+          showAnnouncement: firstSchedule.showAnnouncement ?? false,
+          closureNotices: normalizeClosureNotices(firstSchedule.closureNotices),
+        });
       }
     } catch (error) {
       console.error('Error loading schedules:', error);
@@ -87,8 +117,9 @@ export default function HolidayScheduleAdmin() {
   const createNewSchedule = () => {
     const newSchedule: HolidaySchedule = {
       name: '',
-      type: 'christmas' as 'christmas' | 'newyear' | 'easter' | 'other',
+      type: 'christmas' as 'christmas' | 'newyear' | 'easter' | 'other' | 'summer',
       isActive: false,
+      showAnnouncement: false,
       isClosed: {
         monday: false,
         tuesday: false,
@@ -115,10 +146,38 @@ export default function HolidayScheduleAdmin() {
         friday: '',
         saturday: '',
         sunday: ''
-      }
+      },
+      closureNotices: []
     };
     setSelectedSchedule(newSchedule);
     setIsCreating(true);
+  };
+
+  const addClosureNotice = () => {
+    if (!selectedSchedule) return;
+    const nextNotice = createClosureNotice();
+    setSelectedSchedule({
+      ...selectedSchedule,
+      closureNotices: [...(selectedSchedule.closureNotices ?? []), nextNotice],
+    });
+  };
+
+  const updateClosureNotice = (noticeId: string, field: keyof ClosureNotice, value: string) => {
+    if (!selectedSchedule) return;
+    setSelectedSchedule({
+      ...selectedSchedule,
+      closureNotices: (selectedSchedule.closureNotices ?? []).map((notice) =>
+        notice.id === noticeId ? { ...notice, [field]: value } : notice
+      ),
+    });
+  };
+
+  const removeClosureNotice = (noticeId: string) => {
+    if (!selectedSchedule) return;
+    setSelectedSchedule({
+      ...selectedSchedule,
+      closureNotices: (selectedSchedule.closureNotices ?? []).filter((notice) => notice.id !== noticeId),
+    });
   };
 
   const handleSave = async () => {
@@ -136,6 +195,7 @@ export default function HolidayScheduleAdmin() {
 
       const scheduleToSave: Omit<HolidaySchedule, 'id'> = {
         ...selectedSchedule,
+        closureNotices: normalizeClosureNotices(selectedSchedule.closureNotices),
         updatedAt: serverTimestamp()
       };
 
@@ -159,7 +219,12 @@ export default function HolidayScheduleAdmin() {
         setIsCreating(false);
         await loadSchedules();
         // Select the newly created schedule
-        const newSchedule = { ...selectedSchedule, id: docRef.id };
+        const newSchedule = {
+          ...selectedSchedule,
+          id: docRef.id,
+          showAnnouncement: selectedSchedule.showAnnouncement ?? false,
+          closureNotices: normalizeClosureNotices(scheduleToSave.closureNotices),
+        };
         setSelectedSchedule(newSchedule);
       } else if (selectedSchedule.id) {
         // Update existing schedule
@@ -341,7 +406,11 @@ export default function HolidayScheduleAdmin() {
                   : 'border-slate-200 bg-white hover:border-slate-300'
               } ${selectedSchedule?.id === schedule.id ? 'ring-2 ring-blue-500' : ''}`}
               onClick={() => {
-                setSelectedSchedule({ ...schedule }); // Create a copy to avoid direct mutation
+                setSelectedSchedule({
+                  ...schedule,
+                  showAnnouncement: schedule.showAnnouncement ?? false,
+                  closureNotices: normalizeClosureNotices(schedule.closureNotices),
+                }); // Create a copy to avoid direct mutation
                 setIsCreating(false);
               }}
             >
@@ -351,6 +420,7 @@ export default function HolidayScheduleAdmin() {
                     {schedule.type === 'christmas' && <span>🎄</span>}
                     {schedule.type === 'newyear' && <span>🎆</span>}
                     {schedule.type === 'easter' && <span>🐰</span>}
+                    {schedule.type === 'summer' && <span>🏖️</span>}
                     {schedule.type === 'other' && <span>📅</span>}
                     <h3 className="font-bold text-slate-800">{schedule.name || 'Χωρίς όνομα'}</h3>
                   </div>
@@ -439,7 +509,12 @@ export default function HolidayScheduleAdmin() {
               </label>
               <select
                 value={selectedSchedule.type}
-                onChange={(e) => setSelectedSchedule({ ...selectedSchedule, type: e.target.value as 'christmas' | 'newyear' | 'easter' | 'other' })}
+                onChange={(e) =>
+                  setSelectedSchedule({
+                    ...selectedSchedule,
+                    type: e.target.value as 'christmas' | 'newyear' | 'easter' | 'other' | 'summer',
+                  })
+                }
                 className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-slate-700"
               >
                 {scheduleTypes.map(type => (
@@ -466,6 +541,93 @@ export default function HolidayScheduleAdmin() {
                 </span>
                 <p className="text-sm text-slate-600">
                   Το ωράριο θα εμφανίζεται αυτόματα στο site
+                </p>
+              </div>
+            </label>
+          </div>
+
+          {/* Closure Notices */}
+          <div className="mb-6 rounded-xl border-2 border-slate-200 bg-white/80 p-5 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-lg font-bold text-slate-800">Επιπλέον κλειστές περίοδοι</p>
+                <p className="text-sm text-slate-500">
+                  Ορίστε τις ημερομηνίες που θα παραμείνει κλειστό το σαλόνι (π.χ. θερινές διακοπές).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addClosureNotice}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-300"
+              >
+                <Plus className="h-4 w-4" />
+                Προσθήκη περιόδου
+              </button>
+            </div>
+            <div className="mt-4 space-y-3">
+              {(selectedSchedule.closureNotices ?? []).length === 0 && (
+                <p className="text-sm text-slate-500">Δεν έχουν οριστεί περίοδοι κλεισίματος.</p>
+              )}
+              {(selectedSchedule.closureNotices ?? []).map((notice) => (
+                <div key={notice.id} className="rounded-xl border border-slate-200/70 bg-white p-4 shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={notice.title}
+                      onChange={(e) => updateClosureNotice(notice.id, 'title', e.target.value)}
+                      placeholder="Τίτλος (π.χ. Θερινές Διακοπές)"
+                      className="flex-1 rounded-lg border-2 border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 focus:border-red-400 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeClosureNotice(notice.id)}
+                      className="rounded-lg border border-slate-200 p-2 text-slate-500 transition hover:-translate-y-0.5 hover:text-rose-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div>
+                      <label className="text-xs font-semibold text-slate-500">Από</label>
+                      <input
+                        type="date"
+                        value={notice.from}
+                        onChange={(e) => updateClosureNotice(notice.id, 'from', e.target.value)}
+                        className="mt-1 w-full rounded-lg border-2 border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 focus:border-red-400 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-slate-500">Έως</label>
+                      <input
+                        type="date"
+                        value={notice.to}
+                        onChange={(e) => updateClosureNotice(notice.id, 'to', e.target.value)}
+                        className="mt-1 w-full rounded-lg border-2 border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 focus:border-red-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Announcement Toggle */}
+          <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 via-white to-violet-50 rounded-xl border-2 border-blue-200 shadow-sm">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <div className="relative pt-1.5">
+                <input
+                  type="checkbox"
+                  checked={selectedSchedule.showAnnouncement ?? false}
+                  onChange={(e) => setSelectedSchedule({ ...selectedSchedule, showAnnouncement: e.target.checked })}
+                  className="w-6 h-6 text-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
+                />
+              </div>
+              <div className="flex-1">
+                <span className="font-bold text-slate-800 text-lg block mb-1">
+                  Floating Banner Ανακοίνωσης
+                </span>
+                <p className="text-sm text-slate-600">
+                  Όταν είναι ενεργό, εμφανίζεται ένα κομψό banner κάτω από το menu με σύνδεσμο προς τη σελίδα εορταστικών ωραρίων.
                 </p>
               </div>
             </label>

@@ -6,12 +6,13 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminSignInPage } from '@/components/ui/admin-sign-in';
 import { motion } from 'framer-motion';
-import { LogOut, Settings, Users, Calendar, BarChart3, Shield, Home, Mail, FileText, Star, Snowflake, ArrowRight } from 'lucide-react';
+import { LogOut, Settings, Users, Calendar, BarChart3, Shield, Home, Mail, FileText, Star, Snowflake, ArrowRight, Bell } from 'lucide-react';
 import NewsletterDashboard from '@/components/NewsletterDashboard';
 import TemplateEditor from '@/components/TemplateEditor';
 import ReviewEmailForm from '@/components/ReviewEmailForm';
 import TemplateEmailSender from '@/components/TemplateEmailSender';
 import HolidayScheduleAdmin from '@/components/HolidayScheduleAdmin';
+import AnnouncementAdmin from '@/components/AnnouncementAdmin';
 import PegasusSignature from '@/components/PegasusSignature';
 import { AcronFlowNowLogo } from '@/components/acronflow-now-icon';
 import { AcronFlowLogo } from '@/components/acronflow-crm-logo';
@@ -240,6 +241,17 @@ export default function AdminPage() {
               <Snowflake className="w-4 h-4" />
               <span>Ειδικά Ωράρια</span>
             </button>
+            <button
+              onClick={() => setActiveTab('announcements')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                activeTab === 'announcements'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                  : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+              }`}
+            >
+              <Bell className="w-4 h-4" />
+              <span>Ανακοινώσεις</span>
+            </button>
           </div>
 
           {/* Mobile Navigation */}
@@ -310,6 +322,17 @@ export default function AdminPage() {
               >
                 <Snowflake className="w-5 h-5" />
                 <span className="text-xs font-medium">Ειδικά Ωράρια</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('announcements')}
+                className={`flex flex-col items-center space-y-1 px-3 py-3 rounded-lg transition-all duration-300 col-span-2 sm:col-span-1 ${
+                  activeTab === 'announcements'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                }`}
+              >
+                <Bell className="w-5 h-5" />
+                <span className="text-xs font-medium">Ανακοινώσεις</span>
               </button>
             </div>
           </div>
@@ -539,6 +562,16 @@ export default function AdminPage() {
             transition={{ delay: 0.2 }}
           >
             <HolidayScheduleAdmin />
+          </motion.div>
+        )}
+
+        {activeTab === 'announcements' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <AnnouncementAdmin />
           </motion.div>
         )}
 

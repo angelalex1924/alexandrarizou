@@ -17,11 +17,31 @@ const Footer = () => {
   const holidayStyle = getHolidayStyle();
   
   // Helper to get style based on holiday type
-  const getHolidayClass = (newyearClass: string, easterClass: string, otherClass: string, christmasClass: string) => {
+  const getHolidayClass = (
+    newyearClass: string,
+    easterClass: string,
+    otherClass: string,
+    christmasClass: string,
+    summerClass?: string,
+  ) => {
     if (holidayStyle.type === 'newyear') return newyearClass;
     if (holidayStyle.type === 'easter') return easterClass;
     if (holidayStyle.type === 'other') return otherClass;
+    if (holidayStyle.type === 'summer') return summerClass ?? otherClass;
     return christmasClass;
+  };
+  const renderHolidayIcon = (emojiClass = "text-xl", imageClass = "h-6 w-6") => {
+    if (!holidayStyle.icon) return null;
+    if (typeof holidayStyle.icon === "string") {
+      return <span className={emojiClass}>{holidayStyle.icon}</span>;
+    }
+    return (
+      <img
+        src={holidayStyle.icon.src}
+        alt={holidayStyle.icon.alt}
+        className={`${imageClass} object-contain`}
+      />
+    );
   };
   const year = new Date().getFullYear();
   const isEnglish = language === "en";
@@ -318,7 +338,7 @@ const Footer = () => {
                       : "bg-primary/10 text-primary"
                   }`}>
                     {isChristmasActive ? (
-                      <span className="text-xl">{holidayStyle.icon}</span>
+                      renderHolidayIcon("text-xl", "h-7 w-7")
                     ) : (
                       <Clock3 className="h-5 w-5 text-primary" />
                     )}
@@ -391,29 +411,29 @@ const Footer = () => {
                           ? isChristmasActive
                             ? getHolidayClass(
                                 "bg-gradient-to-r from-yellow-100/50 to-amber-100/50 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-700 dark:text-yellow-300 font-semibold",
-                                "bg-gradient-to-r from-green-100/50 to-pink-100/50 dark:from-green-900/30 dark:to-pink-900/30 text-green-700 dark:text-green-300 font-semibold",
+                                "font-semibold",
                                 "bg-gradient-to-r from-purple-100/50 to-indigo-100/50 dark:from-purple-900/30 dark:to-indigo-900/30 text-purple-700 dark:text-purple-300 font-semibold",
-                                "bg-gradient-to-r from-red-100/50 to-green-100/50 dark:from-red-900/30 dark:to-green-900/30 text-red-700 dark:text-red-300 font-semibold"
+                                "font-semibold"
                               )
                             : "bg-primary/10 text-primary font-semibold"
                           : isChristmasActive
                             ? getHolidayClass(
                                 "text-yellow-800/90 dark:text-yellow-200/90",
-                                "text-green-800/90 dark:text-green-200/90",
+                                "",
                                 "text-purple-800/90 dark:text-purple-200/90",
-                                "text-red-800/90 dark:text-red-200/90"
+                                ""
                               )
                             : "text-foreground/80"
                       }`}
+                      style={isToday && isChristmasActive && (holidayStyle.type === 'christmas' || holidayStyle.type === 'easter') ? {
+                        backgroundColor: `${holidayStyle.colors.accent}33`,
+                        color: holidayStyle.colors.accent
+                      } : !isToday && isChristmasActive && (holidayStyle.type === 'christmas' || holidayStyle.type === 'easter') ? {
+                        color: `${holidayStyle.colors.accent}E6`
+                      } : undefined}
                     >
                       <span className="uppercase tracking-wide text-[11px] flex items-center gap-1.5 flex-shrink-0 min-w-0">
-                        {isChristmasActive && (
-                          holidayStyle.type === 'christmas' ? <span className="text-xs flex-shrink-0">❄️</span> :
-                          holidayStyle.type === 'newyear' ? <span className="text-xs flex-shrink-0">✨</span> :
-                          holidayStyle.type === 'easter' ? <span className="text-xs flex-shrink-0">🌸</span> :
-                          holidayStyle.type === 'other' ? <span className="text-xs flex-shrink-0">✨</span> :
-                          null
-                        )}
+                        {isChristmasActive && renderHolidayIcon("text-xs flex-shrink-0", "h-4 w-4 flex-shrink-0")}
                         <span className="whitespace-nowrap">{entry.day}</span>
                         {formattedDate && (
                           <span className={`text-[10px] font-semibold whitespace-nowrap flex-shrink-0 ${
@@ -450,6 +470,65 @@ const Footer = () => {
                     </div>
                   );
                 })}
+
+                {/* Closure Notices */}
+                {isChristmasActive && christmasSchedule?.closureNotices && christmasSchedule.closureNotices.length > 0 && (
+                  <div 
+                    className={`mt-3 rounded-xl border p-3 space-y-2 ${
+                      getHolidayClass(
+                        "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
+                        "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
+                        "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
+                        "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
+                      )
+                    }`}
+                  >
+                    <p 
+                      className={`text-xs font-semibold ${
+                        getHolidayClass(
+                          "text-yellow-800 dark:text-yellow-200",
+                          "text-green-800 dark:text-green-200",
+                          "text-purple-800 dark:text-purple-200",
+                          "text-red-800 dark:text-red-200"
+                        )
+                      }`}
+                    >
+                      {isEnglish ? 'The salon will remain closed:' : 'Το κατάστημα θα παραμείνει κλειστό:'}
+                    </p>
+                    {christmasSchedule.closureNotices.map((notice) => {
+                      if (!notice.from && !notice.to) return null;
+                      const formatDate = (value?: string, locale: 'el' | 'en' = 'el') => {
+                        if (!value) return '';
+                        const parsed = new Date(value);
+                        if (Number.isNaN(parsed.getTime())) return '';
+                        return parsed.toLocaleDateString(locale === 'en' ? 'en-US' : 'el-GR', { day: '2-digit', month: '2-digit' });
+                      };
+                      const fromDate = notice.from ? formatDate(notice.from, isEnglish ? 'en' : 'el') : '';
+                      const toDate = notice.to ? formatDate(notice.to, isEnglish ? 'en' : 'el') : '';
+                      if (!fromDate && !toDate) return null;
+                      
+                      return (
+                        <p 
+                          key={notice.id} 
+                          className={`text-xs ${
+                            getHolidayClass(
+                              "text-yellow-700 dark:text-yellow-300",
+                              "text-green-700 dark:text-green-300",
+                              "text-purple-700 dark:text-purple-300",
+                              "text-red-700 dark:text-red-300"
+                            )
+                          }`}
+                        >
+                          {fromDate && toDate
+                            ? isEnglish
+                              ? `From ${fromDate} to ${toDate}`
+                              : `Από ${fromDate} έως ${toDate}`
+                            : fromDate || toDate}
+                        </p>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

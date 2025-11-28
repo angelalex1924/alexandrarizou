@@ -20,8 +20,8 @@ export default function About() {
     const stats = [
         {
             icon: Calendar,
-            number: "10",
-            label: language === "el" ? "Χρόνια Εμπειρίας" : "Years of Experience",
+            number: "4",
+            label: language === "el" ? "Χρόνια Εμπιστοσύνης" : "Years of Trust",
             color: "from-primary/20 to-primary/10",
         },
         {
@@ -46,24 +46,11 @@ export default function About() {
 
     const team = [
         {
-            name: "Sarah Johnson",
-            role: "Founder & Master Stylist",
-            description: "With over 15 years of experience, Sarah brings passion and precision to every cut and color.",
-        },
-        {
-            name: "Emma Martinez",
-            role: "Senior Hair Colorist",
-            description: "Specializing in balayage and color correction, Emma creates stunning, natural-looking results.",
-        },
-        {
-            name: "Lisa Chen",
-            role: "Nail Art Specialist",
-            description: "From classic elegance to bold designs, Lisa transforms nails into works of art.",
-        },
-        {
-            name: "Maria Rodriguez",
-            role: "Beauty Therapist",
-            description: "Expert in waxing and facial treatments, Maria ensures a relaxing and professional experience.",
+            name: "Αλεξάνδρα Ρίζου",
+            role: language === "el" ? "Ιδιοκτήτρια & Ιδρυτής" : "Owner & Founder",
+            description: language === "el" 
+                ? "Η Αλεξάνδρα Ρίζου είναι η ιδιοκτήτρια και ιδρυτής του κομμωτηρίου, με πάθος για την τέχνη της ομορφιάς και την αριστεία στην εξυπηρέτηση."
+                : "Alexandra Rizou is the owner and founder of the salon, with a passion for the art of beauty and excellence in service.",
         },
     ];
 
@@ -178,7 +165,7 @@ export default function About() {
                                         />
                                     </div>
                                     <h3 className="text-2xl md:text-3xl font-bold font-junicode text-foreground mb-4 transition-colors duration-300 group-hover:text-primary dark:group-hover:text-primary/90">
-                                        {language === "el" ? "Από το 2015" : "Since 2015"}
+                                        {language === "el" ? "Από το 2022" : "Since 2022"}
                                     </h3>
                                     <p className="text-muted-foreground text-base md:text-lg transition-colors duration-300 group-hover:text-foreground/90 dark:group-hover:text-foreground/80">
                                         {language === "el" 
@@ -345,7 +332,7 @@ export default function About() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 justify-items-center">
                         {team.map((member, index) => {
                             const colorVariants = [
                                 { primary: 'from-white dark:from-[#1a2e1f]', accent: 'to-primary/8 dark:to-primary/20', border: 'border-primary/20 dark:border-primary/30', glow: 'shadow-primary/15' },
@@ -358,7 +345,7 @@ export default function About() {
                             return (
                                 <div
                                     key={index}
-                                    className="group relative rounded-3xl overflow-hidden bg-gradient-to-br backdrop-blur-xl border-2 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/40 dark:hover:border-white/30"
+                                    className="group relative rounded-3xl overflow-hidden bg-gradient-to-br backdrop-blur-xl border-2 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/40 dark:hover:border-white/30 w-full max-w-sm"
                                     style={{
                                         background: `linear-gradient(to bottom right, ${colors.primary}, ${colors.accent})`,
                                         borderColor: colors.border,

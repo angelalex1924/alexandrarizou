@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Phone, Facebook, Instagram, MapPin, Clock3, X, Mail, Moon, Sun, ChevronRight } from "lucide-react";
+import { Phone, Facebook, Instagram, MapPin, Clock3, X, Mail, ChevronRight, ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 // TikTok Icon Component
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -14,10 +15,12 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ThemeLampToggle } from "@/components/ThemeLampToggle";
 import { useMobileNav } from "@/hooks/useMobileNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useChristmasSchedule } from "@/hooks/useChristmasSchedule";
 import { getLocalizedPath } from "@/lib/i18n-routes";
+import { cn } from "@/lib/utils";
 
 const logo = "/assets/logo.png";
 const logoWhite = "/assets/rizou_logo_white.png";
@@ -92,6 +95,8 @@ const Navigation = () => {
   } = useMobileNav();
   const [isScrolled, setIsScrolled] = useState(() => !isHomePage);
   const [glassbarVisible, setGlassbarVisible] = useState(false);
+  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
+  const servicesDropdownRef = useRef<HTMLDivElement>(null);
   const heroHeightRef = useRef(0);
   const scrollFrame = useRef<number | null>(null);
   const {
@@ -99,16 +104,36 @@ const Navigation = () => {
     toggleLanguage,
     t
   } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const isMobile = useIsMobile();
   const { schedule: christmasSchedule, isActive: isChristmasActive, getHoursForDay, getHolidayStyle } = useChristmasSchedule();
   const holidayStyle = getHolidayStyle();
+  const renderHolidayIcon = (emojiClass = "text-xl", imageClass = "h-6 w-6") => {
+    if (!holidayStyle.icon) return null;
+    if (typeof holidayStyle.icon === "string") {
+      return <span className={emojiClass}>{holidayStyle.icon}</span>;
+    }
+    return (
+      <img
+        src={holidayStyle.icon.src}
+        alt={holidayStyle.icon.alt}
+        className={cn("object-contain", imageClass)}
+      />
+    );
+  };
   
   // Helper to get style based on holiday type
-  const getHolidayClass = (newyearClass: string, easterClass: string, otherClass: string, christmasClass: string) => {
+  const getHolidayClass = (
+    newyearClass: string,
+    easterClass: string,
+    otherClass: string,
+    christmasClass: string,
+    summerClass?: string,
+  ) => {
     if (holidayStyle.type === 'newyear') return newyearClass;
     if (holidayStyle.type === 'easter') return easterClass;
     if (holidayStyle.type === 'other') return otherClass;
+    if (holidayStyle.type === 'summer') return summerClass ?? otherClass;
     return christmasClass;
   };
 
@@ -299,6 +324,41 @@ const Navigation = () => {
   // Calculate glassbar opacity (only for background, not navlinks) - Works on all devices and pages
   const glassbarOpacity = glassbarVisible ? 1 : 0;
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (servicesDropdownRef.current && !servicesDropdownRef.current.contains(event.target as Node)) {
+        setServicesDropdownOpen(false);
+      }
+    };
+
+    if (servicesDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [servicesDropdownOpen]);
+
+  // Services data for dropdown - Only main categories
+  const servicesData = [
+    {
+      name: t("services.hair.title"),
+      description: t("home.service.hair.desc"),
+      link: getLocalizedPath("/services#hair", language as 'el' | 'en'),
+      image: "/hair-styling_17828281.png",
+      gradient: "from-primary/20 via-primary/10 to-primary/5"
+    },
+    {
+      name: t("services.waxing.title"),
+      description: t("home.service.waxing.desc"),
+      link: getLocalizedPath("/services#waxing", language as 'el' | 'en'),
+      image: "/waxing_17368167.png",
+      gradient: "from-accent/20 via-accent/10 to-accent/5"
+    }
+  ];
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] px-4 pt-4">
       {/* Floating Glass Container */}
@@ -339,6 +399,207 @@ const Navigation = () => {
                   const Icon = link.icon;
                   const active = isActive(link.path);
                   const isWhiteNav = isHomePage && !isScrolled && !isMobile;
+                  const isServicesLink = link.path === getLocalizedPath("/services", language as 'el' | 'en');
+                  
+                  if (isServicesLink) {
+                    return (
+                      <div key={link.path} ref={servicesDropdownRef} className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
+                          onMouseEnter={() => setServicesDropdownOpen(true)}
+                          className={`group relative flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-500 ease-out ${
+                            active
+                              ? isWhiteNav 
+                                ? "bg-white/10 text-white"
+                                : "bg-primary/10 text-primary"
+                              : isWhiteNav
+                                ? "text-white/70 hover:text-white hover:bg-white/5"
+                                : "text-foreground/70 hover:text-foreground hover:bg-primary/5"
+                          }`}
+                        >
+                          {/* Animated Background */}
+                          <div className={`absolute inset-0 rounded-lg transition-all duration-500 ease-out ${
+                            active || servicesDropdownOpen
+                              ? isWhiteNav
+                                ? "bg-white/10 opacity-100 scale-100"
+                                : "bg-primary/10 opacity-100 scale-100"
+                              : isWhiteNav
+                                ? "bg-white/5 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100"
+                                : "bg-primary/10 opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100"
+                          }`} />
+                          
+                          <Icon className={`relative z-10 w-4 h-4 transition-all duration-500 ease-out ${
+                            active || servicesDropdownOpen
+                              ? isWhiteNav
+                                ? "text-white scale-110 rotate-0"
+                                : "text-primary scale-110 rotate-0"
+                              : isWhiteNav
+                                ? "text-white/60 group-hover:text-white group-hover:scale-110 group-hover:rotate-12"
+                                : "text-foreground/60 group-hover:text-primary group-hover:scale-110 group-hover:rotate-12"
+                          }`} />
+                          <span className={`
+                            relative z-10 text-sm font-semibold tracking-wide transition-all duration-500 ease-out font-junicode
+                            ${active || servicesDropdownOpen
+                              ? isWhiteNav
+                                ? "text-white translate-x-0"
+                                : "text-primary translate-x-0"
+                              : isWhiteNav
+                                ? "text-white/70 group-hover:text-white group-hover:translate-x-0.5"
+                                : "text-foreground/70 group-hover:text-foreground group-hover:translate-x-0.5"
+                            }
+                          `}>
+                            {link.name}
+                          </span>
+                          <ChevronDown className={`relative z-10 w-3.5 h-3.5 transition-all duration-500 ease-out ${
+                            servicesDropdownOpen ? "rotate-180" : "rotate-0"
+                          } ${
+                            active || servicesDropdownOpen
+                              ? isWhiteNav
+                                ? "text-white"
+                                : "text-primary"
+                              : isWhiteNav
+                                ? "text-white/60 group-hover:text-white"
+                                : "text-foreground/60 group-hover:text-primary"
+                          }`} />
+
+                          {/* Animated Active Indicator Line */}
+                          <span className={`absolute -bottom-0.5 left-1/2 h-0.5 rounded-full -translate-x-1/2 transition-all duration-500 ease-in-out ${
+                            active || servicesDropdownOpen
+                              ? isWhiteNav
+                                ? "w-8 opacity-100 bg-white"
+                                : "w-8 opacity-100 bg-primary"
+                              : "w-0 opacity-0"
+                          }`} />
+                        </button>
+
+                        {/* Services Dropdown */}
+                        {servicesDropdownOpen && (
+                          <div
+                            className="absolute top-full left-0 mt-2 w-64 rounded-xl border backdrop-blur-xl shadow-2xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200"
+                            style={{
+                              background: isWhiteNav
+                                ? "rgba(255, 255, 255, 0.16)"
+                                : theme === "dark"
+                                  ? "rgba(0, 0, 0, 0.7)"
+                                  : "rgba(255, 255, 255, 0.98)",
+                              borderColor: isWhiteNav
+                                ? "rgba(255, 255, 255, 0.25)"
+                                : theme === "dark"
+                                  ? "rgba(255, 255, 255, 0.15)"
+                                  : "rgba(0, 0, 0, 0.08)",
+                              boxShadow: isWhiteNav
+                                ? "0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)"
+                                : theme === "dark"
+                                  ? "0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05)"
+                                  : "0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05)",
+                              WebkitBackdropFilter: "blur(16px)",
+                              backdropFilter: "blur(16px)",
+                            }}
+                            onMouseLeave={() => setServicesDropdownOpen(false)}
+                          >
+                            {/* Gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+                            
+                            <div className="relative p-3.5 space-y-2.5">
+                              {servicesData.map((service, index) => (
+                                <Link
+                                  key={index}
+                                  href={service.link}
+                                  onClick={() => setServicesDropdownOpen(false)}
+                                  className="group relative block p-3 rounded-xl transition-all duration-300 hover:scale-[1.01] overflow-hidden"
+                                  style={{
+                                    background: isWhiteNav
+                                      ? "rgba(255, 255, 255, 0.08)"
+                                      : theme === "dark"
+                                        ? "rgba(255, 255, 255, 0.06)"
+                                        : "rgba(0, 0, 0, 0.02)",
+                                    border: isWhiteNav
+                                      ? "1px solid rgba(255, 255, 255, 0.1)"
+                                      : theme === "dark"
+                                        ? "1px solid rgba(255, 255, 255, 0.08)"
+                                        : "1px solid rgba(0, 0, 0, 0.05)",
+                                  }}
+                                >
+                                  {/* Hover gradient effect */}
+                                  <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                                  
+                                  <div className="relative flex items-start gap-3">
+                                    {/* Icon/Image Container */}
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 overflow-hidden">
+                                      <Image
+                                        src={service.image}
+                                        alt={service.name}
+                                        width={40}
+                                        height={40}
+                                        className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-110"
+                                      />
+                                    </div>
+                                    
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                      <h3 className={`text-sm font-bold font-junicode mb-1 transition-colors duration-300 ${
+                                        isWhiteNav
+                                          ? "text-white group-hover:text-white"
+                                          : theme === "dark"
+                                            ? "text-white group-hover:text-primary"
+                                            : "text-foreground group-hover:text-primary"
+                                      }`}>
+                                        {service.name}
+                                      </h3>
+                                      <p className={`text-[10px] leading-snug line-clamp-2 transition-colors duration-300 ${
+                                        isWhiteNav
+                                          ? "text-white/70 group-hover:text-white/85"
+                                          : theme === "dark"
+                                            ? "text-white/60 group-hover:text-white/80"
+                                            : "text-foreground/60 group-hover:text-foreground/80"
+                                      }`}>
+                                        {service.description}
+                                      </p>
+                                    </div>
+                                    
+                                    {/* Arrow Icon */}
+                                    <ChevronRight className={`flex-shrink-0 w-4 h-4 mt-0.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 ${
+                                      isWhiteNav
+                                        ? "text-white"
+                                        : theme === "dark"
+                                          ? "text-white"
+                                          : "text-primary"
+                                    }`} />
+                                  </div>
+                                </Link>
+                              ))}
+                              
+                              {/* View All Services Link */}
+                              <div className={`pt-3 mt-1.5 border-t ${
+                                isWhiteNav
+                                  ? "border-white/20"
+                                  : theme === "dark"
+                                    ? "border-white/20"
+                                    : "border-foreground/20"
+                              }`}>
+                                <Link
+                                  href={getLocalizedPath("/services", language as 'el' | 'en')}
+                                  onClick={() => setServicesDropdownOpen(false)}
+                                  className={`group flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${
+                                    isWhiteNav
+                                      ? "text-white/90 border border-white/20 hover:text-white hover:bg-white/10 hover:border-white/30"
+                                      : theme === "dark"
+                                        ? "text-white/90 border border-white/20 hover:text-white hover:bg-white/10 hover:border-white/30"
+                                        : "text-primary border border-primary/30 hover:text-primary hover:bg-primary/10 hover:border-primary/40"
+                                  }`}
+                                >
+                                  <span>{t("nav.services.action")} {t("nav.services")}</span>
+                                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={link.path}
@@ -499,36 +760,15 @@ const Navigation = () => {
 
                 {/* Dark Mode Toggle */}
                 <div className="relative">
-                  <button
-                    onClick={toggleTheme}
-                    className={`group relative h-9 w-9 rounded-full backdrop-blur-md border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
+                  <ThemeLampToggle
+                    className={cn(
+                      "h-9 w-9 border backdrop-blur-md hover:scale-110 transition-all duration-300",
                       isScrolled || isMobile
-                        ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
-                        : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
-                    } ${theme === "dark" ? 'bg-primary/15 border-primary/40' : ''}`}
-                    aria-label="Toggle dark mode"
-                  >
-                    <div className={`absolute inset-0 rounded-full transition-all duration-300 ${
-                      theme === "dark" 
-                        ? 'bg-primary/20 group-hover:bg-primary/30' 
-                        : 'bg-primary/0 group-hover:bg-primary/10'
-                    }`} />
-                    <div className="relative z-10 flex items-center justify-center">
-                      {theme === "dark" ? (
-                        <Sun className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled || isMobile
-                            ? 'text-primary group-hover:text-primary group-hover:rotate-180' 
-                            : 'text-white group-hover:text-primary group-hover:rotate-180'
-                        }`} />
-                      ) : (
-                        <Moon className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled || isMobile
-                            ? 'text-foreground group-hover:text-primary group-hover:rotate-12' 
-                            : 'text-white group-hover:text-primary group-hover:rotate-12'
-                        }`} />
-                      )}
-                    </div>
-                  </button>
+                        ? "bg-foreground/10 border-foreground/30 text-foreground hover:bg-primary/20 hover:border-primary/50"
+                        : "bg-white/10 border-white/30 text-white hover:bg-primary/20 hover:border-primary/50",
+                      theme === "dark" && "bg-primary/15 border-primary/40 text-primary"
+                    )}
+                  />
                 </div>
 
                 <div className="relative">
@@ -610,36 +850,15 @@ const Navigation = () => {
 
                 {/* Dark Mode Toggle */}
                 <div className="relative">
-                  <button
-                    onClick={toggleTheme}
-                    className={`group relative h-9 w-9 rounded-full backdrop-blur-sm border transition-all duration-300 hover:scale-110 flex items-center justify-center overflow-hidden ${
+                  <ThemeLampToggle
+                    className={cn(
+                      "h-9 w-9 border backdrop-blur-sm hover:scale-110 transition-all duration-300",
                       isScrolled || isMobile
-                        ? 'bg-foreground/10 border-foreground/30 hover:bg-primary/20 hover:border-primary/50' 
-                        : 'bg-white/10 border-white/30 hover:bg-primary/20 hover:border-primary/50'
-                    } ${theme === "dark" ? 'bg-primary/15 border-primary/40' : ''}`}
-                    aria-label="Toggle dark mode"
-                  >
-                    <div className={`absolute inset-0 rounded-full transition-all duration-300 ${
-                      theme === "dark" 
-                        ? 'bg-primary/20 group-hover:bg-primary/30' 
-                        : 'bg-primary/0 group-hover:bg-primary/10'
-                    }`} />
-                    <div className="relative z-10 flex items-center justify-center">
-                      {theme === "dark" ? (
-                        <Sun className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled || isMobile
-                            ? 'text-primary group-hover:text-primary group-hover:rotate-180' 
-                            : 'text-white group-hover:text-primary group-hover:rotate-180'
-                        }`} />
-                      ) : (
-                        <Moon className={`h-4 w-4 transition-all duration-500 rotate-0 ${
-                          isScrolled || isMobile
-                            ? 'text-foreground group-hover:text-primary group-hover:rotate-12' 
-                            : 'text-white group-hover:text-primary group-hover:rotate-12'
-                        }`} />
-                      )}
-                    </div>
-                  </button>
+                        ? "bg-foreground/10 border-foreground/30 text-foreground hover:bg-primary/20 hover:border-primary/50"
+                        : "bg-white/10 border-white/30 text-white hover:bg-primary/20 hover:border-primary/50",
+                      theme === "dark" && "bg-primary/15 border-primary/40 text-primary"
+                    )}
+                  />
                 </div>
                 <div className="relative">
                   <button
@@ -802,6 +1021,108 @@ const Navigation = () => {
                 {navLinks.map((link, index) => {
                   const Icon = link.icon;
                   const active = isActive(link.path);
+                  const isServicesLink = link.path === getLocalizedPath("/services", language as 'el' | 'en');
+                  
+                  if (isServicesLink) {
+                    return (
+                      <div key={link.path} className="space-y-2">
+                        <Link
+                          href={link.path}
+                          onClick={closeMenu}
+                          className="group relative w-full overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-xl"
+                          style={{
+                            animation: isMenuVisible ? `slideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.07}s both` : 'none',
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                          }}
+                        >
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent translate-x-[-30%] group-hover:translate-x-0 transition-all duration-700" />
+                          <div className="relative flex items-center justify-between px-5 py-4">
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/5 group-hover:bg-primary/15 transition-all duration-300">
+                                <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-foreground/70 group-hover:text-primary"}`} />
+                              </div>
+                              <div>
+                                <span className={`text-2xl font-light tracking-tight font-junicode ${active ? "text-primary" : "text-foreground"}`}>
+                                  {link.name}
+                                </span>
+                                <p className="text-xs tracking-[0.3em] text-muted-foreground/60 mt-1">
+                                  {link.subtitle}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
+                              <span className="h-px w-6 bg-muted-foreground/40" />
+                              <span>{link.action}</span>
+                            </div>
+                          </div>
+                          {active && <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-1 rounded-full bg-primary" />}
+                        </Link>
+
+                        {/* Mobile Services Sublinks - Always Visible */}
+                        <div className="space-y-2 pl-8">
+                          {servicesData.map((service, serviceIndex) => (
+                            <Link
+                              key={serviceIndex}
+                              href={service.link}
+                              onClick={closeMenu}
+                              className="group relative block p-3 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-xl transition-all duration-300 hover:scale-[1.01] overflow-hidden"
+                              style={{
+                                animation: isMenuVisible ? `slideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${(index + 1) * 0.07 + serviceIndex * 0.05}s both` : 'none',
+                                backfaceVisibility: 'hidden',
+                                WebkitBackfaceVisibility: 'hidden',
+                              }}
+                            >
+                              {/* Hover gradient effect */}
+                              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                              
+                              <div className="relative flex items-start gap-3">
+                                {/* Icon/Image Container */}
+                                <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 overflow-hidden">
+                                  <Image
+                                    src={service.image}
+                                    alt={service.name}
+                                    width={40}
+                                    height={40}
+                                    className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-110"
+                                  />
+                                </div>
+                                
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-sm font-bold font-junicode mb-1 text-foreground group-hover:text-primary transition-colors duration-300">
+                                    {service.name}
+                                  </h3>
+                                  <p className="text-[10px] leading-snug line-clamp-2 text-foreground/60 group-hover:text-foreground/80 transition-colors duration-300">
+                                    {service.description}
+                                  </p>
+                                </div>
+                                
+                                {/* Arrow Icon */}
+                                <ChevronRight className="flex-shrink-0 w-4 h-4 mt-0.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 text-primary" />
+                              </div>
+                            </Link>
+                          ))}
+                          
+                          {/* View All Services Link */}
+                          <Link
+                            href={getLocalizedPath("/services", language as 'el' | 'en')}
+                            onClick={closeMenu}
+                            className="group flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold border border-white/10 bg-white/[0.02] backdrop-blur-xl text-foreground/80 hover:text-primary hover:border-primary/30 transition-all duration-300"
+                            style={{
+                              animation: isMenuVisible ? `slideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) ${(index + 1) * 0.07 + servicesData.length * 0.05}s both` : 'none',
+                              backfaceVisibility: 'hidden',
+                              WebkitBackfaceVisibility: 'hidden',
+                            }}
+                          >
+                            <span>{t("nav.services.action")} {t("nav.services")}</span>
+                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={link.path}
@@ -921,12 +1242,18 @@ const Navigation = () => {
                   isChristmasActive 
                     ? getHolidayClass(
                         "border-yellow-300/30 bg-gradient-to-br from-yellow-50/20 via-white/10 to-amber-50/20 dark:from-yellow-950/20 dark:via-slate-900/80 dark:to-amber-950/20 shadow-lg shadow-yellow-500/10",
-                        "border-green-300/30 bg-gradient-to-br from-green-50/20 via-white/10 to-pink-50/20 dark:from-green-950/20 dark:via-slate-900/80 dark:to-pink-950/20 shadow-lg shadow-green-500/10",
+                        "",
                         "border-purple-300/30 bg-gradient-to-br from-purple-50/20 via-white/10 to-indigo-50/20 dark:from-purple-950/20 dark:via-slate-900/80 dark:to-indigo-950/20 shadow-lg shadow-purple-500/10",
-                        "border-red-300/30 bg-gradient-to-br from-red-50/20 via-white/10 to-green-50/20 dark:from-red-950/20 dark:via-slate-900/80 dark:to-green-950/20 shadow-lg shadow-red-500/10"
+                        ""
                       )
                     : "border-white/10 bg-background/80"
-                }`}>
+                }`}
+                style={isChristmasActive && (holidayStyle.type === 'christmas' || holidayStyle.type === 'easter') ? {
+                  borderColor: `${holidayStyle.colors.accent}4D`,
+                  backgroundColor: `${holidayStyle.colors.accent}14`,
+                  boxShadow: `0 10px 40px ${holidayStyle.colors.accent}1A`
+                } : undefined}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`h-11 w-11 rounded-2xl flex items-center justify-center ${
@@ -940,7 +1267,7 @@ const Navigation = () => {
                           : "bg-primary/10"
                       }`}>
                         {isChristmasActive ? (
-                          <span className="text-xl">{holidayStyle.icon}</span>
+                          renderHolidayIcon("text-xl", "h-7 w-7")
                         ) : (
                           <Clock3 className={`h-5 w-5 ${isChristmasActive ? "text-white" : "text-primary"}`} />
                         )}
@@ -1017,13 +1344,7 @@ const Navigation = () => {
                           }`}
                         >
                           <span className="tracking-wide text-[11px] flex items-center gap-1.5">
-                            {isChristmasActive && (
-                              holidayStyle.type === 'christmas' ? <span className="text-xs">❄️</span> :
-                              holidayStyle.type === 'newyear' ? <span className="text-xs">✨</span> :
-                              holidayStyle.type === 'easter' ? <span className="text-xs">🌸</span> :
-                              holidayStyle.type === 'other' ? <span className="text-xs">✨</span> :
-                              null
-                            )}
+                                                {isChristmasActive && renderHolidayIcon("text-xs", "h-4 w-4")}
                             {entry.day}
                             {formattedDate && (
                               <span className={`text-[10px] font-semibold ${
@@ -1061,6 +1382,65 @@ const Navigation = () => {
                       );
                     })}
                   </div>
+
+                  {/* Closure Notices */}
+                  {isChristmasActive && christmasSchedule?.closureNotices && christmasSchedule.closureNotices.length > 0 && (
+                    <div 
+                      className={`mt-3 rounded-xl border p-3 space-y-2 ${
+                        getHolidayClass(
+                          "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
+                          "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
+                          "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
+                          "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
+                        )
+                      }`}
+                    >
+                      <p 
+                        className={`text-xs font-semibold ${
+                          getHolidayClass(
+                            "text-yellow-800 dark:text-yellow-200",
+                            "text-green-800 dark:text-green-200",
+                            "text-purple-800 dark:text-purple-200",
+                            "text-red-800 dark:text-red-200"
+                          )
+                        }`}
+                      >
+                        {language === "en" ? 'The salon will remain closed:' : 'Το κατάστημα θα παραμείνει κλειστό:'}
+                      </p>
+                      {christmasSchedule.closureNotices.map((notice) => {
+                        if (!notice.from && !notice.to) return null;
+                        const formatDate = (value?: string, locale: 'el' | 'en' = 'el') => {
+                          if (!value) return '';
+                          const parsed = new Date(value);
+                          if (Number.isNaN(parsed.getTime())) return '';
+                          return parsed.toLocaleDateString(locale === 'en' ? 'en-US' : 'el-GR', { day: '2-digit', month: '2-digit' });
+                        };
+                        const fromDate = notice.from ? formatDate(notice.from, language as 'el' | 'en') : '';
+                        const toDate = notice.to ? formatDate(notice.to, language as 'el' | 'en') : '';
+                        if (!fromDate && !toDate) return null;
+                        
+                        return (
+                          <p 
+                            key={notice.id} 
+                            className={`text-xs ${
+                              getHolidayClass(
+                                "text-yellow-700 dark:text-yellow-300",
+                                "text-green-700 dark:text-green-300",
+                                "text-purple-700 dark:text-purple-300",
+                                "text-red-700 dark:text-red-300"
+                              )
+                            }`}
+                          >
+                            {fromDate && toDate
+                              ? language === "en"
+                                ? `From ${fromDate} to ${toDate}`
+                                : `Από ${fromDate} έως ${toDate}`
+                              : fromDate || toDate}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Contact & socials */}

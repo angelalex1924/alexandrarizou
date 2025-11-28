@@ -2,11 +2,19 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
+export interface ClosureNotice {
+  id: string;
+  title: string;
+  from: string;
+  to: string;
+}
+
 export interface HolidaySchedule {
   id?: string;
   name: string; // e.g., "Χριστουγεννιάτικο Ωράριο 2024", "Πρωτοχρονιάτικο Ωράριο 2025"
-  type: 'christmas' | 'newyear' | 'easter' | 'other';
+  type: 'christmas' | 'newyear' | 'easter' | 'other' | 'summer';
   isActive: boolean; // Which schedule is currently active
+  showAnnouncement?: boolean;
   isClosed: {
     monday: boolean;
     tuesday: boolean;
@@ -36,7 +44,10 @@ export interface HolidaySchedule {
   };
   createdAt?: any;
   updatedAt?: any;
+  closureNotices?: ClosureNotice[];
 }
+
+type HolidayIcon = string | { src: string; alt: string };
 
 // Keep old interface for backward compatibility
 export interface ChristmasSchedule extends HolidaySchedule {
@@ -44,6 +55,14 @@ export interface ChristmasSchedule extends HolidaySchedule {
   startDate?: string;
   endDate?: string;
 }
+
+const normalizeClosureNotices = (items?: ClosureNotice[]): ClosureNotice[] =>
+  (items ?? []).map((item, index) => ({
+    id: item?.id || `closure-${index}-${item?.from ?? ''}-${item?.to ?? ''}`,
+    title: item?.title ?? '',
+    from: item?.from ?? '',
+    to: item?.to ?? '',
+  }));
 
 export const useChristmasSchedule = () => {
   const [schedule, setSchedule] = useState<HolidaySchedule | null>(null);
@@ -72,7 +91,11 @@ export const useChristmasSchedule = () => {
             return bTime - aTime;
           });
           
-          setSchedule(schedules[0]);
+          const nextSchedule = schedules[0];
+          setSchedule({
+            ...nextSchedule,
+            closureNotices: normalizeClosureNotices(nextSchedule.closureNotices),
+          });
         } else {
           setSchedule(null);
         }
@@ -111,7 +134,7 @@ export const useChristmasSchedule = () => {
     if (!schedule || !isActive) {
       return {
         type: 'normal' as const,
-        icon: null,
+        icon: null as HolidayIcon | null,
         title: null,
         colors: {
           primary: '',
@@ -126,8 +149,8 @@ export const useChristmasSchedule = () => {
     if (schedule.type === 'newyear') {
       return {
         type: 'newyear' as const,
-        icon: '🎆',
-        title: { el: '🎆 Πρωτοχρονιάτικο Ωράριο', en: '🎆 New Year Hours' },
+        icon: { src: '/happy-new-year.png', alt: 'New Year celebration icon' } as HolidayIcon,
+        title: { el: 'Πρωτοχρονιάτικο Ωράριο', en: 'New Year Hours' },
         colors: {
           primary: 'from-yellow-500 to-amber-500',
           secondary: 'from-yellow-400 to-amber-400',
@@ -148,8 +171,8 @@ export const useChristmasSchedule = () => {
     if (schedule.type === 'easter') {
       return {
         type: 'easter' as const,
-        icon: '🐰',
-        title: { el: '🐰 Πασχαλινό Ωράριο', en: '🐰 Easter Hours' },
+        icon: { src: '/easter-day.png', alt: 'Easter celebration icon' } as HolidayIcon,
+        title: { el: 'Πασχαλινό Ωράριο', en: 'Easter Hours' },
         colors: {
           primary: 'from-green-500 to-pink-500',
           secondary: 'from-green-400 to-pink-400',
@@ -163,8 +186,31 @@ export const useChristmasSchedule = () => {
           borderBadge: 'border-green-300/50 bg-green-50/50 dark:bg-green-950/30',
           dateColor: 'text-green-600 dark:text-green-400',
           dateColorToday: 'text-green-900 dark:text-green-100',
-          emoji: '🌸'
+          emoji: '🌸',
+          accent: '#cbf4c6'
         }
+      };
+    }
+
+    if (schedule.type === 'summer') {
+      return {
+        type: 'summer' as const,
+        icon: { src: '/beach.png', alt: 'Summer closure icon' } as HolidayIcon,
+        title: { el: 'Θερινό Ωράριο', en: 'Summer Hours' },
+        colors: {
+          primary: 'from-teal-500 to-amber-400',
+          secondary: 'from-sky-400 to-amber-300',
+          bg: 'from-sky-50/15 via-white/[0.05] to-amber-50/15 dark:from-sky-900/30 dark:via-slate-900/70 dark:to-amber-900/30',
+          border: 'border-sky-300/30 dark:border-sky-800/30',
+          text: 'text-sky-700 dark:text-sky-200',
+          textDark: 'text-sky-900 dark:text-sky-100',
+          bgCard: 'bg-sky-50/30 dark:bg-sky-950/10',
+          bgToday: 'from-amber-100/60 to-sky-100/60 dark:from-amber-900/30 dark:to-sky-900/30',
+          borderCard: 'border-amber-200/40 dark:border-amber-800/40',
+          borderBadge: 'border-amber-300/60 bg-amber-50/60 dark:bg-amber-950/30',
+          dateColor: 'text-amber-600 dark:text-amber-300',
+          dateColorToday: 'text-amber-900 dark:text-amber-100',
+        },
       };
     }
 
@@ -172,7 +218,7 @@ export const useChristmasSchedule = () => {
       return {
         type: 'other' as const,
         icon: '⭐',
-        title: { el: '⭐ Ειδικό Ωράριο', en: '⭐ Special Hours' },
+        title: { el: 'Ειδικό Ωράριο', en: 'Special Hours' },
         colors: {
           primary: 'from-purple-500 to-indigo-500',
           secondary: 'from-purple-400 to-indigo-400',
@@ -194,8 +240,8 @@ export const useChristmasSchedule = () => {
     // Default to Christmas style
     return {
       type: 'christmas' as const,
-      icon: '🎄',
-      title: { el: '🎅 Χριστουγεννιάτικο Ωράριο', en: '🎅 Christmas Hours' },
+      icon: { src: '/christmas-wreath.png', alt: 'Christmas wreath icon' } as HolidayIcon,
+      title: { el: 'Χριστουγεννιάτικο Ωράριο', en: 'Christmas Hours' },
       colors: {
         primary: 'from-red-500 to-green-500',
         secondary: 'from-red-400 to-green-400',
@@ -209,7 +255,8 @@ export const useChristmasSchedule = () => {
         borderBadge: 'border-red-300/50 bg-red-50/50 dark:bg-red-950/30',
         dateColor: 'text-red-600 dark:text-red-400',
         dateColorToday: 'text-red-900 dark:text-red-100',
-        emoji: '❄️'
+        emoji: '❄️',
+        accent: '#bc4749'
       }
     };
   };

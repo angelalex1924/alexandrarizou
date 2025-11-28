@@ -47,8 +47,8 @@ export function getLocalizedPath(path: string, locale: Locale = 'el'): string {
     return routes[locale][routeKey];
   }
 
-  // Handle privacy and terms - keep same path but add /en prefix for English
-  if (cleanPath === 'privacy' || cleanPath === 'terms') {
+  const dualLanguageSlugs = ['privacy', 'terms', 'christmas-hours', 'newyear-hours', 'easter-hours', 'special-hours', 'summer-hours'];
+  if (dualLanguageSlugs.includes(cleanPath)) {
     return locale === 'en' ? `/en/${cleanPath}` : `/${cleanPath}`;
   }
 

@@ -12,7 +12,19 @@ const greekRoutes: Record<string, string> = {
 };
 
 // English routes (with /en prefix)
-const englishRoutes = ['/services', '/gallery', '/about', '/contact', '/privacy', '/terms'];
+const englishRoutes = [
+  '/services',
+  '/gallery',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/christmas-hours',
+  '/newyear-hours',
+  '/easter-hours',
+  '/special-hours',
+  '/summer-hours',
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

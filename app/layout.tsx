@@ -18,6 +18,8 @@ import {
     breadcrumbStructuredData
 } from "@/lib/alexandra-rizou-structured-data";
 import SEOPlugin from "@/components/SEOPlugin";
+import { HolidayAnnouncement } from "@/components/HolidayAnnouncement";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -300,6 +302,8 @@ export default function RootLayout({
                         <Sonner />
                         <AIChatbot />
                         <CookieConsent />
+                        <AnnouncementBanner />
+                        <HolidayAnnouncement />
                         {children}
                     </TooltipProvider>
                 </Providers>
