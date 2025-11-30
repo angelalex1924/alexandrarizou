@@ -1,4 +1,4 @@
-export type AnnouncementType = 'info' | 'warning' | 'success' | 'error' | 'announcement';
+export type AnnouncementType = 'info' | 'warning' | 'success' | 'error' | 'announcement' | 'offer';
 
 export type AnnouncementPriority = 'low' | 'medium' | 'high';
 

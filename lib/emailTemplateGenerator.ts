@@ -1,5 +1,56 @@
 // Email template HTML generator (doesn't require nodemailer)
-export const generateTemplateEmailHTML = (message: string, templateName: string) => {
+export const generateTemplateEmailHTML = (message: string, templateName: string, colors?: { primary?: string; secondary?: string; accent?: string; background?: string; text?: string }, baseTemplateId?: string) => {
+  // Default colors (Alexandra Rizou Green)
+  const primaryColor = colors?.primary || '#6B9A7A'
+  const secondaryColor = colors?.secondary || '#5a8a6a'
+  const accentColor = colors?.accent || '#4a7c59'
+  const backgroundColor = colors?.background || '#f5f7fa'
+  const textColor = colors?.text || '#1a202c'
+
+  // Helper to convert hex to rgba
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  }
+
+  // Determine header background based on template type (holiday/seasonal templates)
+  const getHeaderBackground = (): string => {
+    const templateId = baseTemplateId || ''
+    const name = templateName.toLowerCase()
+    
+    // Christmas - Red gradient
+    if (templateId === 'christmas' || name.includes('christmas') || name.includes('χριστούγεννα')) {
+      return 'linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%)'
+    }
+    
+    // New Year - Gold/Yellow gradient
+    if (templateId === 'newyear' || name.includes('new year') || name.includes('πρωτοχρονιά') || name.includes('νέο έτος')) {
+      return 'linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #fbbf24 100%)'
+    }
+    
+    // Easter - Yellow/Orange gradient
+    if (templateId === 'easter' || name.includes('easter') || name.includes('πάσχα')) {
+      return 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)'
+    }
+    
+    // Summer - Blue gradient
+    if (templateId === 'summer' || name.includes('summer') || name.includes('καλοκαίρι')) {
+      return 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%)'
+    }
+    
+    // Autumn - Orange gradient
+    if (templateId === 'autumn' || name.includes('autumn') || name.includes('φθινόπωρο')) {
+      return 'linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)'
+    }
+    
+    // Default - Green gradient (Alexandra Rizou brand color)
+    return `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`
+  }
+
+  const headerBackground = getHeaderBackground()
+  
   return `
     <!DOCTYPE html>
     <html lang="el">
@@ -16,8 +67,8 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
                 line-height: 1.7;
-                color: #1a202c;
-                background: #f5f7fa;
+                color: ${textColor};
+                background: ${backgroundColor};
                 padding: 30px 15px;
                 margin: 0;
             }
@@ -25,19 +76,27 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
                 max-width: 580px;
                 margin: 0 auto;
                 background-color: #ffffff;
-                border-radius: 12px;
+                border-radius: 16px;
                 overflow: hidden;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
             }
             .header {
-                background: linear-gradient(135deg, #6B9A7A 0%, #5a8a6a 100%);
-                padding: 35px 30px;
+                background: ${headerBackground};
+                padding: 40px 30px;
                 text-align: center;
                 position: relative;
             }
             .header-content {
                 position: relative;
                 z-index: 1;
+            }
+            .header-image {
+                max-width: 280px;
+                width: 100%;
+                height: auto;
+                margin: 0 auto 20px auto;
+                display: block;
+                border-radius: 8px;
             }
             .logo {
                 height: 90px;
@@ -52,15 +111,16 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
             }
             .template-badge {
                 display: inline-block;
-                background: rgba(255, 255, 255, 0.2);
+                background: ${hexToRgba(primaryColor, 0.2)};
                 color: #ffffff;
-                padding: 5px 14px;
+                padding: 6px 16px;
                 border-radius: 20px;
                 font-size: 11px;
-                font-weight: 500;
-                margin-top: 8px;
+                font-weight: 600;
+                margin-top: 12px;
                 letter-spacing: 0.5px;
                 text-transform: uppercase;
+                border: 1px solid ${hexToRgba(primaryColor, 0.3)};
             }
             .content {
                 padding: 35px 30px;
@@ -68,11 +128,10 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
             .message-content {
                 font-size: 15px;
                 line-height: 1.75;
-                color: #2d3748;
-                white-space: pre-line;
+                color: ${textColor};
             }
             .message-content h1, .message-content h2, .message-content h3 {
-                color: #1a202c;
+                color: ${textColor};
                 margin-top: 24px;
                 margin-bottom: 12px;
                 font-weight: 600;
@@ -83,7 +142,7 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
             }
             .message-content h2 {
                 font-size: 20px;
-                color: #6B9A7A;
+                color: ${primaryColor};
             }
             .message-content h3 {
                 font-size: 18px;
@@ -100,8 +159,74 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
                 line-height: 1.7;
             }
             .message-content strong {
-                color: #1a202c;
+                color: ${textColor};
                 font-weight: 600;
+            }
+            /* Ensure inline styles from editor are respected */
+            .message-content div, .message-content h1, .message-content h2, .message-content h3, 
+            .message-content p, .message-content ul, .message-content ol, .message-content li, 
+            .message-content strong, .message-content em, .message-content u, .message-content s {
+                all: unset;
+                display: block;
+            }
+            .message-content strong { font-weight: bold; }
+            .message-content em { font-style: italic; }
+            .message-content u { text-decoration: underline; }
+            .message-content s { text-decoration: line-through; }
+            .message-content h1 { font-size: 24px; font-weight: bold; }
+            .message-content h2 { font-size: 20px; font-weight: bold; }
+            .message-content h3 { font-size: 18px; font-weight: bold; }
+            .message-content p { margin-bottom: 14px; }
+            .message-content ul, .message-content ol { margin: 16px 0; padding-left: 24px; }
+            .message-content li { margin-bottom: 8px; line-height: 1.7; }
+            /* Specific styles for schedule blocks to ensure they render correctly */
+            .message-content div[style*="background: linear-gradient"] {
+                all: unset;
+                display: block;
+                background: var(--schedule-bg, linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.5)));
+                border: var(--schedule-border, 2px solid #ccc);
+                border-radius: var(--schedule-radius, 12px);
+                padding: var(--schedule-padding, 20px);
+                margin: var(--schedule-margin, 20px 0);
+            }
+            .message-content div[style*="background: linear-gradient"] h2 {
+                all: unset;
+                display: block;
+                color: var(--schedule-accent, #333);
+                margin: 0 0 16px 0;
+                font-size: 20px;
+                font-weight: 600;
+            }
+            .message-content div[style*="background: linear-gradient"] ul {
+                all: unset;
+                display: block;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            .message-content div[style*="background: linear-gradient"] li {
+                all: unset;
+                display: block;
+                padding: 8px 0;
+                border-bottom: 1px solid var(--schedule-item-border, #eee);
+                line-height: 1.7;
+            }
+            .message-content div[style*="background: linear-gradient"] li:last-child {
+                border-bottom: none;
+            }
+            .message-content div[style*="background: linear-gradient"] strong {
+                all: unset;
+                display: inline;
+                color: var(--schedule-accent, #333);
+                font-weight: bold;
+            }
+            .message-content div[style*="background: linear-gradient"] p {
+                all: unset;
+                display: block;
+                margin-top: 12px;
+                font-size: 13px;
+                color: var(--schedule-text, #333);
+                opacity: 0.8;
             }
             .divider {
                 height: 1px;
@@ -109,16 +234,16 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
                 margin: 28px 0;
             }
             .contact-section {
-                background: #f8f9fa;
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
+                background: linear-gradient(135deg, ${hexToRgba(primaryColor, 0.1)} 0%, ${hexToRgba(secondaryColor, 0.15)} 100%);
+                border: 2px solid ${primaryColor};
+                border-radius: 12px;
                 padding: 24px;
                 margin: 28px 0;
             }
             .contact-title {
                 font-size: 13px;
                 font-weight: 600;
-                color: #6B9A7A;
+                color: ${accentColor};
                 margin-bottom: 16px;
                 text-align: center;
                 letter-spacing: 0.5px;
@@ -162,7 +287,7 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
             .footer-brand {
                 font-size: 15px;
                 font-weight: 600;
-                color: #6B9A7A;
+                color: ${primaryColor};
                 margin-top: 12px;
             }
             @media only screen and (max-width: 600px) {
@@ -188,8 +313,7 @@ export const generateTemplateEmailHTML = (message: string, templateName: string)
         <div class="email-wrapper">
             <div class="header">
                 <div class="header-content">
-                    <img src="https://alexandra-rizou.vercel.app/assets/rizou_logo_white.png" alt="Alexandra Rizou" class="logo">
-                    <h1 class="header-title">Alexandra Rizou</h1>
+                    <img src="https://alexandra-rizou.vercel.app/assets/rizou_logo_white.png" alt="Alexandra Rizou" class="header-image">
                     <div class="template-badge">${templateName}</div>
                 </div>
             </div>

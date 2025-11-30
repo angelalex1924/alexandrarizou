@@ -4,7 +4,7 @@ import { sendTemplateEmail } from '@/lib/emailService';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { emails, templateId, customSubject, customMessage } = body;
+    const { emails, templateId, customSubject, customMessage, customization } = body;
 
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return NextResponse.json(
@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
       emails,
       templateId,
       customSubject,
-      customMessage
+      customMessage,
+      customization
     });
 
     if (result.success) {

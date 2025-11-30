@@ -103,6 +103,7 @@ export interface TemplateEmailData {
   templateId: string;
   customSubject?: string;
   customMessage?: string;
+  customization?: any;
 }
 
 export interface ContactFormData {
@@ -113,7 +114,7 @@ export interface ContactFormData {
   message: string;
 }
 
-import { emailTemplates } from './emailTemplates'
+import { emailTemplates } from './email-templates'
 
 export const sendReviewRequest = async (reviewData: ReviewEmailData) => {
   try {
@@ -204,14 +205,43 @@ export const sendTemplateEmail = async (templateData: TemplateEmailData) => {
     // Send emails to each recipient
     for (const email of templateData.emails) {
       try {
-        const subject = templateData.customSubject || template.subject;
-        const message = templateData.customMessage || template.content;
+        // Handle subject (can be string or object with el/en)
+        let subject = templateData.customSubject
+        if (!subject) {
+          if (typeof template.subject === 'string') {
+            subject = template.subject
+          } else if (typeof template.subject === 'object' && template.subject.el) {
+            subject = template.subject.el
+          } else if (typeof template.subject === 'object' && template.subject.en) {
+            subject = template.subject.en
+          } else {
+            subject = 'Email from Alexandra Rizou'
+          }
+        }
+
+        // Handle message/content (can be string or object with el/en, or use customMessage)
+        let message = templateData.customMessage
+        if (!message) {
+          if (typeof template.content === 'string') {
+            message = template.content
+          } else if (typeof template.content === 'object' && template.content.el) {
+            message = template.content.el
+          } else if (typeof template.content === 'object' && template.content.en) {
+            message = template.content.en
+          } else {
+            message = ''
+          }
+        }
+
+        // Get colors and baseTemplateId from customization if available
+        const colors = templateData.customization?.colors || {}
+        const baseTemplateId = templateData.templateId || template.id
 
         const mailOptions = {
           from: '"Alexandra Rizou hair-beauty & health services" <alexandrarizoucoiffure@gmail.com>',
           to: email,
           subject: subject,
-          html: generateTemplateEmailHTML(message, template.name),
+          html: generateTemplateEmailHTML(message, template.name, colors, baseTemplateId),
           text: message
         };
 

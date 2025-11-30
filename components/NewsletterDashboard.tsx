@@ -278,30 +278,51 @@ export default function NewsletterDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center h-64"
+          >
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-8 w-8 bg-blue-600 rounded-full animate-pulse"></div>
+              </div>
           </div>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mt-6 text-slate-700 font-medium text-lg"
+            >
+              Φόρτωση subscribers...
+            </motion.p>
+          </motion.div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 sm:p-5 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2" style={{ fontFamily: 'StampatelloFaceto, cursive' }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-1 w-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent">
             Newsletter Dashboard
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Manage your newsletter subscribers and send updates
+          </div>
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl">
+            Διαχειριστείτε τους subscribers σας και στείλτε ενημερώσεις
           </p>
         </motion.div>
 
@@ -310,57 +331,69 @@ export default function NewsletterDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8"
         >
-          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Subscribers</p>
-                  <p className="text-2xl font-bold text-slate-800 dark:text-white">{stats.total}</p>
-                </div>
-                <Users className="h-8 w-8 text-blue-600" />
+          <motion.div
+            whileHover={{ scale: 1.03, y: -2 }}
+            className="bg-gradient-to-br from-white to-blue-50/50 backdrop-blur-xl rounded-2xl p-5 sm:p-6 border-2 border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Users className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Active Subscribers</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">Σύνολο Subscribers</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-slate-800">{stats.total}</p>
                 </div>
-                <Mail className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
+          </motion.div>
 
-          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+          <motion.div
+            whileHover={{ scale: 1.03, y: -2 }}
+            className="bg-gradient-to-br from-white to-green-50/50 backdrop-blur-xl rounded-2xl p-5 sm:p-6 border-2 border-green-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-green-100 rounded-xl">
+                <Mail className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />
+              </div>
+            </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Languages</p>
-                  <p className="text-2xl font-bold text-purple-600">{Object.keys(stats.languages).length}</p>
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">Ενεργοί Subscribers</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-green-600">{stats.active}</p>
                 </div>
-                <Globe className="h-8 w-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
+          </motion.div>
 
-          <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+          <motion.div
+            whileHover={{ scale: 1.03, y: -2 }}
+            className="bg-gradient-to-br from-white to-purple-50/50 backdrop-blur-xl rounded-2xl p-5 sm:p-6 border-2 border-purple-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-100 rounded-xl">
+                <Globe className="h-6 w-6 sm:h-7 sm:w-7 text-purple-600" />
+              </div>
+            </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Engagement</p>
-                  <p className="text-2xl font-bold text-orange-600">
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">Γλώσσες</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-purple-600">{Object.keys(stats.languages).length}</p>
+                </div>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.03, y: -2 }}
+            className="bg-gradient-to-br from-white to-orange-50/50 backdrop-blur-xl rounded-2xl p-5 sm:p-6 border-2 border-orange-200/50 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-orange-100 rounded-xl">
+                <Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-orange-600" />
+              </div>
+            </div>
+                <div>
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">Engagement</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-orange-600">
                     {stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}%
                   </p>
                 </div>
-                <Calendar className="h-8 w-8 text-orange-600" />
-              </div>
-            </CardContent>
-          </Card>
+          </motion.div>
         </motion.div>
 
         {/* Actions */}
@@ -368,34 +401,37 @@ export default function NewsletterDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-4 mb-6"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6"
         >
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
               <Input
-                placeholder="Search subscribers..."
+                placeholder="Αναζήτηση subscribers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white/80 dark:bg-slate-800/80 border-0 shadow-lg"
+                className="pl-12 pr-4 py-3 bg-white/95 backdrop-blur-xl border-2 border-slate-200/60 shadow-lg rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
               />
             </div>
           </div>
-          <Button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={openEmailModal}
-            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg"
+            className="flex items-center justify-center gap-2 px-5 sm:px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
-            <Send className="h-4 w-4 mr-2" />
-            Send Newsletter
-          </Button>
-          <Button
+            <Send className="h-5 w-5" />
+            <span>Send Newsletter</span>
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={exportSubscribers}
-            variant="outline"
-            className="bg-white/80 dark:bg-slate-800/80 border-0 shadow-lg"
+            className="flex items-center justify-center gap-2 px-5 sm:px-6 py-3 bg-white/95 backdrop-blur-xl border-2 border-slate-200/60 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 font-semibold text-slate-700 hover:text-slate-900 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
+            <Download className="h-5 w-5" />
+            <span>Export CSV</span>
+          </motion.button>
         </motion.div>
 
         {/* Bulk Actions */}

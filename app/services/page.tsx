@@ -94,73 +94,61 @@ export default function Services() {
             services: [
                 { 
                     name: t("service.hairstyling"), 
-                    price: "14€ - 20€",
                     description: t("service.hairstyling.desc"),
                     icon: "hairstyling"
                 },
                 { 
                     name: t("service.womenscut"), 
-                    price: "25€",
                     description: t("service.womenscut.desc"),
                     icon: "womenscut"
                 },
                 { 
                     name: t("service.menscut"), 
-                    price: "15€",
                     description: t("service.menscut.desc"),
                     icon: "menscut"
                 },
                 { 
                     name: t("service.kidscut"), 
-                    price: "10€",
                     description: t("service.kidscut.desc"),
                     icon: "kidscut"
                 },
                 { 
                     name: t("service.treatment"), 
-                    price: "10€",
                     description: t("service.treatment.desc"),
                     icon: "treatment"
                 },
                 { 
                     name: t("service.rootcolor"), 
-                    price: "28€",
                     description: t("service.rootcolor.desc"),
                     icon: "rootcolor"
                 },
                 { 
                     name: t("service.fullcolor"), 
-                    price: language === "el" ? "Από 38€" : "From 38€",
                     description: t("service.fullcolor.desc"),
                     icon: "fullcolor"
                 },
                 { 
                     name: t("service.highlights"), 
-                    price: language === "el" ? "Από 30€" : "From 30€",
                     description: t("service.highlights.desc"),
                     icon: "highlights"
                 },
                 { 
                     name: t("service.balayage"), 
-                    price: "55€",
                     description: t("service.balayage.desc"),
                     icon: "balayage"
                 },
                 { 
                     name: t("service.bleach"), 
-                    price: "30€",
                     description: t("service.bleach.desc"),
                     icon: "bleach"
                 },
                 { 
                     name: t("service.toner"), 
-                    price: "10€",
                     description: t("service.toner.desc"),
                     icon: "toner"
                 },
                 { 
                     name: t("service.ombre"), 
-                    price: "30€",
                     description: t("service.ombre.desc"),
                     icon: "ombre"
                 },
@@ -174,7 +162,6 @@ export default function Services() {
             services: [
                 { 
                     name: t("service.waxing"), 
-                    price: "5€",
                     description: t("service.waxing.desc"),
                     icon: "eyelashes"
                 },
@@ -315,20 +302,8 @@ export default function Services() {
 
                                                     {/* Content */}
                                                     <div className="relative z-10 p-6 md:p-8 lg:p-10 flex flex-col h-full">
-                                                        {/* Enhanced Price Badge */}
-                                                        <div className="absolute top-4 right-4 md:top-6 md:right-6">
-                                                            <div className="relative">
-                                                                <div className="absolute inset-0 bg-primary/25 blur-lg rounded-full" />
-                                                                <div className={`relative px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-gradient-to-r ${colors.badge} backdrop-blur-sm border border-primary/40 dark:border-primary/50 shadow-md`}>
-                                                                    <span className="text-sm md:text-base font-bold text-white">
-                                                                        {service.price}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                </div>
-
                                                         {/* Service Icon and Title */}
-                                                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-5 pr-16 md:pr-24">
+                                                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-5">
                                                             {service.icon && (
                                                                 <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/8 dark:from-primary/20 dark:to-primary/12 flex items-center justify-center text-primary dark:text-primary/90 shadow-md shadow-primary/10 group-hover:scale-110 transition-transform duration-300">
                                                                     <ServiceIcon iconType={service.icon} />

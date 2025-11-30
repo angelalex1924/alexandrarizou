@@ -20,6 +20,7 @@ import {
 import SEOPlugin from "@/components/SEOPlugin";
 import { HolidayAnnouncement } from "@/components/HolidayAnnouncement";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -304,6 +305,7 @@ export default function RootLayout({
                         <CookieConsent />
                         <AnnouncementBanner />
                         <HolidayAnnouncement />
+                        <AnalyticsTracker />
                         {children}
                     </TooltipProvider>
                 </Providers>

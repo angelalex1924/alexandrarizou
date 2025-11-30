@@ -6,12 +6,13 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { motion } from 'framer-motion'
 import { Send, X, Users, FileText, Edit3, Mail, Check, User } from 'lucide-react'
-import { emailTemplates } from '@/lib/emailTemplates'
+import { emailTemplates } from '@/lib/email-templates'
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
 interface TemplateEmailSenderProps {
   onClose: () => void
+  preSelectedTemplate?: any
 }
 
 interface NewsletterSubscriber {
@@ -23,7 +24,7 @@ interface NewsletterSubscriber {
   isActive: boolean;
 }
 
-export default function TemplateEmailSender({ onClose }: TemplateEmailSenderProps) {
+export default function TemplateEmailSender({ onClose, preSelectedTemplate }: TemplateEmailSenderProps) {
   const [formData, setFormData] = useState({
     emails: '',
     templateId: '',
@@ -37,6 +38,8 @@ export default function TemplateEmailSender({ onClose }: TemplateEmailSenderProp
   const [selectedSubscribers, setSelectedSubscribers] = useState<string[]>([])
   const [loadingSubscribers, setLoadingSubscribers] = useState(false)
   const [recipientMode, setRecipientMode] = useState<'manual' | 'subscribers'>('manual')
+  const [savedTemplates, setSavedTemplates] = useState<any[]>([])
+  const [templateMode, setTemplateMode] = useState<'base' | 'saved'>('base')
 
   // Fetch newsletter subscribers directly from Firebase (like NewsletterDashboard)
   useEffect(() => {
@@ -68,6 +71,43 @@ export default function TemplateEmailSender({ onClose }: TemplateEmailSenderProp
 
     fetchSubscribers()
   }, [])
+
+  // Fetch saved templates from Firestore
+  useEffect(() => {
+    const fetchSavedTemplates = async () => {
+      try {
+        const templatesRef = collection(db, 'emailTemplates')
+        const q = query(templatesRef, orderBy('updatedAt', 'desc'))
+        const snapshot = await getDocs(q)
+        
+        const templates = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          isSaved: true
+        }))
+        
+        setSavedTemplates(templates)
+      } catch (error) {
+        console.error('Error fetching saved templates:', error)
+      }
+    }
+
+    fetchSavedTemplates()
+  }, [])
+
+  // If preSelectedTemplate is provided, set it as selected
+  useEffect(() => {
+    if (preSelectedTemplate) {
+      setTemplateMode('saved')
+      setFormData(prev => ({
+        ...prev,
+        templateId: preSelectedTemplate.baseTemplateId || preSelectedTemplate.id,
+        customSubject: '',
+        customMessage: preSelectedTemplate.customMessage || ''
+      }))
+      setSelectedTemplate(preSelectedTemplate)
+    }
+  }, [preSelectedTemplate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -146,14 +186,45 @@ export default function TemplateEmailSender({ onClose }: TemplateEmailSenderProp
   }
 
   const handleTemplateSelect = (templateId: string) => {
-    const template = emailTemplates.find(t => t.id === templateId)
-    setSelectedTemplate(template)
-    setFormData(prev => ({
-      ...prev,
-      templateId,
-      customSubject: template?.subject || '',
-      customMessage: template?.content || ''
-    }))
+    if (templateMode === 'saved') {
+      const template = savedTemplates.find(t => t.id === templateId || t.baseTemplateId === templateId)
+      if (template) {
+        setSelectedTemplate(template)
+        setFormData(prev => ({
+          ...prev,
+          templateId: template.baseTemplateId || template.id,
+          customSubject: '',
+          customMessage: template.customMessage || ''
+        }))
+      }
+    } else {
+      const template = emailTemplates.find(t => t.id === templateId)
+      setSelectedTemplate(template)
+      // Handle subject (can be string or object with el/en)
+      let subject = ''
+      if (typeof template?.subject === 'string') {
+        subject = template.subject
+      } else if (typeof template?.subject === 'object' && template?.subject?.el) {
+        subject = template.subject.el
+      } else if (typeof template?.subject === 'object' && template?.subject?.en) {
+        subject = template.subject.en
+      }
+      // Handle content (can be string or object with el/en)
+      let content = ''
+      if (typeof template?.content === 'string') {
+        content = template.content
+      } else if (typeof template?.content === 'object' && template?.content?.el) {
+        content = template.content.el
+      } else if (typeof template?.content === 'object' && template?.content?.en) {
+        content = template.content.en
+      }
+      setFormData(prev => ({
+        ...prev,
+        templateId,
+        customSubject: subject,
+        customMessage: content
+      }))
+    }
   }
 
   const handleSubscriberToggle = (subscriberId: string) => {
@@ -232,30 +303,105 @@ export default function TemplateEmailSender({ onClose }: TemplateEmailSenderProp
                 <FileText className="w-4 h-4 inline mr-2" />
                 Select Template
               </label>
+              
+              {/* Template Mode Toggle */}
+              <div className="flex space-x-4 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setTemplateMode('base')}
+                  className={`px-4 py-2 rounded-lg border transition-all ${
+                    templateMode === 'base'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-slate-300 text-slate-600 hover:border-blue-300'
+                  }`}
+                >
+                  Base Templates
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTemplateMode('saved')}
+                  className={`px-4 py-2 rounded-lg border transition-all ${
+                    templateMode === 'saved'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-slate-300 text-slate-600 hover:border-blue-300'
+                  }`}
+                >
+                  Saved Templates ({savedTemplates.length})
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {emailTemplates.map((template) => (
-                  <div
-                    key={template.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                      formData.templateId === template.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-slate-200 dark:border-slate-600 hover:border-blue-300'
-                    }`}
-                    onClick={() => handleTemplateSelect(template.id)}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-slate-800 dark:text-white">
-                        {template.name}
-                      </h4>
-                      <span className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
-                        {template.category}
-                      </span>
+                {templateMode === 'base' ? (
+                  emailTemplates.map((template) => {
+                    // Handle subject (can be string or object with el/en)
+                    let subject = ''
+                    if (typeof template.subject === 'string') {
+                      subject = template.subject
+                    } else if (typeof template.subject === 'object' && template.subject.el) {
+                      subject = template.subject.el
+                    } else if (typeof template.subject === 'object' && template.subject.en) {
+                      subject = template.subject.en
+                    }
+                    return (
+                      <div
+                        key={template.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.templateId === template.id
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                            : 'border-slate-200 dark:border-slate-600 hover:border-blue-300'
+                        }`}
+                        onClick={() => handleTemplateSelect(template.id)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-slate-800 dark:text-white">
+                            {template.name}
+                          </h4>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          {template.description}
+                        </p>
+                      </div>
+                    )
+                  })
+                ) : (
+                  savedTemplates.length === 0 ? (
+                    <div className="col-span-2 text-center py-8 text-slate-500">
+                      Δεν υπάρχουν αποθηκευμένα templates
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {template.description}
-                    </p>
-                  </div>
-                ))}
+                  ) : (
+                    savedTemplates.map((template) => (
+                      <div
+                        key={template.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.templateId === template.id
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                            : 'border-slate-200 dark:border-slate-600 hover:border-blue-300'
+                        }`}
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            templateId: template.baseTemplateId || template.id,
+                            customSubject: '',
+                            customMessage: template.customMessage || ''
+                          }))
+                          setSelectedTemplate(template)
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-slate-800 dark:text-white">
+                            {template.name}
+                          </h4>
+                          <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-1 rounded">
+                            Saved
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          {template.baseTemplateName || 'Custom Template'}
+                        </p>
+                      </div>
+                    ))
+                  )
+                )}
               </div>
             </div>
 

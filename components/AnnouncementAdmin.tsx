@@ -7,12 +7,24 @@ import { motion } from 'framer-motion';
 import { Bell, Save, Plus, Trash2, X, AlertCircle, Info, CheckCircle, AlertTriangle, Megaphone, Calendar, Globe } from 'lucide-react';
 import type { Announcement, AnnouncementType, AnnouncementPriority } from '@/types/announcements';
 
+// Offer Icon Component for Alexandra Rizou
+const OfferIconAlexandra = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <g fill="currentColor">
+      <path fillRule="evenodd" d="M10.594 2.319a3.261 3.261 0 0 1 2.812 0c.387.185.74.487 1.231.905l.078.066c.238.203.313.265.389.316c.193.13.41.219.637.264c.09.018.187.027.499.051l.101.008c.642.051 1.106.088 1.51.23a3.27 3.27 0 0 1 1.99 1.99c.142.404.178.868.23 1.51l.008.101c.024.312.033.41.051.499c.045.228.135.445.264.638c.051.075.113.15.316.388l.066.078c.419.49.72.844.905 1.23c.425.89.425 1.924 0 2.813c-.184.387-.486.74-.905 1.231l-.066.078a4.758 4.758 0 0 0-.316.389c-.13.193-.219.41-.264.637c-.018.09-.026.187-.051.499l-.009.101c-.05.642-.087 1.106-.23 1.51a3.26 3.26 0 0 1-1.989 1.99c-.404.142-.868.178-1.51.23l-.101.008a4.757 4.757 0 0 0-.499.051a1.755 1.755 0 0 0-.637.264a4.83 4.83 0 0 0-.39.316l-.077.066c-.49.419-.844.72-1.23.905a3.261 3.261 0 0 1-2.813 0c-.387-.184-.74-.486-1.231-.905a95.175 95.175 0 0 0-.078-.066a4.779 4.779 0 0 0-.388-.316a1.746 1.746 0 0 0-.638-.264a4.759 4.759 0 0 0-.499-.051l-.101-.009c-.642-.05-1.106-.087-1.51-.23a3.261 3.261 0 0 1-1.99-1.989c-.142-.404-.179-.868-.23-1.51l-.008-.101a4.76 4.76 0 0 0-.051-.499a1.756 1.756 0 0 0-.264-.637a4.74 4.74 0 0 0-.316-.39l-.066-.077c-.418-.49-.72-.844-.905-1.23a3.261 3.261 0 0 1 0-2.813c.185-.387.487-.74.905-1.231l.066-.078a4.76 4.76 0 0 0 .316-.388c.13-.193.219-.41.264-.638c.018-.09.027-.187.051-.499l.008-.101c.051-.642.088-1.106.23-1.51a3.261 3.261 0 0 1 1.99-1.99c.404-.142.868-.179 1.51-.23l.101-.008a4.47 4.47 0 0 0 .499-.051c.228-.045.445-.135.638-.264c.075-.051.15-.113.388-.316l.078-.066c.49-.418.844-.72 1.23-.905Zm2.163 1.358a1.756 1.756 0 0 0-1.514 0c-.185.088-.38.247-.981.758l-.03.025c-.197.168-.34.291-.497.396c-.359.24-.761.407-1.185.49c-.185.037-.373.052-.632.073l-.038.003c-.787.063-1.036.089-1.23.157c-.5.177-.894.57-1.07 1.071c-.07.194-.095.443-.158 1.23l-.003.038c-.02.259-.036.447-.072.632c-.084.424-.25.826-.49 1.185c-.106.157-.229.3-.397.498l-.025.029c-.511.6-.67.796-.758.98a1.756 1.756 0 0 0 0 1.515c.088.185.247.38.758.981l.025.03c.168.197.291.34.396.497c.24.359.407.761.49 1.184c.037.186.052.374.073.633l.003.038c.063.787.089 1.036.157 1.23c.177.5.57.894 1.071 1.07c.194.07.443.095 1.23.158l.038.003c.259.02.447.036.632.072c.424.084.826.25 1.185.49c.157.106.3.229.498.397l.029.025c.6.511.796.67.98.758a1.756 1.756 0 0 0 1.515 0c.185-.088.38-.247.981-.758l.03-.025c.197-.168.34-.291.497-.396a3.26 3.26 0 0 1 1.184-.49a5.53 5.53 0 0 1 .633-.073l.038-.003c.787-.063 1.036-.089 1.23-.157c.5-.177.894-.57 1.07-1.071c.07-.194.095-.444.158-1.23l.003-.038a5.53 5.53 0 0 1 .072-.633c.084-.423.25-.825.49-1.184c.106-.157.229-.3.397-.498l.025-.029c.511-.6.67-.796.758-.98a1.756 1.756 0 0 0 0-1.515c-.088-.185-.247-.38-.758-.981l-.025-.03c-.168-.197-.291-.34-.396-.497a3.262 3.262 0 0 1-.49-1.185a5.531 5.531 0 0 1-.073-.632l-.003-.038c-.063-.787-.089-1.036-.157-1.23c-.177-.5-.57-.894-1.071-1.07c-.194-.07-.444-.095-1.23-.158l-.038-.003a5.568 5.568 0 0 1-.633-.072a3.262 3.262 0 0 1-1.184-.49c-.157-.106-.3-.229-.498-.397l-.029-.025c-.6-.511-.796-.67-.98-.758Z" clipRule="evenodd"/>
+      <path fillRule="evenodd" d="M15.543 8.457a.753.753 0 0 1 0 1.065l-6.021 6.02a.753.753 0 0 1-1.065-1.064l6.021-6.02a.753.753 0 0 1 1.065 0Z" clipRule="evenodd"/>
+      <path d="M15.512 14.509a1.004 1.004 0 1 1-2.007 0a1.004 1.004 0 0 1 2.007 0Zm-5.017-5.018a1.004 1.004 0 1 1-2.007 0a1.004 1.004 0 0 1 2.007 0Z"/>
+    </g>
+  </svg>
+);
+
 const announcementTypes: { value: AnnouncementType; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'info', label: 'Πληροφορία', icon: <Info className="w-4 h-4" />, color: 'bg-blue-500' },
   { value: 'warning', label: 'Προειδοποίηση', icon: <AlertTriangle className="w-4 h-4" />, color: 'bg-orange-500' },
   { value: 'success', label: 'Επιτυχία', icon: <CheckCircle className="w-4 h-4" />, color: 'bg-green-500' },
   { value: 'error', label: 'Σφάλμα', icon: <AlertCircle className="w-4 h-4" />, color: 'bg-red-500' },
   { value: 'announcement', label: 'Ανακοίνωση', icon: <Megaphone className="w-4 h-4" />, color: 'bg-purple-500' },
+  { value: 'offer', label: 'Προσφορά', icon: <OfferIconAlexandra className="w-5 h-5" />, color: 'bg-amber-500' },
 ];
 
 const priorities: { value: AnnouncementPriority; label: string; color: string }[] = [
@@ -170,39 +182,51 @@ export default function AnnouncementAdmin() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Φόρτωση...</p>
+      <div className="flex items-center justify-center p-8 sm:p-12">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="relative mx-auto mb-6">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-8 w-8 bg-blue-600 rounded-full animate-pulse"></div>
         </div>
+          </div>
+          <p className="text-slate-700 font-medium text-lg">Φόρτωση...</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5 md:space-y-6">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl shadow-lg">
-              <Bell className="w-6 h-6 text-white" />
+      <div className="rounded-2xl border-2 border-slate-200/60 bg-white/95 backdrop-blur-xl p-4 sm:p-5 md:p-6 shadow-xl">
+        <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="rounded-xl p-3 sm:p-4 bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg">
+              <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                Ανακοινώσεις
-                <span className="text-xl">📢</span>
-              </h2>
-              <p className="text-slate-600 text-sm">Διαχείριση ανακοινώσεων και ειδοποιήσεων</p>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-0.5 w-6 bg-gradient-to-r from-blue-600 to-transparent rounded-full"></div>
+                <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500">Announcements</p>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1">Ανακοινώσεις</h2>
+              <p className="text-xs sm:text-sm text-slate-600">Διαχείριση ανακοινώσεων και ειδοποιήσεων</p>
             </div>
           </div>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={createNewAnnouncement}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             <span>Νέα Ανακοίνωση</span>
-          </button>
+          </motion.button>
         </div>
 
         {/* Message */}
@@ -211,23 +235,37 @@ export default function AnnouncementAdmin() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`p-3 rounded-lg ${
-              message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            className={`mt-4 p-3 sm:p-4 rounded-xl border-2 ${
+              message.type === 'success' 
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-md' 
+                : 'bg-rose-50 text-rose-800 border-rose-200 shadow-md'
             }`}
           >
-            {message.text}
+            <div className="flex items-center gap-2">
+              {message.type === 'success' ? (
+                <CheckCircle className="h-5 w-5 text-emerald-600" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-rose-600" />
+              )}
+              <span className="font-semibold">{message.text}</span>
+            </div>
           </motion.div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
         {/* Announcements List */}
-        <div className="lg:col-span-1 space-y-3">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Λίστα Ανακοινώσεων</h3>
+        <div className="lg:col-span-1 space-y-3 sm:space-y-4">
+          <div className="flex items-center gap-2 mb-4 sm:mb-5">
+            <div className="h-0.5 w-6 bg-gradient-to-r from-blue-600 to-transparent rounded-full"></div>
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900">Λίστα Ανακοινώσεων</h3>
+          </div>
           {announcements.length === 0 ? (
-            <div className="bg-white/80 backdrop-blur-xl rounded-xl p-6 border border-white/20 text-center">
-              <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-600">Δεν υπάρχουν ανακοινώσεις</p>
+            <div className="rounded-2xl border-2 border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-6 sm:p-8 text-center shadow-md">
+              <div className="p-4 bg-slate-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Bell className="w-8 h-8 text-slate-400" />
+              </div>
+              <p className="text-slate-600 font-medium">Δεν υπάρχουν ανακοινώσεις</p>
             </div>
           ) : (
             announcements.map((announcement) => {
@@ -237,51 +275,54 @@ export default function AnnouncementAdmin() {
                   key={announcement.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  className={`p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
                     selectedAnnouncement?.id === announcement.id
-                      ? 'border-blue-500 bg-blue-50 shadow-lg'
-                      : 'border-slate-200 bg-white/80 hover:border-blue-300 hover:shadow-md'
+                      ? 'border-blue-600 bg-gradient-to-br from-blue-50 to-white shadow-xl ring-2 ring-blue-500 ring-offset-2'
+                      : 'border-slate-200/60 bg-gradient-to-br from-white to-slate-50/50 hover:border-blue-400 hover:shadow-lg'
                   }`}
                   onClick={() => {
                     setSelectedAnnouncement(announcement);
                     setIsCreating(false);
                   }}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${typeConfig?.color || 'bg-slate-400'} text-white`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`p-2 rounded-lg ${typeConfig?.color || 'bg-slate-400'} text-white shadow-md flex-shrink-0`}>
                         {typeConfig?.icon}
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-slate-800 text-sm">{announcement.title.el}</h4>
-                        <p className="text-xs text-slate-500">{announcement.title.en}</p>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-slate-900 text-sm sm:text-base mb-1 truncate">{announcement.title.el}</h4>
+                        <p className="text-xs text-slate-500 truncate">{announcement.title.en}</p>
                       </div>
                     </div>
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (announcement.id) handleDelete(announcement.id);
                       }}
-                      className="p-1 hover:bg-red-100 rounded text-red-500 transition-colors"
+                      className="p-1.5 hover:bg-red-100 rounded-lg text-red-600 transition-colors flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500"
                       disabled={deleting === announcement.id}
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </motion.button>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border-2 ${
                         announcement.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          : 'bg-slate-100 text-slate-600 border-slate-200'
                       }`}
                     >
                       {announcement.isActive ? 'Ενεργή' : 'Ανενεργή'}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold text-white ${
                         priorities.find(p => p.value === announcement.priority)?.color || 'bg-slate-400'
-                      } text-white`}
+                      } shadow-sm`}
                     >
                       {priorities.find(p => p.value === announcement.priority)?.label}
                     </span>
@@ -295,75 +336,86 @@ export default function AnnouncementAdmin() {
         {/* Edit Form */}
         <div className="lg:col-span-2">
           {selectedAnnouncement ? (
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg space-y-6">
+            <div className="rounded-2xl border-2 border-slate-200/60 bg-white/95 backdrop-blur-xl p-4 sm:p-5 md:p-6 lg:p-8 shadow-xl space-y-6 sm:space-y-7 md:space-y-8">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="h-0.5 w-6 bg-gradient-to-r from-blue-600 to-transparent rounded-full"></div>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900">
                   {isCreating ? 'Νέα Ανακοίνωση' : 'Επεξεργασία Ανακοίνωσης'}
                 </h3>
+                </div>
                 {!isCreating && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => {
                       setSelectedAnnouncement(null);
                       setIsCreating(false);
                     }}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500"
                   >
                     <X className="w-5 h-5 text-slate-600" />
-                  </button>
+                  </motion.button>
                 )}
               </div>
 
               {/* Type Selection */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Τύπος</label>
-                <div className="grid grid-cols-5 gap-2">
+                <label className="block text-sm sm:text-base font-bold text-slate-900 mb-3 sm:mb-4">Τύπος</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
                   {announcementTypes.map((type) => (
-                    <button
+                    <motion.button
                       key={type.value}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() =>
                         setSelectedAnnouncement({ ...selectedAnnouncement, type: type.value })
                       }
-                      className={`p-3 rounded-xl border-2 transition-all ${
+                      className={`p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 ${
                         selectedAnnouncement.type === type.value
-                          ? `border-${type.color.split('-')[1]}-500 ${type.color} text-white shadow-lg`
-                          : 'border-slate-200 bg-white hover:border-slate-300'
+                          ? `${type.color} text-white border-transparent shadow-lg ring-2 ring-offset-2 ring-slate-300`
+                          : 'border-slate-200/60 bg-white hover:border-slate-400 hover:shadow-md'
                       }`}
                     >
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+                        <div className={selectedAnnouncement.type === type.value ? 'scale-110' : ''}>
                         {type.icon}
-                        <span className="text-xs font-medium">{type.label}</span>
+                        </div>
+                        <span className="text-xs sm:text-sm font-bold">{type.label}</span>
                       </div>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
 
               {/* Priority */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">Προτεραιότητα</label>
-                <div className="flex gap-2">
+                <label className="block text-sm sm:text-base font-bold text-slate-900 mb-3 sm:mb-4">Προτεραιότητα</label>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                   {priorities.map((priority) => (
-                    <button
+                    <motion.button
                       key={priority.value}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() =>
                         setSelectedAnnouncement({ ...selectedAnnouncement, priority: priority.value })
                       }
-                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base transition-all duration-200 ${
                         selectedAnnouncement.priority === priority.value
-                          ? `${priority.color} text-white shadow-lg`
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? `${priority.color} text-white shadow-lg ring-2 ring-offset-2 ring-slate-300`
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-2 border-slate-200'
                       }`}
                     >
                       {priority.label}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
 
               {/* Title */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Τίτλος (Ελληνικά)</label>
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">Τίτλος (Ελληνικά)</label>
                   <input
                     type="text"
                     value={selectedAnnouncement.title.el}
@@ -373,12 +425,12 @@ export default function AnnouncementAdmin() {
                         title: { ...selectedAnnouncement.title, el: e.target.value },
                       })
                     }
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                     placeholder="Ελληνικός τίτλος"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Title (English)</label>
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">Title (English)</label>
                   <input
                     type="text"
                     value={selectedAnnouncement.title.en}
@@ -388,16 +440,16 @@ export default function AnnouncementAdmin() {
                         title: { ...selectedAnnouncement.title, en: e.target.value },
                       })
                     }
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                     placeholder="English title"
                   />
                 </div>
               </div>
 
               {/* Message */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Μήνυμα (Ελληνικά)</label>
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">Μήνυμα (Ελληνικά)</label>
                   <textarea
                     value={selectedAnnouncement.message.el}
                     onChange={(e) =>
@@ -406,13 +458,13 @@ export default function AnnouncementAdmin() {
                         message: { ...selectedAnnouncement.message, el: e.target.value },
                       })
                     }
-                    rows={4}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={5}
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base resize-none"
                     placeholder="Ελληνικό μήνυμα"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Message (English)</label>
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">Message (English)</label>
                   <textarea
                     value={selectedAnnouncement.message.en}
                     onChange={(e) =>
@@ -421,30 +473,30 @@ export default function AnnouncementAdmin() {
                         message: { ...selectedAnnouncement.message, en: e.target.value },
                       })
                     }
-                    rows={4}
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={5}
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base resize-none"
                     placeholder="English message"
                   />
                 </div>
               </div>
 
               {/* Link (Optional) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Link URL (Προαιρετικό)</label>
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">Link URL (Προαιρετικό)</label>
                   <input
                     type="url"
                     value={selectedAnnouncement.linkUrl || ''}
                     onChange={(e) =>
                       setSelectedAnnouncement({ ...selectedAnnouncement, linkUrl: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                     placeholder="https://..."
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Link Text</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">Link Text</label>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <input
                       type="text"
                       value={selectedAnnouncement.linkText?.el || ''}
@@ -454,7 +506,7 @@ export default function AnnouncementAdmin() {
                           linkText: { ...selectedAnnouncement.linkText || { el: '', en: '' }, el: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                       placeholder="EL"
                     />
                     <input
@@ -466,7 +518,7 @@ export default function AnnouncementAdmin() {
                           linkText: { ...selectedAnnouncement.linkText || { el: '', en: '' }, en: e.target.value },
                         })
                       }
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                       placeholder="EN"
                     />
                   </div>
@@ -474,10 +526,10 @@ export default function AnnouncementAdmin() {
               </div>
 
               {/* Dates */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                     Ημερομηνία Έναρξης (Προαιρετικό)
                   </label>
                   <input
@@ -486,12 +538,12 @@ export default function AnnouncementAdmin() {
                     onChange={(e) =>
                       setSelectedAnnouncement({ ...selectedAnnouncement, startDate: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                     Ημερομηνία Λήξης (Προαιρετικό)
                   </label>
                   <input
@@ -500,101 +552,123 @@ export default function AnnouncementAdmin() {
                     onChange={(e) =>
                       setSelectedAnnouncement({ ...selectedAnnouncement, endDate: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                   />
                 </div>
               </div>
 
               {/* Target Pages */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
+                <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3 flex items-center gap-2">
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                   Σελίδες Εμφάνισης (Αφήστε κενό για όλες)
                 </label>
-                <div className="flex gap-2 mb-2">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-3">
                   <input
                     type="text"
                     value={targetPageInput}
                     onChange={(e) => setTargetPageInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addTargetPage()}
-                    className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
                     placeholder="/, /services, /about..."
                   />
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={addTargetPage}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl transition-all duration-200 font-bold text-sm sm:text-base shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     Προσθήκη
-                  </button>
+                  </motion.button>
                 </div>
                 {selectedAnnouncement.targetPages && selectedAnnouncement.targetPages.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {selectedAnnouncement.targetPages.map((page) => (
-                      <span
+                      <motion.span
                         key={page}
-                        className="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm flex items-center gap-2"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200/60 text-blue-800 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm"
                       >
                         {page}
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.2 }}
+                          whileTap={{ scale: 0.9 }}
                           onClick={() => removeTargetPage(page)}
-                          className="hover:text-blue-600"
+                          className="hover:text-red-600 transition-colors focus:outline-none"
                         >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
+                          <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                        </motion.button>
+                      </motion.span>
                     ))}
                   </div>
                 )}
               </div>
 
               {/* Options */}
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8">
+                <label className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
                   <input
                     type="checkbox"
                     checked={selectedAnnouncement.isActive}
                     onChange={(e) =>
                       setSelectedAnnouncement({ ...selectedAnnouncement, isActive: e.target.checked })
                     }
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 rounded border-2 border-slate-300 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-slate-700">Ενεργή</span>
+                  <span className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Ενεργή</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
                   <input
                     type="checkbox"
                     checked={selectedAnnouncement.isDismissible}
                     onChange={(e) =>
                       setSelectedAnnouncement({ ...selectedAnnouncement, isDismissible: e.target.checked })
                     }
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 rounded border-2 border-slate-300 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-slate-700">Κλείσιμο από χρήστη</span>
+                  <span className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Κλείσιμο από χρήστη</span>
                 </label>
               </div>
 
               {/* Save Button */}
-              <div className="flex gap-3 pt-4 border-t border-slate-200">
-                <button
+              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t-2 border-slate-200/60">
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 hover:from-blue-700 hover:via-blue-800 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 text-white rounded-xl transition-all duration-200 font-bold text-sm sm:text-base shadow-lg hover:shadow-xl disabled:shadow-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
+                  {saving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      <span>Αποθήκευση...</span>
+                    </>
+                  ) : (
+                    <>
                   <Save className="w-5 h-5" />
-                  <span>{saving ? 'Αποθήκευση...' : 'Αποθήκευση'}</span>
-                </button>
+                      <span>Αποθήκευση</span>
+                    </>
+                  )}
+                </motion.button>
               </div>
             </div>
           ) : (
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-12 border border-white/20 shadow-lg text-center">
-              <Bell className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600 mb-4">Επιλέξτε μια ανακοίνωση για επεξεργασία</p>
-              <button
+            <div className="rounded-2xl border-2 border-slate-200/60 bg-gradient-to-br from-white to-slate-50 p-8 sm:p-12 text-center shadow-md">
+              <div className="p-4 bg-slate-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                <Bell className="w-10 h-10 text-slate-400" />
+              </div>
+              <p className="text-slate-700 mb-6 font-bold text-base sm:text-lg">Επιλέξτε μια ανακοίνωση για επεξεργασία</p>
+              <motion.button
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={createNewAnnouncement}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+                className="px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
+                <Plus className="w-5 h-5 inline mr-2" />
                 Δημιουργία Νέας
-              </button>
+              </motion.button>
             </div>
           )}
         </div>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Save, Sparkles, Snowflake, Check, Plus, Trash2, Star, X } from 'lucide-react';
+import { AlertCircle, Calendar, Check, CheckCircle, Clock, Plus, Save, Sparkles, Snowflake, Star, Trash2, X } from 'lucide-react';
 import { ClosureNotice, HolidaySchedule } from '@/hooks/useChristmasSchedule';
 
 // Helper function to format date beautifully
@@ -66,6 +66,40 @@ export default function HolidayScheduleAdmin() {
     { value: 'summer', label: '🏖️ Θερινό', icon: '🏖️' },
     { value: 'other', label: '📅 Άλλο', icon: '📅' }
   ];
+
+  // Holiday theme helper
+  const getHolidayTheme = (type: string) => {
+    const themes: Record<string, { gradient: string; icon: string; description: string }> = {
+      christmas: {
+        gradient: 'from-[#7B1E28] via-[#351C29] to-[#0F4E45]',
+        icon: '🎄',
+        description: 'Ατμόσφαιρα champagne με navy & χρυσές λάμψεις.'
+      },
+      newyear: {
+        gradient: 'from-[#0F172A] via-[#1F2937] to-[#C084FC]',
+        icon: '🎆',
+        description: 'Γιορτάστε τη νέα χρονιά μαζί μας!'
+      },
+      easter: {
+        gradient: 'from-[#F9A8D4] via-[#FDF2F8] to-[#6EE7B7]',
+        icon: '🐰',
+        description: 'Χρόνια πολλά με ανοιξιάτικα χρώματα!'
+      },
+      summer: {
+        gradient: 'from-[#0EA5E9] via-[#06B6D4] to-[#14B8A6]',
+        icon: '🏖️',
+        description: 'Καλοκαιρινές διακοπές και ειδικό πρόγραμμα'
+      },
+      other: {
+        gradient: 'from-[#581C87] via-[#312E81] to-[#9D174D]',
+        icon: '📅',
+        description: 'Ειδικό ωράριο λειτουργίας'
+      }
+    };
+    return themes[type] || themes.christmas;
+  };
+
+  const selectedTheme = selectedSchedule ? getHolidayTheme(selectedSchedule.type) : getHolidayTheme('christmas');
 
   useEffect(() => {
     loadSchedules();
@@ -332,48 +366,63 @@ export default function HolidayScheduleAdmin() {
 
   if (loading) {
     return (
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="rounded-2xl border-2 border-slate-200/60 bg-white/95 p-6 sm:p-8 shadow-xl backdrop-blur-xl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center py-12"
+        >
+          <div className="relative mb-6">
+            <div className="h-16 w-16 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="h-8 w-8 bg-blue-600 rounded-full animate-pulse"></div>
+            </div>
         </div>
+          <p className="text-slate-700 font-medium text-lg">Φόρτωση ωραρίων...</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5 md:space-y-6">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-red-500 to-green-500 rounded-xl shadow-lg">
-              <Snowflake className="w-6 h-6 text-white" />
+      <div className="rounded-2xl border-2 border-slate-200/60 bg-white/95 backdrop-blur-xl p-4 sm:p-5 md:p-6 shadow-xl">
+        <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-3 sm:p-4 bg-gradient-to-br from-red-500 to-green-500 rounded-xl shadow-lg">
+              <Snowflake className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                Ειδικά Ωράρια
-                <span className="text-xl">🎄</span>
-              </h2>
-              <p className="text-slate-600 text-sm">Διαχείριση χριστουγεννιάτικων και πρωτοχρονιάτικων ωραρίων</p>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-0.5 w-6 bg-gradient-to-r from-blue-600 to-transparent rounded-full"></div>
+                <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500">Holiday Hours</p>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mb-1">Ειδικά Ωράρια</h2>
+              <p className="text-xs sm:text-sm text-slate-600">Διαχείριση χριστουγεννιάτικων και πρωτοχρονιάτικων ωραρίων</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {schedules.some(s => s.isActive) && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleDeactivateAll}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+                className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 w-4 sm:h-5 sm:w-5" />
                 <span>Απενεργοποίηση</span>
-              </button>
+              </motion.button>
             )}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               onClick={createNewSchedule}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4 sm:h-5 sm:w-5" />
               <span>Νέο Ωράριο</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -382,117 +431,144 @@ export default function HolidayScheduleAdmin() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`mb-4 p-4 rounded-xl ${
+            exit={{ opacity: 0, y: -10 }}
+            className={`mt-4 p-3 sm:p-4 rounded-xl border-2 ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-800 border-2 border-green-300'
-                : 'bg-red-50 text-red-800 border-2 border-red-300'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-md'
+                : 'bg-rose-50 text-rose-800 border-rose-200 shadow-md'
             }`}
           >
-            <div className="flex items-center gap-2">
-              {message.type === 'success' && <Check className="w-5 h-5" />}
-              <span className="font-medium">{message.text}</span>
+            <div className="flex items-center gap-2 text-sm sm:text-base font-bold">
+              {message.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-rose-600" />
+              )}
+              <span>{message.text}</span>
             </div>
           </motion.div>
         )}
 
         {/* Schedules List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {schedules.map((schedule) => (
-            <div
+            <motion.div
               key={schedule.id}
-              className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+              whileHover={{ scale: 1.02, y: -2 }}
+              className={`p-4 sm:p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer ${
                 schedule.isActive
-                  ? 'border-green-500 bg-green-50 dark:bg-green-950/20 shadow-lg'
-                  : 'border-slate-200 bg-white hover:border-slate-300'
-              } ${selectedSchedule?.id === schedule.id ? 'ring-2 ring-blue-500' : ''}`}
+                  ? 'border-emerald-500 bg-gradient-to-br from-emerald-50 to-white shadow-lg'
+                  : 'border-slate-200/60 bg-gradient-to-br from-white to-slate-50/50 hover:border-slate-400 hover:shadow-lg'
+              } ${selectedSchedule?.id === schedule.id ? 'ring-2 ring-blue-500 ring-offset-2 shadow-xl' : ''}`}
               onClick={() => {
                 setSelectedSchedule({
                   ...schedule,
                   showAnnouncement: schedule.showAnnouncement ?? false,
                   closureNotices: normalizeClosureNotices(schedule.closureNotices),
-                }); // Create a copy to avoid direct mutation
+                });
                 setIsCreating(false);
               }}
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    {schedule.type === 'christmas' && <span>🎄</span>}
-                    {schedule.type === 'newyear' && <span>🎆</span>}
-                    {schedule.type === 'easter' && <span>🐰</span>}
-                    {schedule.type === 'summer' && <span>🏖️</span>}
-                    {schedule.type === 'other' && <span>📅</span>}
-                    <h3 className="font-bold text-slate-800">{schedule.name || 'Χωρίς όνομα'}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg sm:text-xl">
+                      {schedule.type === 'christmas' && '🎄'}
+                      {schedule.type === 'newyear' && '🎆'}
+                      {schedule.type === 'easter' && '🐰'}
+                      {schedule.type === 'summer' && '🏖️'}
+                      {schedule.type === 'other' && '📅'}
+                    </span>
+                    <h3 className="text-base sm:text-lg md:text-xl font-extrabold text-slate-900">{schedule.name || 'Χωρίς όνομα'}</h3>
                   </div>
-                  <p className="text-xs text-slate-600">
+                  <p className="text-xs sm:text-sm text-slate-600 font-semibold">
                     {scheduleTypes.find(t => t.value === schedule.type)?.label}
                   </p>
                 </div>
                 {schedule.isActive && (
-                  <Star className="w-5 h-5 text-green-600 fill-green-600" />
+                  <div className="p-1.5 bg-emerald-100 rounded-full">
+                    <Star className="w-4 w-4 sm:h-5 sm:w-5 text-emerald-600 fill-emerald-600" />
+                  </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-3">
-                <button
+              <div className="flex items-center gap-2 mt-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSetActive(schedule.id!);
                   }}
-                  className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  className={`flex-1 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-all duration-200 ${
                     schedule.isActive
-                      ? 'bg-green-600 text-white'
-                      : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                      ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-md'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-2 border-slate-200'
                   }`}
                 >
                   {schedule.isActive ? 'Ενεργό' : 'Ενεργοποίηση'}
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDelete(schedule.id!);
                   }}
                   disabled={deleting === schedule.id}
-                  className="px-3 py-1.5 text-xs font-semibold bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-all disabled:opacity-50"
+                  className="rounded-lg bg-rose-50 hover:bg-rose-100 p-2 sm:p-2.5 text-rose-600 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 >
                   {deleting === schedule.id ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                    <div className="h-4 w-4 sm:h-5 sm:w-5 animate-spin rounded-full border-2 border-rose-200 border-t-rose-600"></div>
                   ) : (
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   )}
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
       {/* Schedule Editor */}
       {selectedSchedule && (
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+        <div className="rounded-2xl border-2 border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl overflow-hidden">
+          {/* Beautiful Header with Gradient and Tabs */}
+          <div className={`bg-gradient-to-r ${selectedTheme.gradient} p-4 sm:p-5 md:p-6 text-white`}>
+            <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <h3 className="text-xl font-bold text-slate-800">
-                {isCreating ? 'Δημιουργία Νέου Ωραρίου' : 'Επεξεργασία Ωραρίου'}
-              </h3>
-              <p className="text-slate-600 text-sm">Ρυθμίστε το ωράριο</p>
+                <p className="text-xs sm:text-sm uppercase tracking-[0.3em] opacity-80 mb-2">now editing</p>
+                <div className="mt-1 flex items-center gap-2 text-2xl sm:text-3xl md:text-4xl font-black">
+                  <span className="text-3xl sm:text-4xl">{selectedTheme.icon}</span>
+                  <span>{scheduleTypes.find(t => t.value === selectedSchedule.type)?.label.replace(/^[^\s]+\s/, '') || 'Χριστούγεννα'}</span>
+                </div>
+                <p className="text-xs sm:text-sm opacity-80 mt-2">{selectedTheme.description}</p>
+              </div>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                {scheduleTypes.map((type) => (
+                  <motion.button
+                    key={type.value}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSelectedSchedule((prev) => prev ? { ...prev, type: type.value as 'christmas' | 'newyear' | 'easter' | 'other' | 'summer' } : prev)}
+                    className={`rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold transition-all duration-200 ${
+                      selectedSchedule.type === type.value 
+                        ? 'bg-white/90 text-slate-900 shadow-lg' 
+                        : 'bg-white/20 text-white/80 hover:bg-white/40'
+                    }`}
+                  >
+                    {type.label}
+                  </motion.button>
+                ))}
+              </div>
             </div>
-            {!isCreating && (
-              <button
-                onClick={() => {
-                  setSelectedSchedule(null);
-                  setIsCreating(false);
-                }}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-slate-600" />
-              </button>
-            )}
           </div>
 
-          {/* Schedule Name and Type */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="p-4 sm:p-5 md:p-6 space-y-6">
+
+          {/* Schedule Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-sm sm:text-base font-bold text-slate-900 mb-2 sm:mb-3">
                 Όνομα Ωραρίου *
               </label>
               <input
@@ -500,51 +576,39 @@ export default function HolidayScheduleAdmin() {
                 value={selectedSchedule.name}
                 onChange={(e) => setSelectedSchedule({ ...selectedSchedule, name: e.target.value })}
                 placeholder="π.χ. Χριστουγεννιάτικο Ωράριο 2024"
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-slate-700"
+                className="w-full px-4 py-2.5 sm:py-3 border-2 border-slate-200/60 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base font-semibold text-slate-900"
               />
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Τύπος Ωραρίου
-              </label>
-              <select
-                value={selectedSchedule.type}
-                onChange={(e) =>
-                  setSelectedSchedule({
-                    ...selectedSchedule,
-                    type: e.target.value as 'christmas' | 'newyear' | 'easter' | 'other' | 'summer',
-                  })
-                }
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-medium text-slate-700"
-              >
-                {scheduleTypes.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Active Toggle */}
-          <div className="mb-6 p-5 bg-gradient-to-r from-green-50 via-white to-red-50 rounded-xl border-2 border-green-200 shadow-sm">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <div className="relative">
+            <div className="space-y-4">
+              <div className="rounded-xl border-2 border-slate-200/60 bg-slate-50/50 p-4">
+                <label className="mb-2 block text-sm sm:text-base font-bold text-slate-900">Κατάσταση</label>
+                <label className="inline-flex items-center gap-3 text-sm sm:text-base font-semibold text-slate-800 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={selectedSchedule.isActive}
                   onChange={(e) => setSelectedSchedule({ ...selectedSchedule, isActive: e.target.checked })}
-                  className="w-6 h-6 text-green-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer"
+                    className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg border-2 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
+                  Ενεργό στο site
+                </label>
+                <p className="mt-2 text-xs sm:text-sm text-slate-600">Αν ενεργοποιήσεις αυτό το ωράριο, όλα τα υπόλοιπα θα απενεργοποιηθούν.</p>
               </div>
-              <div className="flex-1">
-                <span className="font-bold text-slate-800 text-lg block mb-1">
-                  Ενεργοποίηση Ωραρίου
-                </span>
-                <p className="text-sm text-slate-600">
-                  Το ωράριο θα εμφανίζεται αυτόματα στο site
-                </p>
+              <div className="rounded-xl border-2 border-slate-200/60 bg-slate-50/50 p-4">
+                <label className="mb-2 block text-sm sm:text-base font-bold text-slate-900">Announcement</label>
+                <label className="inline-flex items-center gap-3 text-sm sm:text-base font-semibold text-slate-800 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedSchedule.showAnnouncement ?? false}
+                    onChange={(e) => setSelectedSchedule({ ...selectedSchedule, showAnnouncement: e.target.checked })}
+                    className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg border-2 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  Εμφάνιση Floating Announcement
+                </label>
+                <p className="mt-2 text-xs sm:text-sm text-slate-600">Εμφάνιση floating announcement banner στην κορυφή της σελίδας.</p>
               </div>
-            </label>
+            </div>
           </div>
+
 
           {/* Closure Notices */}
           <div className="mb-6 rounded-xl border-2 border-slate-200 bg-white/80 p-5 shadow-sm">
@@ -611,27 +675,6 @@ export default function HolidayScheduleAdmin() {
             </div>
           </div>
 
-          {/* Announcement Toggle */}
-          <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 via-white to-violet-50 rounded-xl border-2 border-blue-200 shadow-sm">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <div className="relative pt-1.5">
-                <input
-                  type="checkbox"
-                  checked={selectedSchedule.showAnnouncement ?? false}
-                  onChange={(e) => setSelectedSchedule({ ...selectedSchedule, showAnnouncement: e.target.checked })}
-                  className="w-6 h-6 text-blue-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
-                />
-              </div>
-              <div className="flex-1">
-                <span className="font-bold text-slate-800 text-lg block mb-1">
-                  Floating Banner Ανακοίνωσης
-                </span>
-                <p className="text-sm text-slate-600">
-                  Όταν είναι ενεργό, εμφανίζεται ένα κομψό banner κάτω από το menu με σύνδεσμο προς τη σελίδα εορταστικών ωραρίων.
-                </p>
-              </div>
-            </label>
-          </div>
 
           {/* Schedule Inputs */}
           <div className="mb-6">
@@ -769,6 +812,7 @@ export default function HolidayScheduleAdmin() {
                 </>
               )}
             </button>
+          </div>
           </div>
         </div>
       )}

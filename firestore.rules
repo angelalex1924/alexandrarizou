@@ -35,6 +35,22 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
     
+    // Allow reads and writes for emailTemplates collection (for saved email templates)
+    match /emailTemplates/{document} {
+      // Allow reads for authenticated users
+      allow read: if request.auth != null;
+      // Only allow writes from authenticated admin users
+      allow write: if request.auth != null;
+    }
+    
+    // Analytics collection - allow public writes for tracking, authenticated reads for admin
+    match /analytics/{document} {
+      // Allow public writes for page view tracking (client-side)
+      allow write: if true;
+      // Allow reads only for authenticated admin users
+      allow read: if request.auth != null;
+    }
+    
     // Default rule: allow reads for authenticated users only
     match /{document=**} {
       allow read: if request.auth != null;

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTemplateEmailHTML } from '@/lib/emailTemplateGenerator';
-import { emailTemplates } from '@/lib/emailTemplates';
-import { emailTemplates as newsletterTemplates } from '@/lib/email-templates';
+import { emailTemplates } from '@/lib/email-templates';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { templateId, customization, preview } = body;
+    const { templateId, customization, preview } = await request.json();
 
     if (!templateId) {
       return NextResponse.json(
@@ -15,49 +13,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find template from either emailTemplates or newsletterTemplates
+    // Find the template from emailTemplates
     const template = emailTemplates.find(t => t.id === templateId);
+    
+    if (!template) {
+      return NextResponse.json(
+        { error: 'Template not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get template content (handle both string and object with el/en)
     let templateContent = '';
-    let templateName = '';
-
-    if (template) {
-      // From emailTemplates (holiday templates) - content is a string
-      templateContent = typeof template.content === 'string' ? template.content : '';
-      templateName = template.name;
-    } else {
-      // Try newsletter templates - content is an object with el/en
-      const newsletterTemplate = newsletterTemplates.find(t => t.id === templateId);
-      if (newsletterTemplate) {
-        // Default to Greek, fallback to English
-        templateContent = typeof newsletterTemplate.content === 'object' 
-          ? (newsletterTemplate.content.el || newsletterTemplate.content.en || '')
-          : (newsletterTemplate.content || '');
-        templateName = newsletterTemplate.name;
-      } else {
-        return NextResponse.json(
-          { error: 'Template not found' },
-          { status: 404 }
-        );
-      }
+    if (typeof template.content === 'string') {
+      templateContent = template.content;
+    } else if (typeof template.content === 'object' && template.content.el) {
+      templateContent = template.content.el;
+    } else if (typeof template.content === 'object' && template.content.en) {
+      templateContent = template.content.en;
     }
 
-    // Apply customization if provided
-    let finalContent = templateContent;
-    if (customization) {
-      // Apply color customization
-      if (customization.colors) {
-        finalContent = finalContent.replace(/#6B9A7A/g, customization.colors.primary || '#6B9A7A');
-        finalContent = finalContent.replace(/#D4A574/g, customization.colors.accent || '#D4A574');
-      }
-    }
+    // Use customization message if provided, otherwise use template content
+    const message = customization?.customMessage || templateContent;
 
-    // Generate HTML using the emailService function
-    const html = generateTemplateEmailHTML(finalContent, templateName);
+    // Get colors from customization
+    const colors = customization?.colors || {};
+
+    // Generate HTML using the same function as the real emails, with custom colors and baseTemplateId
+    const html = generateTemplateEmailHTML(message, template.name, colors, templateId);
 
     return NextResponse.json({
       success: true,
       html: html,
-      templateName: templateName
+      templateName: template.name
     });
   } catch (error) {
     console.error('Error in generate-template-preview API:', error);
