@@ -21,6 +21,7 @@ import SEOPlugin from "@/components/SEOPlugin";
 import { HolidayAnnouncement } from "@/components/HolidayAnnouncement";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import AcronMetricsTracker from "@/components/AcronMetricsTracker";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -306,6 +307,7 @@ export default function RootLayout({
                         <AnnouncementBanner />
                         <HolidayAnnouncement />
                         <AnalyticsTracker />
+                        <AcronMetricsTracker siteId="alexandra-rizou" />
                         {children}
                     </TooltipProvider>
                 </Providers>

@@ -48,6 +48,20 @@ export default function NewsletterForm() {
         return
       }
 
+      // Track conversion for AcronMetrics
+      if (typeof window !== 'undefined' && (window as any).acronMetricsTrackConversion) {
+        try {
+          await (window as any).acronMetricsTrackConversion({
+            type: 'newsletter',
+            value: 0, // Newsletter signup has no direct revenue value
+            source: 'organic',
+            metadata: { email, language: isEnglish ? 'en' : 'el' }
+          })
+        } catch (error) {
+          console.error('Error tracking newsletter conversion:', error)
+        }
+      }
+
       setStatus('success')
       setMessage(isEnglish ? 'Successfully subscribed to newsletter!' : 'Εγγραφήκατε επιτυχώς στο newsletter!')
       setEmail('')

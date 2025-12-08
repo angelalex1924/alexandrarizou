@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendContactFormEmail } from '@/lib/emailService';
+import { trackConversion } from '@/lib/acronMetrics';
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,6 +33,23 @@ export async function POST(request: NextRequest) {
     });
 
     if (result.success) {
+      // Track conversion for AcronMetrics
+      try {
+        const siteId = 'alexandra-rizou';
+        await trackConversion({
+          siteId,
+          type: 'contact_form',
+          value: 0, // Contact form has no direct revenue, but it's a lead
+          source: 'organic',
+          page: request.headers.get('referer') || '/contact',
+          userAgent: request.headers.get('user-agent') ?? undefined,
+          metadata: { name, email, subject }
+        });
+      } catch (error) {
+        console.error('Error tracking contact form conversion:', error);
+        // Don't fail the request if tracking fails
+      }
+      
       return NextResponse.json({
         success: true,
         message: 'Contact form submitted successfully',

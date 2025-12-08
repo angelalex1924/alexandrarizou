@@ -51,6 +51,36 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
     
+    // AcronMetrics collection - for website performance & ROI analytics
+    match /acronMetrics/{siteId}/{collection}/{document} {
+      // Allow public writes for client-side tracking (conversions, performance, seo)
+      allow write: if collection in ['conversions', 'performance', 'seo', 'analytics'];
+      
+      // Allow reads only for authenticated admin users
+      allow read: if request.auth != null;
+    }
+    
+    // AcronMetrics nested collections
+    match /acronMetrics/{siteId}/conversions/{conversionId} {
+      allow write: if true; // Public writes for tracking conversions
+      allow read: if request.auth != null; // Admin reads
+    }
+    
+    match /acronMetrics/{siteId}/performance/{performanceId} {
+      allow write: if true; // Public writes for tracking performance
+      allow read: if request.auth != null; // Admin reads
+    }
+    
+    match /acronMetrics/{siteId}/seo/{seoId} {
+      allow write: if true; // Public writes for SEO scores
+      allow read: if request.auth != null; // Admin reads
+    }
+    
+    match /acronMetrics/{siteId}/analytics/{analyticsId} {
+      allow write: if true; // Public writes for daily stats
+      allow read: if request.auth != null; // Admin reads
+    }
+    
     // Default rule: allow reads for authenticated users only
     match /{document=**} {
       allow read: if request.auth != null;

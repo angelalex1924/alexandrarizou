@@ -8,6 +8,11 @@ export default function AnalyticsTracker() {
   const pathname = usePathname()
 
   useEffect(() => {
+    // Only track in production
+    if (process.env.NODE_ENV !== 'production') {
+      return
+    }
+
     // Skip admin pages
     if (pathname?.startsWith('/admin') || pathname?.includes('/admin')) {
       return

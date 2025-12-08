@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdminSignInPage } from '@/components/ui/admin-sign-in';
 import { motion } from 'framer-motion';
-import { LogOut, Settings, Users, Calendar, BarChart3, Shield, Home, Mail, FileText, Star, Snowflake, ArrowRight, Bell, Activity } from 'lucide-react';
+import { LogOut, Settings, Users, Calendar, BarChart3, Shield, Home, Mail, FileText, Star, Snowflake, ArrowRight, Bell, Activity, BookOpen } from 'lucide-react';
 import NewsletterDashboard from '@/components/NewsletterDashboard';
 import TemplateEditor from '@/components/TemplateEditor';
 import ReviewEmailForm from '@/components/ReviewEmailForm';
@@ -18,9 +18,12 @@ import PegasusSignature from '@/components/PegasusSignature';
 import PegasusMonitor from '@/components/PegasusMonitor';
 import { AcronFlowNowLogo, AcronFlowNowIcon } from '@/components/acronflow-now-icon';
 import { AcronFlowLogo } from '@/components/acronflow-crm-logo';
+import { AcronMetricsIcon } from '@/components/acronmetrics-icon';
 import AdminNavbar from '@/components/AdminNavbar';
 import AdminDashboardStats from '@/components/AdminDashboardStats';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
+import AdminManual from '@/components/AdminManual';
+import AcronMetricsDashboard from '@/components/AcronMetricsDashboard';
 
 export default function AdminPage() {
   const { user, loading, logout } = useAuth();
@@ -77,12 +80,14 @@ export default function AdminPage() {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3, color: 'from-blue-600 via-blue-700 to-blue-800' },
     { id: 'appointments', label: 'Ραντεβού', icon: AcronFlowNowIcon, color: 'from-green-500 to-emerald-500', href: 'https://www.crm.acronweb.com/dashboard/appointments' },
     { id: 'analytics', label: 'Analytics', icon: Activity, color: 'from-cyan-600 via-cyan-700 to-cyan-800' },
+    { id: 'acronmetrics', label: 'AcronMetrics', icon: AcronMetricsIcon, color: 'from-indigo-600 via-purple-600 to-pink-600' },
     { id: 'newsletter', label: 'Newsletter', icon: Mail, color: 'from-green-600 via-green-700 to-green-800' },
     { id: 'templates', label: 'Templates', icon: FileText, color: 'from-purple-600 via-purple-700 to-purple-800' },
     { id: 'reviews', label: 'Reviews', icon: Star, color: 'from-amber-600 via-amber-700 to-amber-800' },
     { id: 'template-emails', label: 'Template Emails', icon: Mail, color: 'from-indigo-600 via-indigo-700 to-indigo-800' },
     { id: 'christmas-schedule', label: 'Ειδικά Ωράρια', icon: Snowflake, color: 'from-red-600 via-green-600 to-emerald-700' },
     { id: 'announcements', label: 'Ανακοινώσεις', icon: Bell, color: 'from-blue-600 to-indigo-600' },
+    { id: 'manual', label: 'Οδηγός', icon: BookOpen, color: 'from-teal-600 via-teal-700 to-teal-800' },
   ];
 
   return (
@@ -689,6 +694,17 @@ export default function AdminPage() {
           </motion.div>
         )}
 
+        {activeTab === 'acronmetrics' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
+          >
+            <AcronMetricsDashboard siteId="alexandra-rizou" />
+          </motion.div>
+        )}
+
         {activeTab === 'reviews' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -808,6 +824,16 @@ export default function AdminPage() {
           </motion.div>
         )}
 
+        {activeTab === 'manual' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <AdminManual />
+          </motion.div>
+        )}
+
         {/* Back to Home */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -825,6 +851,37 @@ export default function AdminPage() {
             <span>Επιστροφή στην Αρχική</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </motion.button>
+        </motion.div>
+
+        {/* Emergency Contact Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700"
+        >
+          <div className="flex flex-col items-center justify-center gap-3 text-sm">
+            <p className="text-slate-600 dark:text-slate-400 font-medium">Επικοινωνία Έκτακτης Ανάγκης</p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <a 
+                href="tel:+306987770734" 
+                className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-semibold"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                +30 6987770734
+              </a>
+              <span className="text-slate-400 dark:text-slate-500">•</span>
+              <a 
+                href="mailto:contact@acronweb.com" 
+                className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-semibold"
+              >
+                <Mail className="w-4 h-4" />
+                contact@acronweb.com
+              </a>
+            </div>
+          </div>
         </motion.div>
 
         {/* Footer Section with ACRONWEB and Pegasus */}

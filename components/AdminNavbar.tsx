@@ -22,6 +22,7 @@ import {
 import { useRouter } from 'next/navigation';
 import PegasusSignature from '@/components/PegasusSignature';
 import { AcronFlowNowIcon } from '@/components/acronflow-now-icon';
+import { AcronMetricsIcon } from '@/components/acronmetrics-icon';
 
 interface NavItem {
   id: string;
@@ -61,6 +62,8 @@ export default function AdminNavbar({
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
+    // Check initial scroll position
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -75,11 +78,12 @@ export default function AdminNavbar({
       {/* Main Navbar - Floating Glass Design */}
       <nav className={`
         fixed top-4 left-4 right-4 z-50
-        bg-white/30 dark:bg-slate-900/30 backdrop-blur-3xl
-        border border-white/30 dark:border-slate-700/30
-        rounded-2xl shadow-2xl
+        rounded-2xl
         transition-all duration-300
-        ${scrolled ? 'shadow-2xl bg-white/40 dark:bg-slate-900/40' : 'shadow-xl'}
+        ${scrolled 
+          ? 'bg-white/30 dark:bg-slate-900/30 backdrop-blur-3xl border border-white/30 dark:border-slate-700/30 shadow-2xl' 
+          : 'bg-transparent dark:bg-transparent border-transparent shadow-none'
+        }
       `}>
         <div className="px-4 sm:px-5 md:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12 sm:h-14 md:h-16">
@@ -232,7 +236,11 @@ export default function AdminNavbar({
                       ${isActive ? colors.iconBgActive : colors.iconBg}
                       ${!isActive && 'group-hover:bg-opacity-15'}
                     `}>
-                      <Icon className="h-3.5 w-3.5" />
+                      {item.id === 'acronmetrics' ? (
+                        <AcronMetricsIcon size={14} className={colors.text} />
+                      ) : (
+                        <Icon className="h-3.5 w-3.5" />
+                      )}
                     </div>
                     <span className="text-[12px] font-medium">{item.label}</span>
                   </motion.button>
@@ -509,13 +517,17 @@ export default function AdminNavbar({
                           backdrop-blur-xl border ring-0 shadow-[0_1px_1px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)]
                         `}
                       >
-                        <div className={`
-                          relative flex items-center justify-center rounded-full transition-colors duration-200
-                          w-7 h-7 ${colors.text}
-                          ${isActive ? colors.iconBgActive : colors.iconBg}
-                        `}>
-                          <Icon className="h-4 w-4" />
-                        </div>
+                          <div className={`
+                            relative flex items-center justify-center rounded-full transition-colors duration-200
+                            w-7 h-7 ${colors.text}
+                            ${isActive ? colors.iconBgActive : colors.iconBg}
+                          `}>
+                            {item.id === 'acronmetrics' ? (
+                              <AcronMetricsIcon size={16} className={colors.text} />
+                            ) : (
+                              <Icon className="h-4 w-4" />
+                            )}
+                          </div>
                         <span className="flex-1 text-left">{item.label}</span>
                         {isActive && <ChevronRight className={`h-4 w-4 ${colors.text}`} />}
                       </motion.button>
