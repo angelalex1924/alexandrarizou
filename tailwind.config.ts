@@ -51,6 +51,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Alexandra Rizou Salon Colors
+        "sage-green": "hsl(var(--sage-green))",
+        "sage-light": "hsl(var(--sage-light))",
+        copper: "hsl(var(--copper))",
+        "rose-gold": "hsl(var(--rose-gold))",
+        "warm-beige": "hsl(var(--warm-beige))",
+        taupe: "hsl(var(--taupe))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

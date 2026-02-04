@@ -71,7 +71,7 @@ export const useChristmasSchedule = () => {
   useEffect(() => {
     const schedulesRef = collection(db, 'holiday_schedules');
     const q = query(schedulesRef, where('isActive', '==', true));
-    
+
     // Use onSnapshot for real-time updates
     const unsubscribe = onSnapshot(
       q,
@@ -83,14 +83,14 @@ export const useChristmasSchedule = () => {
             id: doc.id,
             ...doc.data()
           })) as HolidaySchedule[];
-          
+
           // Sort by updatedAt descending (most recent first)
           schedules.sort((a, b) => {
             const aTime = a.updatedAt?.toMillis?.() || 0;
             const bTime = b.updatedAt?.toMillis?.() || 0;
             return bTime - aTime;
           });
-          
+
           const nextSchedule = schedules[0];
           setSchedule({
             ...nextSchedule,

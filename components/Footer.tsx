@@ -15,7 +15,7 @@ const Footer = () => {
   const { theme } = useTheme();
   const { schedule: christmasSchedule, isActive: isChristmasActive, getHoursForDay, getHolidayStyle } = useChristmasSchedule();
   const holidayStyle = getHolidayStyle();
-  
+
   // Helper to get style based on holiday type
   const getHolidayClass = (
     newyearClass: string,
@@ -54,21 +54,21 @@ const Footer = () => {
   const heroCopy =
     language === "el"
       ? {
-          badge: "SIGNATURE CARE",
-          title: "Ομορφιά με τελετουργία",
-          subtitle:
-            "Δημιουργούμε εμπειρίες ηρεμίας και high-touch περιποίησης με βάση την αυθεντική φιλοξενία.",
-          primaryCta: "Ανακάλυψε τις υπηρεσίες",
-          secondaryCta: "Κάλεσέ μας"
-        }
+        badge: "SIGNATURE CARE",
+        title: "Ομορφιά με τελετουργία",
+        subtitle:
+          "Δημιουργούμε εμπειρίες ηρεμίας και high-touch περιποίησης με βάση την αυθεντική φιλοξενία.",
+        primaryCta: "Ανακάλυψε τις υπηρεσίες",
+        secondaryCta: "Κάλεσέ μας"
+      }
       : {
-          badge: "SIGNATURE CARE",
-          title: "Beauty with ritual",
-          subtitle:
-            "We craft calming, high-touch experiences rooted in genuine hospitality.",
-          primaryCta: "Explore services",
-          secondaryCta: "Call the salon"
-        };
+        badge: "SIGNATURE CARE",
+        title: "Beauty with ritual",
+        subtitle:
+          "We craft calming, high-touch experiences rooted in genuine hospitality.",
+        primaryCta: "Explore services",
+        secondaryCta: "Call the salon"
+      };
 
   const navLinks = [
     { label: t("footer.services"), href: "/services" },
@@ -137,25 +137,25 @@ const Footer = () => {
     return `${start} - ${end}`;
   };
 
-    // Get operating hours - use Christmas schedule if active, otherwise use regular hours
-    const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
-    const operatingHours = hourKeys.map((key, index) => {
+  // Get operating hours - use Christmas schedule if active, otherwise use regular hours
+  const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+  const operatingHours = hourKeys.map((key, index) => {
     const translation = t(key);
     const [day, ...rest] = translation.split(":");
-      const dayKey = dayKeys[index];
-      
-      // If Christmas schedule is active, use it
-      let time = formatTimeValue(rest.join(":").trim());
-      if (isChristmasActive && christmasSchedule && dayKey) {
-        const christmasHours = getHoursForDay(dayKey, language as 'el' | 'en');
-        if (christmasHours) {
-          time = christmasHours;
-        }
+    const dayKey = dayKeys[index];
+
+    // If Christmas schedule is active, use it
+    let time = formatTimeValue(rest.join(":").trim());
+    if (isChristmasActive && christmasSchedule && dayKey) {
+      const christmasHours = getHoursForDay(dayKey, language as 'el' | 'en');
+      if (christmasHours) {
+        time = christmasHours;
       }
-      
+    }
+
     return {
       day: day.trim(),
-        time: time
+      time: time
     };
   });
 
@@ -244,7 +244,7 @@ const Footer = () => {
               {navLinks.map((link) => {
                 const isBooking = link.href === "/booking";
                 return (
-                <li key={link.href}>
+                  <li key={link.href}>
                     {isBooking ? (
                       <div className="relative inline-block group">
                         <span className="group inline-flex items-center gap-3 font-medium opacity-75 cursor-not-allowed">
@@ -256,15 +256,15 @@ const Footer = () => {
                         </div>
                       </div>
                     ) : (
-                  <Link
+                      <Link
                         href={getLocalizedPath(link.href, language as 'el' | 'en')}
-                    className="group inline-flex items-center gap-3 font-medium transition-all hover:text-foreground"
-                  >
-                    <span className="h-px w-6 bg-muted-foreground/40 transition-all group-hover:w-10 group-hover:bg-primary" />
-                    {link.label}
-                  </Link>
+                        className="group inline-flex items-center gap-3 font-medium transition-all hover:text-foreground"
+                      >
+                        <span className="h-px w-6 bg-muted-foreground/40 transition-all group-hover:w-10 group-hover:bg-primary" />
+                        {link.label}
+                      </Link>
                     )}
-                </li>
+                  </li>
                 );
               })}
             </ul>
@@ -315,28 +315,26 @@ const Footer = () => {
                 </a>
               </div>
             </div>
-            <div className={`rounded-[28px] border p-6 shadow-[0_10px_40px_rgba(0,0,0,0.08)] backdrop-blur-2xl ${
-              isChristmasActive
+            <div className={`rounded-[28px] border p-6 shadow-[0_10px_40px_rgba(0,0,0,0.08)] backdrop-blur-2xl ${isChristmasActive
                 ? getHolidayClass(
-                    "border-yellow-300/30 bg-gradient-to-br from-yellow-50/10 via-white/[0.07] to-amber-50/10 dark:from-yellow-950/20 dark:via-slate-900/80 dark:to-amber-950/20 shadow-yellow-500/10",
-                    "border-green-300/30 bg-gradient-to-br from-green-50/10 via-white/[0.07] to-pink-50/10 dark:from-green-950/20 dark:via-slate-900/80 dark:to-pink-950/20 shadow-green-500/10",
-                    "border-purple-300/30 bg-gradient-to-br from-purple-50/10 via-white/[0.07] to-indigo-50/10 dark:from-purple-950/20 dark:via-slate-900/80 dark:to-indigo-950/20 shadow-purple-500/10",
-                    "border-red-300/30 bg-gradient-to-br from-red-50/10 via-white/[0.07] to-green-50/10 dark:from-red-950/20 dark:via-slate-900/80 dark:to-green-950/20 shadow-red-500/10"
-                  )
+                  "border-yellow-300/30 bg-gradient-to-br from-yellow-50/10 via-white/[0.07] to-amber-50/10 dark:from-yellow-950/20 dark:via-slate-900/80 dark:to-amber-950/20 shadow-yellow-500/10",
+                  "border-green-300/30 bg-gradient-to-br from-green-50/10 via-white/[0.07] to-pink-50/10 dark:from-green-950/20 dark:via-slate-900/80 dark:to-pink-950/20 shadow-green-500/10",
+                  "border-purple-300/30 bg-gradient-to-br from-purple-50/10 via-white/[0.07] to-indigo-50/10 dark:from-purple-950/20 dark:via-slate-900/80 dark:to-indigo-950/20 shadow-purple-500/10",
+                  "border-red-300/30 bg-gradient-to-br from-red-50/10 via-white/[0.07] to-green-50/10 dark:from-red-950/20 dark:via-slate-900/80 dark:to-green-950/20 shadow-red-500/10"
+                )
                 : "border-white/15 bg-gradient-to-br from-white/[0.07] via-white/[0.04] to-transparent"
-            }`}>
+              }`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-foreground">
-                  <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
-                    isChristmasActive
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${isChristmasActive
                       ? getHolidayClass(
-                          "bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg",
-                          "bg-gradient-to-br from-green-500 to-pink-500 shadow-lg",
-                          "bg-gradient-to-br from-purple-500 to-indigo-500 shadow-lg",
-                          "bg-gradient-to-br from-red-500 to-green-500 shadow-lg"
-                        )
+                        "bg-gradient-to-br from-yellow-500 to-amber-500 shadow-lg",
+                        "bg-gradient-to-br from-green-500 to-pink-500 shadow-lg",
+                        "bg-gradient-to-br from-purple-500 to-indigo-500 shadow-lg",
+                        "bg-gradient-to-br from-red-500 to-green-500 shadow-lg"
+                      )
                       : "bg-primary/10 text-primary"
-                  }`}>
+                    }`}>
                     {isChristmasActive ? (
                       renderHolidayIcon("text-xl", "h-7 w-7")
                     ) : (
@@ -344,87 +342,82 @@ const Footer = () => {
                     )}
                   </div>
                   <div>
-                    <p className={`text-[11px] uppercase tracking-[0.45em] ${
-                      isChristmasActive
+                    <p className={`text-[11px] uppercase tracking-[0.45em] ${isChristmasActive
                         ? getHolidayClass(
-                            "text-yellow-700 dark:text-yellow-300",
-                            "text-green-700 dark:text-green-300",
-                            "text-purple-700 dark:text-purple-300",
-                            "text-red-700 dark:text-red-300"
-                          )
+                          "text-yellow-700 dark:text-yellow-300",
+                          "text-green-700 dark:text-green-300",
+                          "text-purple-700 dark:text-purple-300",
+                          "text-red-700 dark:text-red-300"
+                        )
                         : "text-muted-foreground"
-                    }`}>
+                      }`}>
                       {isChristmasActive
                         ? (language === "el" ? holidayStyle.title?.el : holidayStyle.title?.en) || (language === "el" ? "Ωράριο" : "Opening Hours")
                         : (language === "el" ? "Ωράριο" : "Opening Hours")
                       }
                     </p>
-                    <p className={`text-base font-semibold ${
-                      isChristmasActive 
+                    <p className={`text-base font-semibold ${isChristmasActive
                         ? getHolidayClass(
-                            "text-yellow-800 dark:text-yellow-200",
-                            "text-green-800 dark:text-green-200",
-                            "text-purple-800 dark:text-purple-200",
-                            "text-red-800 dark:text-red-200"
-                          )
+                          "text-yellow-800 dark:text-yellow-200",
+                          "text-green-800 dark:text-green-200",
+                          "text-purple-800 dark:text-purple-200",
+                          "text-red-800 dark:text-red-200"
+                        )
                         : ""
-                    }`}>
+                      }`}>
                       {todayLabel}
                     </p>
                   </div>
                 </div>
-                <span className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.35em] ${
-                  isChristmasActive
+                <span className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.35em] ${isChristmasActive
                     ? getHolidayClass(
-                        "border-yellow-300/50 bg-yellow-50/50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-300",
-                        "border-green-300/50 bg-green-50/50 dark:bg-green-950/30 text-green-700 dark:text-green-300",
-                        "border-purple-300/50 bg-purple-50/50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300",
-                        "border-red-300/50 bg-red-50/50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
-                      )
+                      "border-yellow-300/50 bg-yellow-50/50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-300",
+                      "border-green-300/50 bg-green-50/50 dark:bg-green-950/30 text-green-700 dark:text-green-300",
+                      "border-purple-300/50 bg-purple-50/50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300",
+                      "border-red-300/50 bg-red-50/50 dark:bg-red-950/30 text-red-700 dark:text-red-300"
+                    )
                     : "border-white/20 bg-white/5 text-muted-foreground/80"
-                }`}>
+                  }`}>
                   {language === "el" ? "σαλόνι" : "salon"}
                 </span>
               </div>
-              <div className={`mt-4 rounded-2xl border p-4 ${
-                isChristmasActive
+              <div className={`mt-4 rounded-2xl border p-4 ${isChristmasActive
                   ? getHolidayClass(
-                      "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
-                      "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
-                      "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
-                      "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
-                    )
+                    "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
+                    "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
+                    "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
+                    "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
+                  )
                   : "border-white/10 bg-black/5"
-              }`}>
+                }`}>
                 {operatingHours.map((entry, idx) => {
                   const isToday = idx === todayIndex;
                   const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
                   const dayKey = dayKeys[idx];
                   const christmasDate = isChristmasActive && christmasSchedule?.dates?.[dayKey];
                   const formattedDate = christmasDate ? new Date(christmasDate).toLocaleDateString('el-GR', { day: 'numeric', month: 'numeric' }) : null;
-                  
+
                   return (
                     <div
                       key={entry.day}
-                      className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm gap-2 ${
-                        isToday 
+                      className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm gap-2 ${isToday
                           ? isChristmasActive
                             ? getHolidayClass(
-                                "bg-gradient-to-r from-yellow-100/50 to-amber-100/50 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-700 dark:text-yellow-300 font-semibold",
-                                "font-semibold",
-                                "bg-gradient-to-r from-purple-100/50 to-indigo-100/50 dark:from-purple-900/30 dark:to-indigo-900/30 text-purple-700 dark:text-purple-300 font-semibold",
-                                "font-semibold"
-                              )
+                              "bg-gradient-to-r from-yellow-100/50 to-amber-100/50 dark:from-yellow-900/30 dark:to-amber-900/30 text-yellow-700 dark:text-yellow-300 font-semibold",
+                              "font-semibold",
+                              "bg-gradient-to-r from-purple-100/50 to-indigo-100/50 dark:from-purple-900/30 dark:to-indigo-900/30 text-purple-700 dark:text-purple-300 font-semibold",
+                              "font-semibold"
+                            )
                             : "bg-primary/10 text-primary font-semibold"
                           : isChristmasActive
                             ? getHolidayClass(
-                                "text-yellow-800/90 dark:text-yellow-200/90",
-                                "",
-                                "text-purple-800/90 dark:text-purple-200/90",
-                                ""
-                              )
+                              "text-yellow-800/90 dark:text-yellow-200/90",
+                              "",
+                              "text-purple-800/90 dark:text-purple-200/90",
+                              ""
+                            )
                             : "text-foreground/80"
-                      }`}
+                        }`}
                       style={isToday && isChristmasActive && (holidayStyle.type === 'christmas' || holidayStyle.type === 'easter') ? {
                         backgroundColor: `${holidayStyle.colors.accent}33`,
                         color: holidayStyle.colors.accent
@@ -436,35 +429,33 @@ const Footer = () => {
                         {isChristmasActive && renderHolidayIcon("text-xs flex-shrink-0", "h-4 w-4 flex-shrink-0")}
                         <span className="whitespace-nowrap">{entry.day}</span>
                         {formattedDate && (
-                          <span className={`text-[10px] font-semibold whitespace-nowrap flex-shrink-0 ${
-                            isToday && isChristmasActive
+                          <span className={`text-[10px] font-semibold whitespace-nowrap flex-shrink-0 ${isToday && isChristmasActive
                               ? getHolidayClass(
-                                  "text-yellow-900 dark:text-yellow-100",
-                                  "text-green-900 dark:text-green-100",
-                                  "text-purple-900 dark:text-purple-100",
-                                  "text-red-800 dark:text-red-200"
-                                )
+                                "text-yellow-900 dark:text-yellow-100",
+                                "text-green-900 dark:text-green-100",
+                                "text-purple-900 dark:text-purple-100",
+                                "text-red-800 dark:text-red-200"
+                              )
                               : getHolidayClass(
-                                  "text-yellow-600 dark:text-yellow-400",
-                                  "text-green-600 dark:text-green-400",
-                                  "text-purple-600 dark:text-purple-400",
-                                  "text-red-600 dark:text-red-400"
-                                )
-                          }`}>
+                                "text-yellow-600 dark:text-yellow-400",
+                                "text-green-600 dark:text-green-400",
+                                "text-purple-600 dark:text-purple-400",
+                                "text-red-600 dark:text-red-400"
+                              )
+                            }`}>
                             {formattedDate}
                           </span>
                         )}
                       </span>
-                      <span className={`whitespace-nowrap flex-shrink-0 ${
-                        isChristmasActive && isToday 
+                      <span className={`whitespace-nowrap flex-shrink-0 ${isChristmasActive && isToday
                           ? getHolidayClass(
-                              "text-yellow-800 dark:text-yellow-200",
-                              "text-green-800 dark:text-green-200",
-                              "text-purple-800 dark:text-purple-200",
-                              "text-red-800 dark:text-red-200"
-                            )
+                            "text-yellow-800 dark:text-yellow-200",
+                            "text-green-800 dark:text-green-200",
+                            "text-purple-800 dark:text-purple-200",
+                            "text-red-800 dark:text-red-200"
+                          )
                           : ""
-                      }`}>
+                        }`}>
                         {entry.time}
                       </span>
                     </div>
@@ -473,25 +464,23 @@ const Footer = () => {
 
                 {/* Closure Notices */}
                 {isChristmasActive && christmasSchedule?.closureNotices && christmasSchedule.closureNotices.length > 0 && (
-                  <div 
-                    className={`mt-3 rounded-xl border p-3 space-y-2 ${
-                      getHolidayClass(
-                        "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
-                        "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
-                        "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
-                        "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
-                      )
-                    }`}
-                  >
-                    <p 
-                      className={`text-xs font-semibold ${
-                        getHolidayClass(
-                          "text-yellow-800 dark:text-yellow-200",
-                          "text-green-800 dark:text-green-200",
-                          "text-purple-800 dark:text-purple-200",
-                          "text-red-800 dark:text-red-200"
-                        )
+                  <div
+                    className={`mt-3 rounded-xl border p-3 space-y-2 ${getHolidayClass(
+                      "border-yellow-200/30 dark:border-yellow-800/30 bg-yellow-50/20 dark:bg-yellow-950/10",
+                      "border-green-200/30 dark:border-green-800/30 bg-green-50/20 dark:bg-green-950/10",
+                      "border-purple-200/30 dark:border-purple-800/30 bg-purple-50/20 dark:bg-purple-950/10",
+                      "border-red-200/30 dark:border-red-800/30 bg-red-50/20 dark:bg-red-950/10"
+                    )
                       }`}
+                  >
+                    <p
+                      className={`text-xs font-semibold ${getHolidayClass(
+                        "text-yellow-800 dark:text-yellow-200",
+                        "text-green-800 dark:text-green-200",
+                        "text-purple-800 dark:text-purple-200",
+                        "text-red-800 dark:text-red-200"
+                      )
+                        }`}
                     >
                       {isEnglish ? 'The salon will remain closed:' : 'Το κατάστημα θα παραμείνει κλειστό:'}
                     </p>
@@ -506,18 +495,17 @@ const Footer = () => {
                       const fromDate = notice.from ? formatDate(notice.from, isEnglish ? 'en' : 'el') : '';
                       const toDate = notice.to ? formatDate(notice.to, isEnglish ? 'en' : 'el') : '';
                       if (!fromDate && !toDate) return null;
-                      
+
                       return (
-                        <p 
-                          key={notice.id} 
-                          className={`text-xs ${
-                            getHolidayClass(
-                              "text-yellow-700 dark:text-yellow-300",
-                              "text-green-700 dark:text-green-300",
-                              "text-purple-700 dark:text-purple-300",
-                              "text-red-700 dark:text-red-300"
-                            )
-                          }`}
+                        <p
+                          key={notice.id}
+                          className={`text-xs ${getHolidayClass(
+                            "text-yellow-700 dark:text-yellow-300",
+                            "text-green-700 dark:text-green-300",
+                            "text-purple-700 dark:text-purple-300",
+                            "text-red-700 dark:text-red-300"
+                          )
+                            }`}
                         >
                           {fromDate && toDate
                             ? isEnglish
@@ -559,7 +547,7 @@ const Footer = () => {
                       lineHeight: "1",
                       display: "inline-block",
                       verticalAlign: "baseline",
-                      color: "#60a5fa"
+                      color: "#38bdf8"
                     }}
                   >
                     ACRON
@@ -603,12 +591,14 @@ const Footer = () => {
                   Alexandra Rizou
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-1.5 text-[10px] tracking-[0.2em] text-muted-foreground/70 leading-none">
+              <div className="flex items-center justify-center gap-1.5 text-[10px] tracking-[0.2em] text-muted-foreground/70 leading-none flex-wrap">
                 <span className="footer-year-pill rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] tracking-[0.15em] text-muted-foreground/90 leading-none">
                   {year}
                 </span>
                 <span className="inline-block h-3 w-px bg-muted-foreground/40 hidden md:block" />
                 <span className="whitespace-nowrap">{rightsMessage}</span>
+                <span className="inline-block h-3 w-px bg-muted-foreground/40 hidden md:block" />
+                <span className="text-[9px] text-muted-foreground/50 whitespace-nowrap">ΓΕΜΗ: 163581303000</span>
               </div>
             </div>
           </div>
@@ -635,7 +625,7 @@ const Footer = () => {
             <div className="flex flex-col items-center gap-4 md:flex-row">
               <div className="footer-logo-group relative overflow-hidden rounded-lg border border-gray-200/80 bg-gradient-to-r from-white/95 via-white/90 to-gray-50/95 px-3 py-2 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-md dark:border-gray-600/80 dark:from-gray-800/95 dark:via-gray-800/90 dark:to-gray-700/95">
                 <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-r from-blue-50/30 via-transparent to-blue-50/30 dark:from-blue-900/20 dark:via-transparent dark:to-blue-900/20" />
-                <div className="relative z-10 flex items-center gap-2">
+                <div className="relative z-10 flex items-center gap-2 flex-wrap">
                   <span
                     className="text-[0.65rem] font-semibold text-gray-600 dark:text-gray-300"
                     style={{
@@ -647,6 +637,7 @@ const Footer = () => {
                     Powered and developed by
                   </span>
                   <div className="hidden h-4 w-px bg-gray-300 dark:bg-gray-600 md:block" />
+                  {/* AcronWeb Logo */}
                   <a
                     href="https://www.acronweb.gr"
                     target="_blank"
@@ -661,19 +652,19 @@ const Footer = () => {
                     >
                       <path
                         d="M7.61231 2.51117C11.0411 0.608938 14.9539 -0.243472 18.8633 0.0599978C22.7725 0.36348 26.5065 1.80971 29.6006 4.2182C32.6947 6.62679 35.0123 9.89252 36.2656 13.6078C37.5189 17.3231 37.6532 21.3251 36.6504 25.1157L36.4492 25.8217C35.382 29.3294 33.3695 32.4818 30.626 34.9282L30.0684 35.4067C27.2441 37.7446 23.8271 39.2642 20.1895 39.7924L19.4609 39.8852C16.9985 40.1509 14.5167 39.9537 12.1396 39.3168L15.5547 35.9018C16.8984 36.0505 18.2624 36.0307 19.6143 35.8344C22.7186 35.3837 25.6225 34.0304 27.9639 31.9428C30.3051 29.8552 31.9809 27.1246 32.7832 24.0922C33.5352 21.2493 33.4883 18.2576 32.6533 15.4457L32.4756 14.8862C31.4729 11.914 29.6188 9.3013 27.1436 7.37445C24.8231 5.56821 22.0526 4.43916 19.1387 4.10492L18.5537 4.04828C15.4262 3.8055 12.2958 4.48744 9.55274 6.00922C7.72572 7.02288 6.12614 8.38137 4.83203 9.99652H0C1.81043 6.86285 4.43818 4.27217 7.61231 2.51117Z"
-                        fill="#60a5fa"
-                        className="fill-blue-400"
+                        fill="#38bdf8"
+                        className="fill-sky-400"
                       />
                       <path
                         d="M10.7148 7.65111C13.0193 6.41944 15.6231 5.85814 18.2305 6.02904C20.8378 6.20001 23.3458 7.09692 25.4697 8.61888C27.5933 10.1408 29.2491 12.2267 30.249 14.6404C31.2489 17.0543 31.5525 19.7011 31.127 22.279C30.7012 24.8568 29.5625 27.2648 27.8398 29.2292C26.117 31.1936 23.8783 32.6368 21.3779 33.3952L20.9072 33.53C19.7779 33.8299 18.6198 33.983 17.46 33.9949L24.1904 27.2654C24.4152 27.0527 24.6318 26.8303 24.8369 26.5964C26.0682 25.1925 26.8822 23.4711 27.1865 21.6286C27.4907 19.7862 27.2732 17.8949 26.5586 16.1697C25.844 14.4444 24.6605 12.9537 23.1426 11.866L22.8555 11.6667C21.401 10.6995 19.7158 10.129 17.9688 10.0144L17.6201 9.99681C17.4642 9.99205 17.3079 9.99233 17.1523 9.99486H7.52148C8.46529 9.07093 9.53888 8.2797 10.7148 7.65111Z"
-                        fill="#60a5fa"
-                        className="fill-blue-400"
+                        fill="#38bdf8"
+                        className="fill-sky-400"
                       />
-                        <path
+                      <path
                         d="M8.51035 31.6533C8.07705 32.087 8.13696 32.8067 8.63603 33.1628C9.03055 33.4442 9.57071 33.399 9.91352 33.0565L20.1355 22.8345C21.7017 21.2683 21.7017 18.7287 20.1355 17.1625C19.3834 16.4105 18.363 15.9879 17.2995 15.9879L6.12516 15.9879C5.67868 15.9879 5.28509 16.2825 5.1591 16.7108C4.96986 17.3551 5.45293 18.0003 6.12447 18.0008L16.7236 18.0097C18.7273 18.0107 19.7303 20.4333 18.3132 21.8505L8.51035 31.6533ZM12.7419 35.8849C11.0169 37.6096 8.29801 37.8356 6.31238 36.4187C3.80079 34.6263 3.50035 31.0068 5.68192 28.8249L12.5003 22.0065L6.1224 22.001C2.78136 21.9989 0.379077 18.7871 1.32181 15.5818C1.94848 13.4512 3.90426 11.9883 6.12516 11.9883L17.2995 11.9883C19.4239 11.9883 21.4617 12.8319 22.9639 14.334C26.0922 17.4624 26.0922 22.5346 22.9639 25.6629L12.7419 35.8849Z"
-                        fill="#60a5fa"
-                        className="fill-blue-400"
-                        />
+                        fill="#38bdf8"
+                        className="fill-sky-400"
+                      />
                     </svg>
                     <span className="acronweb-text-footer inline-flex items-baseline gap-[0.1rem]">
                       <span
@@ -685,7 +676,7 @@ const Footer = () => {
                           lineHeight: "1",
                           display: "inline-block",
                           verticalAlign: "baseline",
-                          color: "#60a5fa"
+                          color: "#38bdf8"
                         }}
                       >
                         ACRON
@@ -706,6 +697,25 @@ const Footer = () => {
                       </span>
                     </span>
                   </a>
+                  {/* Custom Rounded Bold X Separator */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-3 h-3 text-gray-400 dark:text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                  {/* JK Technical Service Logo */}
+                  <div className="flex items-center gap-1.5">
+                    <div className="size-5 bg-blue-500 rounded flex items-center justify-center shadow-sm">
+                      <span className="text-white font-bold text-[0.6rem]">JK</span>
+                    </div>
+                    <span className="text-[0.65rem] font-semibold text-gray-700 dark:text-gray-300 hidden sm:inline">JK Technical</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -315,29 +315,6 @@ export default function Contact() {
                 </div>
             </section>
 
-            {/* SEO Hidden Content - Contact Page */}
-            <div className="sr-only" aria-hidden="true">
-                <h1>Επικοινωνία | Alexandra Rizou Hair-Beauty & Health Services</h1>
-                <h2>Επικοινωνήστε με το Κομμωτήριο Alexandra Rizou στο Χαλάνδρι</h2>
-                <p>
-                    <strong>Επικοινωνία κομμωτηρίου Χαλάνδρι</strong>. Επικοινωνήστε με το 
-                    <strong>κομμωτήριο Alexandra Rizou στο Χαλάνδρι</strong> για 
-                    <strong>ραντεβού γυναικείου κουρέματος</strong>, <strong>balayage Χαλάνδρι</strong>, 
-                    <strong>highlights Χαλάνδρι</strong>, <strong>χρωματισμού μαλλιών</strong>. 
-                    <strong>Τηλέφωνο κομμωτηρίου Χαλάνδρι: +30 210 6818 011</strong>. 
-                    <strong>Email: ar.hairbeauty.healthservices@gmail.com</strong>. 
-                    <strong>Διεύθυνση: Ανδρέα Παπανδρέου 52, Χαλάνδρι 152 32</strong>.
-                </p>
-                <address>
-                    Alexandra Rizou Hair-Beauty & Health Services<br />
-                    Ανδρέα Παπανδρέου 52<br />
-                    Χαλάνδρι, 152 32<br />
-                    Αττική, Ελλάδα<br />
-                    Τηλέφωνο: +30 210 6818 011<br />
-                    Email: ar.hairbeauty.healthservices@gmail.com
-                </address>
-            </div>
-
             <Footer />
         </div>
     );

@@ -233,9 +233,12 @@ All colors MUST be HSL.
     }
 
     @keyframes gradient {
-        0%, 100% {
+
+        0%,
+        100% {
             background-position: 0% 50%;
         }
+
         50% {
             background-position: 100% 50%;
         }
@@ -250,6 +253,7 @@ All colors MUST be HSL.
             opacity: 0;
             transform: translateY(30px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -262,16 +266,18 @@ All colors MUST be HSL.
             animation: none !important;
         }
     }
-    
+
     /* Prevent carousel jumping on mobile - optimize hero section */
     @media (max-width: 767px) {
+
         /* Ensure hero content doesn't cause layout shifts */
         section[class*="min-h-screen"] {
             min-height: 100vh;
-            min-height: 100dvh; /* Use dynamic viewport height for mobile */
+            min-height: 100dvh;
+            /* Use dynamic viewport height for mobile */
             contain: layout style paint;
         }
-        
+
         /* Optimize carousel background transitions */
         [class*="absolute inset-0"][style*="backgroundImage"] {
             will-change: opacity;
@@ -285,6 +291,7 @@ All colors MUST be HSL.
         0% {
             transform: translateX(-100%) skewX(-15deg);
         }
+
         100% {
             transform: translateX(200%) skewX(-15deg);
         }
@@ -298,7 +305,7 @@ All colors MUST be HSL.
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
+
     .group:hover .shimmer-on-hover {
         opacity: 1;
         animation: shimmer 1.5s ease-in-out;
@@ -347,7 +354,7 @@ All colors MUST be HSL.
         width: 75%;
     }
 
-    #mobile-menu-checkbox:checked + .mobile-toggle .mobile-toggle-bar1 {
+    #mobile-menu-checkbox:checked+.mobile-toggle .mobile-toggle-bar1 {
         position: absolute;
         top: 50%;
         left: 0;
@@ -357,13 +364,13 @@ All colors MUST be HSL.
         transition-duration: 0.5s;
     }
 
-    #mobile-menu-checkbox:checked + .mobile-toggle .mobile-toggle-bar2 {
+    #mobile-menu-checkbox:checked+.mobile-toggle .mobile-toggle-bar2 {
         transform: scaleX(0);
         opacity: 0;
         transition-duration: 0.1s;
     }
 
-    #mobile-menu-checkbox:checked + .mobile-toggle .mobile-toggle-bar3 {
+    #mobile-menu-checkbox:checked+.mobile-toggle .mobile-toggle-bar3 {
         position: absolute;
         top: 50%;
         left: 0;
@@ -404,5 +411,226 @@ All colors MUST be HSL.
 
     .dark *::-webkit-scrollbar-thumb:hover {
         background: hsl(var(--primary) / 0.6);
+    }
+
+    /* Screen reader only - ensure it's completely hidden */
+    .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        clip-path: inset(50%) !important;
+        white-space: nowrap !important;
+        border-width: 0 !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    /* Ensure aria-hidden elements are completely hidden */
+    [aria-hidden="true"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    /* Double protection: hide sr-only elements with aria-hidden */
+    .sr-only[aria-hidden="true"],
+    div.sr-only[aria-hidden="true"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        clip-path: inset(50%) !important;
+        white-space: nowrap !important;
+        border-width: 0 !important;
+    }
+
+    /* Theme Lamp Toggle - Ensure SVG is visible */
+    button[aria-label="Toggle dark mode"] {
+        overflow: visible !important;
+    }
+
+    button[aria-label="Toggle dark mode"] svg {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: block !important;
+    }
+
+    button[aria-label="Toggle dark mode"] svg path,
+    button[aria-label="Toggle dark mode"] svg g {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Modern Premium Calendar Styles for Booking */
+    .calendar-modern {
+        width: 100%;
+        max-width: 340px;
+        padding: 0.5rem;
+    }
+
+    .calendar-modern__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .calendar-modern__nav-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        background: hsl(var(--sage-green) / 0.1);
+        color: hsl(var(--sage-green));
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid hsl(var(--sage-green) / 0.2);
+        cursor: pointer;
+    }
+
+    .calendar-modern__nav-btn:hover:not(:disabled) {
+        background: hsl(var(--sage-green) / 0.2);
+        border-color: hsl(var(--sage-green) / 0.4);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px hsl(var(--sage-green) / 0.2);
+    }
+
+    .calendar-modern__nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .calendar-modern__title {
+        text-align: center;
+    }
+
+    .calendar-modern__month {
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: hsl(var(--foreground));
+        text-transform: capitalize;
+        font-family: 'Playfair Display', serif;
+        letter-spacing: 0.02em;
+    }
+
+    .calendar-modern__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .calendar-modern__days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.375rem;
+        text-align: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: hsl(var(--sage-green));
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid hsl(var(--sage-green) / 0.15);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .calendar-modern__dates {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.375rem;
+    }
+
+    .calendar-modern__date {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        aspect-ratio: 1;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        color: hsl(var(--foreground));
+        background: transparent;
+        border: 2px solid transparent;
+    }
+
+    .calendar-modern__date:hover:not(.calendar-modern__date--disabled):not(.calendar-modern__date--closed):not(.calendar-modern__date--other) {
+        background: hsl(var(--sage-green) / 0.1);
+        border-color: hsl(var(--sage-green) / 0.3);
+        transform: scale(1.1);
+    }
+
+    .calendar-modern__date--other {
+        color: hsl(var(--muted-foreground) / 0.3);
+        cursor: default;
+    }
+
+    .calendar-modern__date--today {
+        background: hsl(var(--sage-green) / 0.15);
+        color: hsl(var(--sage-green));
+        font-weight: 700;
+        border-color: hsl(var(--sage-green) / 0.3);
+    }
+
+    .calendar-modern__date--selected {
+        background: linear-gradient(135deg, hsl(var(--sage-green)), hsl(var(--sage-light))) !important;
+        color: white !important;
+        font-weight: 700;
+        border-color: hsl(var(--sage-green)) !important;
+        box-shadow: 0 4px 16px hsl(var(--sage-green) / 0.4);
+        transform: scale(1.1);
+    }
+
+    .calendar-modern__date--disabled {
+        color: hsl(var(--muted-foreground) / 0.25);
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+
+    .calendar-modern__date--closed {
+        color: hsl(0 60% 55% / 0.7);
+        cursor: not-allowed;
+        background: hsl(0 60% 55% / 0.08);
+        border-color: hsl(0 60% 55% / 0.15);
+    }
+
+    .calendar-modern__lock {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 10px;
+        height: 10px;
+        color: hsl(0 60% 55% / 0.6);
+    }
+
+    /* Dark mode adjustments */
+    .dark .calendar-modern__date {
+        color: hsl(var(--foreground));
+    }
+
+    .dark .calendar-modern__date--other {
+        color: hsl(var(--muted-foreground) / 0.3);
+    }
+
+    .dark .calendar-modern__date--today {
+        background: hsl(var(--primary) / 0.15);
+    }
+
+    .dark .calendar-modern__date--selected {
+        background: hsl(var(--primary)) !important;
     }
 }

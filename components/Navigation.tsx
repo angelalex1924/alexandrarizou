@@ -953,9 +953,9 @@ const Navigation = () => {
           }}
           aria-hidden={!isOpen}
         >
-          {/* Solid Backdrop Overlay - Κρύβει ΤΕΛΕΙΩΣ όλα τα πάνω από πίσω */}
+          {/* Solid Backdrop Overlay - Soft Green Background */}
           <div 
-            className="absolute inset-0 bg-background"
+            className="absolute inset-0 dark:bg-[hsl(150_12%_16%)] bg-[hsl(150_15%_88%)]"
             onClick={closeMenu}
             aria-hidden="true"
             style={{
@@ -969,7 +969,7 @@ const Navigation = () => {
 
           {/* Content */}
           <div
-            className={`relative h-full flex flex-col p-6 z-10 overflow-y-auto ${
+            className={`relative h-full flex flex-col p-6 z-10 overflow-y-auto dark:bg-[hsl(150_12%_16%)] bg-[hsl(150_15%_88%)] ${
               isMenuVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
             }`}
             style={{
@@ -1555,7 +1555,7 @@ const Navigation = () => {
                           lineHeight: "1",
                           display: "inline-block",
                           verticalAlign: "baseline",
-                          color: "#60a5fa"
+                          color: "#38bdf8"
                         }}
                       >
                         ACRON

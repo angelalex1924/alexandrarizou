@@ -227,33 +227,6 @@ export const alexandraRizouStructuredData = {
     "Gold Medal 2025",
     "Laureate Medal 2025"
   ],
-  "keywords": [
-    "γυναικείο κούρεμα Χαλάνδρι",
-    "κομμωτήριο Χαλάνδρι",
-    "γυναικείο κομμωτήριο Χαλάνδρι",
-    "κούρεμα Χαλάνδρι",
-    "κομμωτήριο Χαλάνδρι γυναικείος",
-    "Alexandra Rizou Χαλάνδρι",
-    "balayage Χαλάνδρι",
-    "highlights Χαλάνδρι",
-    "χρωματισμός μαλλιών Χαλάνδρι",
-    "θεραπεία μαλλιών Χαλάνδρι",
-    "manicure Χαλάνδρι",
-    "pedicure Χαλάνδρι",
-    "waxing Χαλάνδρι",
-    "women's haircut Chalandri",
-    "hair salon Chalandri",
-    "women's hair salon Chalandri",
-    "haircut Chalandri",
-    "hair color Chalandri",
-    "balayage Chalandri",
-    "highlights Chalandri",
-    "hair treatment Chalandri",
-    "κομμωτήριο Βόρεια Προάστια",
-    "γυναικείο κούρεμα Αθήνα",
-    "κομμωτήριο Μαρούσι",
-    "κομμωτήριο Κηφισιά"
-  ],
   "potentialAction": {
     "@type": "ReserveAction",
     "target": {

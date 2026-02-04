@@ -324,54 +324,48 @@ const AI_MODELS = {
 // LLM7.io Configuration - Free AI service with no API keys required
 // Using multiple models for different modes to ensure reliability
 
-// API token - Updated with new OpenRouter key (not used anymore)
-const API_TOKEN = "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"
-
-  // Multiple API keys for fallback - LLM7.io API key
-  const API_KEYS = ["1Buyw2FSjOPj1ZfYXADGFGWkNpx7i7covqFXo26tC8SVmM5g1vEKHm129oDFPv3QGs2VInZ+xvhYsplmV5Zgdq8QPAV/cpHT92crbw5451aEysAiOTv1vO8+hRDLXhzNrxgKOf7"]
+// LLM7.io API Configuration
+const LLM7_API_TOKEN = "RUBZKNlV4o64OLrkAzQGcbksfnmhNDbIMEmldG8AnCPilkF+dUrKDchLd5O+yNknUYWfe9Wpmd2w5L6IZ1C013NTkFsFQUzCCy6KjrhDT6ki5VCh1Ixnj65zqM4JqAyKf47+kJWT"
 
 // Alternative API endpoints and configurations - ONLY LLM7.io now
 const API_CONFIGS = [
   {
     name: "LLM7.io",
     baseUrl: "https://api.llm7.io/v1/chat/completions",
-    keys: ["1Buyw2FSjOPj1ZfYXADGFGWkNpx7i7covqFXo26tC8SVmM5g1vEKHm129oDFPv3QGs2VInZ+xvhYsplmV5Zgdq8QPAV/cpHT92crbw5451aEysAiOTv1vO8+hRDLXhzNrxgKOf7"], // LLM7.io API key
+    keys: [LLM7_API_TOKEN], // LLM7.io API token
     headers: (apiKey) => ({
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
     }),
     // Dynamic model selection - θα δοκιμάσει τα models με τη σειρά μέχρι να βρει διαθέσιμο
+    // Χρησιμοποιούμε "default" model όπως προτείνουν τα docs του LLM7.io
     models: {
       chat: [
-        "mistral-small-3.1-24b-instruct-2503", // Πρώτη επιλογή - καλύτερο
-        "llama3.1:8b", // Γρηγορότερο model
-        "mistral-small-2503", // Γρήγορο και καλό
-        "phi-4", // Πολύ γρήγορο
-        "gpt-4o-mini-2024-07-18",
-        "deepseek-v3",
+        "default", // Default model από LLM7.io
         "gpt-4o-mini",
-        "claude-3-haiku",
-        "claude-3-sonnet"
+        "gpt-4o-mini-2024-07-18",
+        "llama3.1:8b",
+        "mistral-small-2503",
+        "phi-4",
+        "deepseek-v3"
       ],
       search: [
-        "mistral-small-3.1-24b-instruct-2503", // Πρώτη επιλογή
-        "llama3.1:8b", // Γρηγορότερο
+        "default", // Default model από LLM7.io
+        "gpt-4o-mini",
+        "gpt-4o-mini-2024-07-18",
+        "llama3.1:8b",
         "mistral-small-2503",
         "phi-4",
-        "gpt-4o-mini-2024-07-18",
-        "deepseek-v3",
-        "gpt-4o-mini",
-        "claude-3-haiku"
+        "deepseek-v3"
       ],
       reason: [
-        "mistral-small-3.1-24b-instruct-2503", // Πρώτη επιλογή
-        "llama3.1:8b", // Γρηγορότερο
+        "default", // Default model από LLM7.io
+        "gpt-4o-mini",
+        "gpt-4o-mini-2024-07-18",
+        "llama3.1:8b",
         "mistral-small-2503",
         "phi-4",
-        "deepseek-v3",
-        "gpt-4o-mini-2024-07-18",
-        "gpt-4o-mini",
-        "claude-3-sonnet"
+        "deepseek-v3"
       ]
     }
   }
@@ -1040,12 +1034,16 @@ const AIChatbot = () => {
         await new Promise(resolve => setTimeout(resolve, delay))
       }
 
+      // Get API key from current config
+      const apiKey = currentConfig.keys[0] || "unused"
+      
       // Δημιουργία του fetch options object
       const fetchOptions: RequestInit = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "User-Agent": "AcronWeb-Assistant/1.0",
+          "Authorization": `Bearer ${apiKey}`, // Προσθήκη Authorization header με το token
         },
         body: JSON.stringify({
           model: currentModel,

@@ -1625,53 +1625,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* SEO Hidden Content - Keywords for Search Engines */}
-            <div className="sr-only" aria-hidden="true">
-                <h1>Alexandra Rizou Hair-Beauty & Health Services - Γυναικείο Κούρεμα Χαλάνδρι</h1>
-                <h2>Κορυφαίο Γυναικείο Κομμωτήριο στο Χαλάνδρι</h2>
-                <h3>Εξειδικευμένο Γυναικείο Κούρεμα Χαλάνδρι</h3>
-                <p>
-                    Το <strong>Alexandra Rizou Hair-Beauty & Health Services</strong> είναι το <strong>καλύτερο γυναικείο κομμωτήριο στο Χαλάνδρι</strong>, 
-                    εξειδικευμένο σε <strong>γυναικείο κούρεμα</strong>, <strong>balayage Χαλάνδρι</strong>, <strong>highlights Χαλάνδρι</strong>, 
-                    <strong>χρωματισμό μαλλιών Χαλάνδρι</strong>, <strong>θεραπείες μαλλιών</strong>, <strong>manicure Χαλάνδρι</strong>, 
-                    <strong>pedicure Χαλάνδρι</strong> και <strong>waxing Χαλάνδρι</strong>. 
-                    Βρίσκεται στην <strong>Ανδρέα Παπανδρέου 52, Χαλάνδρι 152 32</strong>. 
-                    Κλείστε ραντεβού στο <strong>+30 210 6818 011</strong>.
-                </p>
-                <p>
-                    <strong>Κομμωτήριο Χαλάνδρι</strong>, <strong>γυναικείο κούρεμα Χαλάνδρι</strong>, 
-                    <strong>κομμωτήριο γυναικείος Χαλάνδρι</strong>, <strong>κούρεμα Χαλάνδρι</strong>, 
-                    <strong>Alexandra Rizou Χαλάνδρι</strong>, <strong>balayage Χαλάνδρι</strong>, 
-                    <strong>highlights Χαλάνδρι</strong>, <strong>χρωματισμός μαλλιών Χαλάνδρι</strong>, 
-                    <strong>θεραπεία μαλλιών Χαλάνδρι</strong>, <strong>manicure Χαλάνδρι</strong>, 
-                    <strong>pedicure Χαλάνδρι</strong>, <strong>waxing Χαλάνδρι</strong>, 
-                    <strong>κομμωτήριο Βόρεια Προάστια</strong>, <strong>γυναικείο κούρεμα Αθήνα</strong>, 
-                    <strong>κομμωτήριο Μαρούσι</strong>, <strong>κομμωτήριο Κηφισιά</strong>, 
-                    <strong>women's haircut Chalandri</strong>, <strong>hair salon Chalandri</strong>, 
-                    <strong>women's hair salon Chalandri</strong>, <strong>haircut Chalandri</strong>, 
-                    <strong>hair color Chalandri</strong>, <strong>balayage Chalandri</strong>, 
-                    <strong>highlights Chalandri</strong>, <strong>hair treatment Chalandri</strong>.
-                </p>
-                <ul>
-                    <li>Γυναικείο Κούρεμα Χαλάνδρι - 25€</li>
-                    <li>Balayage Χαλάνδρι - 55€</li>
-                    <li>Highlights Χαλάνδρι - Από 30€</li>
-                    <li>Χρωματισμός Μαλλιών Χαλάνδρι - Από 38€</li>
-                    <li>Θεραπεία Μαλλιών Χαλάνδρι - 10€</li>
-                    <li>Manicure Χαλάνδρι - 5€</li>
-                    <li>Pedicure Χαλάνδρι - 5€</li>
-                    <li>Waxing Χαλάνδρι - 5€</li>
-                </ul>
-                <address>
-                    Alexandra Rizou Hair-Beauty & Health Services<br />
-                    Ανδρέα Παπανδρέου 52<br />
-                    Χαλάνδρι, 152 32<br />
-                    Αττική, Ελλάδα<br />
-                    Τηλέφωνο: +30 210 6818 011<br />
-                    Email: ar.hairbeauty.healthservices@gmail.com
-                </address>
-            </div>
-
             <Footer />
         </div>
     );

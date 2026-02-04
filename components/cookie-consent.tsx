@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink, Settings, Shield, TrendingUp, Palette, Target, Check, X } from 'lucide-react'
-import { useLanguage } from '@/contexts/LanguageContext'
+import { usePathname } from 'next/navigation'
 import { getCookie, setCookie, deleteCookie } from 'cookies-next'
 
 // Αφαιρώ το interface CookiePreferences και χρησιμοποιώ JSDoc για documentation
@@ -18,7 +18,7 @@ import { getCookie, setCookie, deleteCookie } from 'cookies-next'
 export const getCookieConsent = (language = 'el') => {
   try {
     const preferencesKey = `cookiePreferences_${language}`
-    
+
     const savedPreferences = getCookie(preferencesKey)
     if (savedPreferences && typeof savedPreferences === 'string') {
       return JSON.parse(savedPreferences)
@@ -30,8 +30,8 @@ export const getCookieConsent = (language = 'el') => {
 }
 
 // Function to check if a specific cookie category is enabled
-export const isCookieEnabled = (category: string, language = 'el') => {
-  const consent = getCookieConsent(language)
+export const isCookieEnabled = (category) => {
+  const consent = getCookieConsent()
   return consent ? consent[category] : false
 }
 
@@ -47,8 +47,10 @@ export function CookieConsent() {
     preferences: true,
     marketing: false
   })
-  const { language: currentLanguage } = useLanguage()
-  
+  const pathname = usePathname()
+
+  // Επιλογή γλώσσας από το pathname
+  const currentLanguage = pathname?.startsWith('/en') ? 'en' : 'el';
   const consentKey = `cookieConsent_${currentLanguage}`;
   const preferencesKey = `cookiePreferences_${currentLanguage}`;
 
@@ -57,21 +59,21 @@ export function CookieConsent() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    
+
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   // Load saved preferences
   useEffect(() => {
     try {
-    const savedPreferences = getCookie(preferencesKey)
-    if (savedPreferences && typeof savedPreferences === 'string') {
-      const parsed = JSON.parse(savedPreferences)
-      setPreferences({ ...parsed, essential: true }) // Essential is always true
-    }
+      const savedPreferences = getCookie(preferencesKey)
+      if (savedPreferences && typeof savedPreferences === 'string') {
+        const parsed = JSON.parse(savedPreferences)
+        setPreferences({ ...parsed, essential: true }) // Essential is always true
+      }
     } catch {
       // Use default preferences
     }
@@ -122,7 +124,7 @@ export function CookieConsent() {
   }, [currentLanguage, isLoaded])
 
   // Save cookie preferences and actual cookies
-  const savePreferences = (prefs: any) => {
+  const savePreferences = (prefs) => {
     try {
       // Save consent status
       setCookie(consentKey, 'custom', {
@@ -219,9 +221,9 @@ export function CookieConsent() {
     setIsVisible(false)
   }
 
-  const togglePreference = (key: string) => {
+  const togglePreference = (key) => {
     if (key === 'essential') return // Cannot disable essential cookies
-    setPreferences(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))
+    setPreferences(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
   const content = {
@@ -229,7 +231,7 @@ export function CookieConsent() {
       title: 'Συγκατάθεση Cookies',
       description: 'Αυτός ο ιστότοπος χρησιμοποιεί cookies για να εξασφαλίσει την καλύτερη εμπειρία στον ιστότοπό μας.',
       acceptAll: 'Αποδοχή όλων',
-      declineAll: 'Απόρριψη όλων',
+      declineAll: 'Αποδοχή αναγκαίων',
       customizeSettings: 'Προσαρμογή',
       learnMore: 'Μάθε περισσότερα',
       settings: {
@@ -260,7 +262,7 @@ export function CookieConsent() {
       title: 'Cookie Consent',
       description: 'This website uses cookies to ensure you get the best experience on our website.',
       acceptAll: 'Accept All',
-      declineAll: 'Decline All',
+      declineAll: 'Accept Essential',
       customizeSettings: 'Customize',
       learnMore: 'Learn more',
       settings: {
@@ -286,41 +288,10 @@ export function CookieConsent() {
         saveSettings: 'Save Settings',
         backToMain: 'Back'
       }
-    },
-    fr: {
-      title: 'Consentement aux Cookies',
-      description: 'Ce site web utilise des cookies pour vous assurer la meilleure expérience sur notre site web.',
-      acceptAll: 'Accepter Tout',
-      declineAll: 'Refuser Tout',
-      customizeSettings: 'Personnaliser',
-      learnMore: 'En savoir plus',
-      settings: {
-        title: 'Paramètres des Cookies',
-        description: 'Gérez vos préférences de cookies. Vous pouvez activer ou désactiver différentes catégories de cookies ci-dessous.',
-        essential: {
-          title: 'Cookies Essentiels',
-          description: 'Ces cookies sont nécessaires au fonctionnement du site web et ne peuvent pas être désactivés.',
-          always: 'Toujours Actifs'
-        },
-        performance: {
-          title: 'Cookies de Performance',
-          description: 'Ces cookies nous aident à comprendre comment les visiteurs utilisent notre site web pour améliorer les performances.'
-        },
-        preferences: {
-          title: 'Cookies de Préférences',
-          description: 'Ces cookies se souviennent de vos préférences et fournissent des expériences personnalisées.'
-        },
-        marketing: {
-          title: 'Cookies Marketing',
-          description: 'Ces cookies sont utilisés pour vous montrer des publicités pertinentes basées sur vos intérêts.'
-        },
-        saveSettings: 'Sauvegarder les Paramètres',
-        backToMain: 'Retour'
-      }
     }
   }
 
-  const currentContent = content[currentLanguage as keyof typeof content] || content.en
+  const currentContent = content[currentLanguage]
 
   // Cookie categories with icons
   const cookieCategories = [
@@ -362,413 +333,712 @@ export function CookieConsent() {
   return (
     <AnimatePresence key={currentLanguage}>
       {isVisible && (
-        <motion.div
-          key={currentLanguage}
-          initial={{ opacity: 0, y: 100, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 100, scale: 0.8 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed z-[9999] pointer-events-auto"
-          style={{
-            position: 'fixed',
-            zIndex: 9999,
-            ...(isMobile
-              ? {
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  margin: 0,
-                  width: '100vw',
-                  height: '100vh',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: 'rgba(0,0,0,0.30)',
-                  padding: '1rem',
-                  overflow: 'hidden'
+        <>
+          {/* Backdrop overlay - Full coverage on mobile */}
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-[9997] pointer-events-auto"
+              style={{
+                background: 'rgba(0, 0, 0, 0.92)',
+                zIndex: 9997
+              }}
+            />
+          )}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[9998] pointer-events-auto"
+            style={{
+              background: isMobile
+                ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(0, 0, 0, 0.88) 100%)'
+                : 'linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 41, 59, 0.5) 100%)',
+              backdropFilter: isMobile ? 'blur(12px)' : 'blur(8px)',
+              WebkitBackdropFilter: isMobile ? 'blur(12px)' : 'blur(8px)',
+              zIndex: 9998
+            }}
+            onClick={() => !isMobile && setIsVisible(false)}
+          />
+
+          <motion.div
+            key={currentLanguage}
+            initial={{ opacity: 0, y: isMobile ? 100 : 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: isMobile ? 100 : 50, scale: 0.95 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 30,
+              mass: 0.8
+            }}
+            className="fixed z-[9999] pointer-events-auto"
+            style={{
+              position: 'fixed',
+              zIndex: 9999,
+              ...(isMobile
+                ? {
+                  bottom: '20px',
+                  left: '16px',
+                  right: '16px',
+                  width: 'auto',
+                  maxWidth: 'none',
+                  maxHeight: '85vh',
                 }
-              : {
-                  bottom: isMobile ? '80px' : '24px',
-                  left: '24px',
-                  maxWidth: '420px',
+                : {
+                  bottom: '32px',
+                  right: '32px',
+                  maxWidth: showSettings ? '580px' : '480px',
                   width: '100%'
                 }
-            )
-          }}
-        >
-          <div 
-            className={`relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-700/80 backdrop-blur-xl ${isMobile ? 'p-5' : 'p-8'}`}
-            style={
-              isMobile 
-                ? { 
-                    width: '100%',
-                    maxWidth: '380px',
-                    maxHeight: '95vh', 
-                    overflowY: 'auto',
-                    margin: '0 auto'
-                  } 
-                : { 
-                    maxWidth: showSettings ? 550 : 400, 
-                    width: '100%'
-                  }
-            }
+              )
+            }}
           >
-            {!showSettings ? (
-              // Main Cookie Consent View
-              <>
-                {/* Cookie icon */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 rounded-full flex items-center justify-center shadow-lg">
-                    <svg 
-                      viewBox="0 0 64 64" 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="w-16 h-16"
-                      aria-hidden="true" 
-                      role="img" 
-                      preserveAspectRatio="xMidYMid meet" 
-                      fill="#000000"
-                    >
-                      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                      <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                      <g id="SVGRepo_iconCarrier"> 
-                        <path d="M36.9 22.7l2.5-18.6C37 3.5 34.6 2 32 2c-2.6 0-5 1.5-7.5 2.2c-2.5.6-5.3.5-7.5 1.8s-3.6 3.8-5.4 5.6C9.8 13.4 7.3 14.8 6 17c-1.3 2.2-1.2 5-1.9 7.5C3.5 27 2 29.4 2 32c0 2.6 1.5 5 2.2 7.5c.6 2.5.5 5.3 1.8 7.5s3.8 3.6 5.6 5.4c1.8 1.8 3.1 4.3 5.4 5.6c2.2 1.3 5 1.2 7.5 1.9c2.5.6 4.9 2.1 7.5 2.1c2.6 0 5-1.5 7.5-2.2c2.5-.7 5.3-.6 7.5-1.9c2.2-1.3 3.6-3.8 5.4-5.6c1.8-1.8 4.3-3.1 5.6-5.4c1.3-2.2 1.2-5 1.9-7.5c.6-2.4 2.1-4.8 2.1-7.4c0-2.6-2.1-8.1-2.1-8.1l-23-1.2" fill="#dda85f"> </path> 
-                        <path d="M59.4 22.4c-1 .3-2.4.2-3.9-.4c-2.1-.8-3.4-2.5-3.8-4.5c-1 .3-3.4 0-5-1c-2.4-1.5-2.9-5.7-2.9-5.7c-2.7-.8-4.7-4-4.4-6.7c-2.2-.6-5-.5-7.4-.5c-2.4 0-4.6 1.4-6.8 2c-2.3.6-4.9.5-6.9 1.7s-3.3 3.5-4.9 5.1c-1.7 1.7-4 2.9-5.1 4.9c-1.2 2-1.1 4.6-1.7 6.9c-.6 2.2-2 4.4-2 6.8c0 2.4 1.4 4.6 2 6.8c.6 2.3.5 4.9 1.7 6.9s3.5 3.3 5.1 4.9c1.7 1.7 2.9 4 4.9 5.1c2 1.2 4.6 1.1 6.9 1.7c2.2.6 4.4 2 6.8 2c2.4 0 4.6-1.4 6.8-2c2.3-.6 4.9-.5 6.9-1.7s3.3-3.5 4.9-5.1c1.7-1.7 4-2.9 5.1-4.9c1.2-2 1.1-4.6 1.7-6.9c.6-2.2 3-4 3.3-6.4c.8-3.9-1.2-8.3-1.3-9" fill="#f2cb7d"> </path> 
-                        <g fill="#dda85f"> 
-                          <path d="M50.1 10.8l-1.4 1.4l-1.3-1.4l1.3-1.3z"> </path> 
-                          <path d="M55.8 17.8l-.6.7l-.7-.7l.7-.7z"> </path> 
-                          <path d="M50.8 13.2l-.7.7l-.7-.7l.7-.7z"> </path> 
-                          <path d="M44.6 7.1l-.7.7l-.7-.7l.7-.7z"> </path> 
-                          <path d="M57.2 20.3l-.7.7l-.7-.7l.7-.7z"> </path> 
-                          <path d="M57.8 17.8l-.7.7l-.7-.7l.7-.7z"> </path> 
-                        </g> 
-                        <path d="M11.8 20.6c-1 1.7.5 4.8 2.5 5.7c2.9 1.2 4.6 1.4 6.4-1.7c.6-1.1 1.4-4 1.1-4.7c-.4-1-2.1-3-3.2-3c-3.1.1-6.1 2.5-6.8 3.7" fill="#6d4934"> </path> 
-                        <path d="M12.3 20.6c-.7 1.2 1.1 4.8 3.5 4.5c3.3-.4 3-7.2 1.6-7.2c-2.4 0-4.6 1.8-5.1 2.7" fill="#a37f6a"> </path> 
-                        <path d="M45.2 39.1c1.4-.4 2.4-2.9 1.8-4.4c-.9-2.3-1.8-3.3-4.4-2.6c-.9.3-3 1.4-3.2 1.9c-.3.8-.5 2.8.1 3.4c1.7 1.7 4.7 2 5.7 1.7" fill="#6d4934"> </path> 
-                        <path d="M43.8 36.7c1.1-.3 2.8-3.7 1-3.9c-3.1-.5-5.5 1-5.2 2.7c.3 1.7 3.4 1.4 4.2 1.2" fill="#a37f6a"> </path> 
-                        <path d="M24.9 44.5c-.3-1.2-2.5-2.1-3.9-1.5c-2 .8-2.9 1.5-2.2 3.8c.2.8 1.2 2.6 1.7 2.7c.7.3 2.4.4 2.9-.1c1.5-1.4 1.7-4 1.5-4.9" fill="#6d4934"> </path> 
-                        <path d="M23.2 43.6c-.2-.9-4.4.4-4 2c.8 2.7.8 3.1 1.6 3c1.5-.4 2.5-4.3 2.4-5" fill="#a37f6a"> </path> 
-                        <path d="M51.1 25.5c-1.2.3-2.1 2.5-1.5 3.9c.8 2 2.7 2.3 4.8 1.2c1.8-.9 1.9-4.1 1.4-4.7c-1.5-1.5-3.8-.6-4.7-.4" fill="#6d4934"> </path> 
-                        <path d="M50.6 26.6c-.6.7-1.1 3.5.4 3.1c2.7-.8 4.6-3.5 3.4-3.9c-1.5-.5-3.1 0-3.8.8" fill="#a37f6a"> </path> 
-                        <path fill="#6d4934" d="M22.74 16.112l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                        <g fill="#dda85f"> 
-                          <path d="M14.706 33.483l1.979-1.98l1.98 1.979l-1.979 1.98z"> </path> 
-                          <path d="M34.698 44.811l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                          <path d="M32.038 39.289l2.687-2.687l2.687 2.687l-2.687 2.687z"> </path> 
-                          <path d="M24.696 9.827l2.687-2.687l2.687 2.687l-2.687 2.687z"> </path> 
-                        </g> 
-                        <g fill="#6d4934"> 
-                          <path d="M41.122 46.347l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                          <path d="M49.076 35.215l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                          <path d="M41.812 24.637l.99-.99l.99.99l-.99.99z"> </path> 
-                          <path d="M13.726 38.266l.99-.99l.99.99l-.99.99z"> </path> 
-                        </g> 
-                      </g>
-                    </svg>
-                  </div>
-                </div>
+            <div
+              className="relative overflow-hidden dark:bg-slate-900/95"
+              style={{
+                background: isMobile
+                  ? 'linear-gradient(145deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 255, 255, 0.98) 100%)'
+                  : 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%)',
+                borderRadius: isMobile ? '24px' : '28px',
+                boxShadow: isMobile
+                  ? '0 20px 40px -10px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.6) inset, 0 -4px 20px -5px rgba(0, 0, 0, 0.1)'
+                  : '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.5) inset',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.8)',
+              }}
+            >
+              {/* Beautiful decorative gradient overlays */}
+              <div
+                className="absolute top-0 left-0 right-0 h-40 opacity-40"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(175, 254, 18, 0.12) 0%, rgba(159, 224, 17, 0.1) 30%, rgba(56, 189, 248, 0.08) 60%, rgba(139, 92, 246, 0.06) 100%)',
+                  borderRadius: '28px 28px 0 0'
+                }}
+              />
+              <div
+                className="absolute top-0 left-0 w-1/2 h-full opacity-20"
+                style={{
+                  background: 'radial-gradient(ellipse at top left, rgba(175, 254, 18, 0.15) 0%, transparent 70%)',
+                  borderRadius: '28px 0 0 0'
+                }}
+              />
+              <div
+                className="absolute top-0 right-0 w-1/2 h-full opacity-20"
+                style={{
+                  background: 'radial-gradient(ellipse at top right, rgba(56, 189, 248, 0.12) 0%, transparent 70%)',
+                  borderRadius: '0 28px 0 0'
+                }}
+              />
+              {/* Subtle pattern overlay */}
+              <div
+                className="absolute inset-0 opacity-[0.02]"
+                style={{
+                  backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.15) 1px, transparent 0)',
+                  backgroundSize: '24px 24px'
+                }}
+              />
 
-                {/* Content */}
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">
-                    {currentContent.title}
-                  </h3>
-                  <p className="text-gray-600 dark:text-slate-300 text-sm leading-relaxed mb-8">
-                    {currentContent.description}
-                  </p>
+              {/* Content container */}
+              <div className={`relative ${isMobile ? (showSettings ? 'p-4' : 'p-6') : 'p-8'}`}>
+                {!showSettings ? (
+                  // Main Cookie Consent View - Premium Design
+                  <div className="flex flex-col">
+                    {/* Header with Cookie Image */}
+                    <div className={`relative flex items-start gap-5 ${isMobile ? 'mb-5' : 'mb-6'}`}>
+                      {/* Cookie Image - Artistic Placement */}
+                      <motion.div
+                        initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                        animate={{
+                          scale: 1,
+                          rotate: 0,
+                          opacity: 1
+                        }}
+                        transition={{
+                          scale: {
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 15,
+                            delay: 0.2
+                          },
+                          rotate: {
+                            type: "spring",
+                            stiffness: 200,
+                            damping: 15,
+                            delay: 0.2
+                          },
+                          opacity: {
+                            delay: 0.2,
+                            duration: 0.5
+                          }
+                        }}
+                        className="flex-shrink-0 relative"
+                        style={{
+                          zIndex: 1
+                        }}
+                      >
+                        {/* Decorative glow effect */}
+                        <motion.div
+                          className="absolute inset-0 rounded-full blur-xl"
+                          style={{
+                            background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(217, 119, 6, 0.2) 50%, transparent 70%)',
+                            transform: 'scale(1.3)'
+                          }}
+                          animate={{
+                            opacity: [0.4, 0.6, 0.4],
+                            scale: [1.3, 1.4, 1.3]
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        />
 
-                  {/* Buttons */}
-                  <div className="flex flex-col gap-3 mb-6">
-                    <button
-                      onClick={handleAcceptAll}
-                      className="w-full px-6 py-3 text-white font-bold rounded-2xl transition-colors duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-lime-400 dark:focus:ring-lime-700"
+                        {/* Main container with enhanced styling */}
+                        <div
+                          className="relative"
+                          style={{
+                            width: isMobile ? '75px' : '110px',
+                            height: isMobile ? '75px' : '110px',
+                            background: 'linear-gradient(145deg, rgba(255, 247, 237, 0.95) 0%, rgba(254, 243, 199, 0.9) 50%, rgba(251, 191, 36, 0.15) 100%)',
+                            borderRadius: isMobile ? '22px' : '28px',
+                            padding: isMobile ? '12px' : '16px',
+                            boxShadow: `
+                              0 0 0 1px rgba(251, 191, 36, 0.2) inset,
+                              0 8px 32px -8px rgba(217, 119, 6, 0.3),
+                              0 4px 16px -4px rgba(251, 191, 36, 0.2),
+                              0 0 40px -10px rgba(251, 191, 36, 0.15)
+                            `,
+                            transform: 'perspective(1000px) rotateY(-5deg) rotateX(2deg)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.05)'
+                            e.currentTarget.style.boxShadow = `
+                              0 0 0 1px rgba(251, 191, 36, 0.3) inset,
+                              0 12px 40px -8px rgba(217, 119, 6, 0.4),
+                              0 6px 20px -4px rgba(251, 191, 36, 0.3),
+                              0 0 50px -10px rgba(251, 191, 36, 0.2)
+                            `
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'perspective(1000px) rotateY(-5deg) rotateX(2deg) scale(1)'
+                            e.currentTarget.style.boxShadow = `
+                              0 0 0 1px rgba(251, 191, 36, 0.2) inset,
+                              0 8px 32px -8px rgba(217, 119, 6, 0.3),
+                              0 4px 16px -4px rgba(251, 191, 36, 0.2),
+                              0 0 40px -10px rgba(251, 191, 36, 0.15)
+                            `
+                          }}
+                        >
+                          {/* Inner glow ring */}
+                          <div
+                            className="absolute inset-0 rounded-full"
+                            style={{
+                              background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 60%)',
+                              borderRadius: isMobile ? '22px' : '28px',
+                              pointerEvents: 'none'
+                            }}
+                          />
+
+                          {/* Cookie Image */}
+                          <img
+                            src="/cookie.png"
+                            alt="Cookie"
+                            className="w-full h-full object-contain relative z-10"
+                            style={{
+                              filter: 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 2px 4px rgba(217, 119, 6, 0.2))',
+                              transform: 'scale(1.05)'
+                            }}
+                          />
+
+                          {/* Decorative sparkle effect */}
+                          <motion.div
+                            className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
+                            style={{
+                              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(251, 191, 36, 0.6) 100%)',
+                              boxShadow: '0 0 8px rgba(251, 191, 36, 0.6)'
+                            }}
+                            animate={{
+                              opacity: [0.6, 1, 0.6],
+                              scale: [1, 1.2, 1]
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        </div>
+                      </motion.div>
+
+                      {/* Title and Description */}
+                      <div className="flex-1 pt-1 relative z-10">
+                        <motion.h3
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 }}
+                          className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-2 dark:text-slate-100`}
+                          style={{
+                            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            lineHeight: '1.2'
+                          }}
+                        >
+                          {currentContent.title}
+                        </motion.h3>
+                        <motion.p
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.15 }}
+                          className={`${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed dark:text-slate-300`}
+                          style={{
+                            color: '#64748b',
+                            lineHeight: '1.6'
+                          }}
+                        >
+                          {currentContent.description}
+                        </motion.p>
+                      </div>
+                    </div>
+
+                    {/* Premium Buttons */}
+                    <div className={`flex flex-col ${isMobile ? 'gap-2.5 mb-5' : 'gap-3 mb-6'}`}>
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAcceptAll}
+                        className={`w-full ${isMobile ? 'px-5 py-3.5 text-sm' : 'px-6 py-4 text-base'} text-white font-bold rounded-2xl transition-all duration-300 relative overflow-hidden group`}
+                        style={{
+                          background: 'linear-gradient(135deg, #AFFE12 0%, #9FE011 50%, #8FC010 100%)',
+                          boxShadow: '0 10px 25px -5px rgba(175, 254, 18, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2 text-base">
+                          <svg height="20px" width="20px" version="1.1" viewBox="0 0 370.643 370.643" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
+                            <g>
+                              <path d="M370.587,100.397c-0.252-2.146-1.349-4.097-3.048-5.43l-68.142-53.632 c-3.52-2.788-8.641-2.162-11.413,1.357L171.339,190.835c-2.772,3.528-2.17,8.633,1.366,11.413c3.528,2.78,8.633,2.162,11.413-1.357 L295.731,59.136l55.364,43.569l-131.09,166.051L185.8,310.342c-2.853,3.471-2.349,8.592,1.122,11.445 c1.512,1.244,3.333,1.853,5.154,1.853c2.349,0,4.674-1.016,6.283-2.967l34.311-41.716l136.235-172.562 C370.229,104.697,370.839,102.543,370.587,100.397z"></path>
+                              <path d="M150.457,208.401c3.463,2.845,8.584,2.349,11.437-1.114c2.853-3.471,2.349-8.592-1.122-11.445 l-92.414-76.01c-1.666-1.366-3.829-2.065-5.942-1.813c-2.154,0.203-4.121,1.26-5.495,2.926L1.85,187.909 c-2.853,3.471-2.349,8.592,1.114,11.445L160.805,329.2c1.52,1.244,3.341,1.853,5.162,1.853c2.349,0,4.674-1.016,6.283-2.967 c2.853-3.463,2.349-8.592-1.114-11.445L19.563,191.957l44.748-54.405L150.457,208.401z"></path>
+                            </g>
+                          </svg>
+                          {currentContent.acceptAll}
+                        </span>
+                        <div
+                          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          style={{
+                            background: 'linear-gradient(135deg, #9FE011 0%, #8FC010 50%, #7FB00F 100%)'
+                          }}
+                        />
+                      </motion.button>
+
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowSettings(true)}
+                        className={`w-full ${isMobile ? 'px-5 py-3 text-sm' : 'px-6 py-3.5'} text-white font-semibold rounded-2xl transition-all duration-300 relative overflow-hidden group`}
+                        style={{
+                          background: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)',
+                          boxShadow: '0 8px 20px -5px rgba(56, 189, 248, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M12 8.25C9.92894 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92894 15.75 12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25ZM9.75 12C9.75 10.7574 10.7574 9.75 12 9.75C13.2426 9.75 14.25 10.7574 14.25 12C14.25 13.2426 13.2426 14.25 12 14.25C10.7574 14.25 9.75 13.2426 9.75 12Z" fill="#ffffff"></path>
+                            <path fillRule="evenodd" clipRule="evenodd" d="M11.9747 1.25C11.5303 1.24999 11.1592 1.24999 10.8546 1.27077C10.5375 1.29241 10.238 1.33905 9.94761 1.45933C9.27379 1.73844 8.73843 2.27379 8.45932 2.94762C8.31402 3.29842 8.27467 3.66812 8.25964 4.06996C8.24756 4.39299 8.08454 4.66251 7.84395 4.80141C7.60337 4.94031 7.28845 4.94673 7.00266 4.79568C6.64714 4.60777 6.30729 4.45699 5.93083 4.40743C5.20773 4.31223 4.47642 4.50819 3.89779 4.95219C3.64843 5.14353 3.45827 5.3796 3.28099 5.6434C3.11068 5.89681 2.92517 6.21815 2.70294 6.60307L2.67769 6.64681C2.45545 7.03172 2.26993 7.35304 2.13562 7.62723C1.99581 7.91267 1.88644 8.19539 1.84541 8.50701C1.75021 9.23012 1.94617 9.96142 2.39016 10.5401C2.62128 10.8412 2.92173 11.0602 3.26217 11.2741C3.53595 11.4461 3.68788 11.7221 3.68786 12C3.68785 12.2778 3.53592 12.5538 3.26217 12.7258C2.92169 12.9397 2.62121 13.1587 2.39007 13.4599C1.94607 14.0385 1.75012 14.7698 1.84531 15.4929C1.88634 15.8045 1.99571 16.0873 2.13552 16.3727C2.26983 16.6469 2.45535 16.9682 2.67758 17.3531L2.70284 17.3969C2.92507 17.7818 3.11058 18.1031 3.28089 18.3565C3.45817 18.6203 3.64833 18.8564 3.89769 19.0477C4.47632 19.4917 5.20763 19.6877 5.93073 19.5925C6.30717 19.5429 6.647 19.3922 7.0025 19.2043C7.28833 19.0532 7.60329 19.0596 7.8439 19.1986C8.08452 19.3375 8.24756 19.607 8.25964 19.9301C8.27467 20.3319 8.31403 20.7016 8.45932 21.0524C8.73843 21.7262 9.27379 22.2616 9.94761 22.5407C10.238 22.661 10.5375 22.7076 10.8546 22.7292C11.1592 22.75 11.5303 22.75 11.9747 22.75H12.0252C12.4697 22.75 12.8407 22.75 13.1454 22.7292C13.4625 22.7076 13.762 22.661 14.0524 22.5407C14.7262 22.2616 15.2616 21.7262 15.5407 21.0524C15.686 20.7016 15.7253 20.3319 15.7403 19.93C15.7524 19.607 15.9154 19.3375 16.156 19.1985C16.3966 19.0596 16.7116 19.0532 16.9974 19.2042C17.3529 19.3921 17.6927 19.5429 18.0692 19.5924C18.7923 19.6876 19.5236 19.4917 20.1022 19.0477C20.3516 18.8563 20.5417 18.6203 20.719 18.3565C20.8893 18.1031 21.0748 17.7818 21.297 17.3969L21.3223 17.3531C21.5445 16.9682 21.7301 16.6468 21.8644 16.3726C22.0042 16.0872 22.1135 15.8045 22.1546 15.4929C22.2498 14.7697 22.0538 14.0384 21.6098 13.4598C21.3787 13.1586 21.0782 12.9397 20.7378 12.7258C20.464 12.5538 20.3121 12.2778 20.3121 11.9999C20.3121 11.7221 20.464 11.4462 20.7377 11.2742C21.0783 11.0603 21.3788 10.8414 21.6099 10.5401C22.0539 9.96149 22.2499 9.23019 22.1547 8.50708C22.1136 8.19546 22.0043 7.91274 21.8645 7.6273C21.7302 7.35313 21.5447 7.03183 21.3224 6.64695L21.2972 6.60318C21.0749 6.21825 20.8894 5.89688 20.7191 5.64347C20.5418 5.37967 20.3517 5.1436 20.1023 4.95225C19.5237 4.50826 18.7924 4.3123 18.0692 4.4075C17.6928 4.45706 17.353 4.60782 16.9975 4.79572C16.7117 4.94679 16.3967 4.94036 16.1561 4.80144C15.9155 4.66253 15.7524 4.39297 15.7403 4.06991C15.7253 3.66808 15.686 3.2984 15.5407 2.94762C15.2616 2.27379 14.7262 1.73844 14.0524 1.45933C13.762 1.33905 13.4625 1.29241 13.1454 1.27077C12.8407 1.24999 12.4697 1.24999 12.0252 1.25H11.9747ZM10.5216 2.84515C10.5988 2.81319 10.716 2.78372 10.9567 2.76729C11.2042 2.75041 11.5238 2.75 12 2.75C12.4762 2.75 12.7958 2.75041 13.0432 2.76729C13.284 2.78372 13.4012 2.81319 13.4783 2.84515C13.7846 2.97202 14.028 3.21536 14.1548 3.52165C14.1949 3.61826 14.228 3.76887 14.2414 4.12597C14.271 4.91835 14.68 5.68129 15.4061 6.10048C16.1321 6.51968 16.9974 6.4924 17.6984 6.12188C18.0143 5.9549 18.1614 5.90832 18.265 5.89467C18.5937 5.8514 18.9261 5.94047 19.1891 6.14228C19.2554 6.19312 19.3395 6.27989 19.4741 6.48016C19.6125 6.68603 19.7726 6.9626 20.0107 7.375C20.2488 7.78741 20.4083 8.06438 20.5174 8.28713C20.6235 8.50382 20.6566 8.62007 20.6675 8.70287C20.7108 9.03155 20.6217 9.36397 20.4199 9.62698C20.3562 9.70995 20.2424 9.81399 19.9397 10.0041C19.2684 10.426 18.8122 11.1616 18.8121 11.9999C18.8121 12.8383 19.2683 13.574 19.9397 13.9959C20.2423 14.186 20.3561 14.29 20.4198 14.373C20.6216 14.636 20.7107 14.9684 20.6674 15.2971C20.6565 15.3799 20.6234 15.4961 20.5173 15.7128C20.4082 15.9355 20.2487 16.2125 20.0106 16.6249C19.7725 17.0373 19.6124 17.3139 19.474 17.5198C19.3394 17.72 19.2553 17.8068 19.189 17.8576C18.926 18.0595 18.5936 18.1485 18.2649 18.1053C18.1613 18.0916 18.0142 18.045 17.6983 17.8781C16.9973 17.5075 16.132 17.4803 15.4059 17.8995C14.68 18.3187 14.271 19.0816 14.2414 19.874C14.228 20.2311 14.1949 20.3817 14.1548 20.4784C14.028 20.7846 13.7846 21.028 13.4783 21.1549C13.4012 21.1868 13.284 21.2163 13.0432 21.2327C12.7958 21.2496 12.4762 21.25 12 21.25C11.5238 21.25 11.2042 21.2496 10.9567 21.2327C10.716 21.2163 10.5988 21.1868 10.5216 21.1549C10.2154 21.028 9.97201 20.7846 9.84514 20.4784C9.80512 20.3817 9.77195 20.2311 9.75859 19.874C9.72896 19.0817 9.31997 18.3187 8.5939 17.8995C7.86784 17.4803 7.00262 17.5076 6.30158 17.8781C5.98565 18.0451 5.83863 18.0917 5.73495 18.1053C5.40626 18.1486 5.07385 18.0595 4.81084 17.8577C4.74458 17.8069 4.66045 17.7201 4.52586 17.5198C4.38751 17.314 4.22736 17.0374 3.98926 16.625C3.75115 16.2126 3.59171 15.9356 3.4826 15.7129C3.37646 15.4962 3.34338 15.3799 3.33248 15.2971C3.28921 14.9684 3.37828 14.636 3.5801 14.373C3.64376 14.2901 3.75761 14.186 4.0602 13.9959C4.73158 13.5741 5.18782 12.8384 5.18786 12.0001C5.18791 11.1616 4.73165 10.4259 4.06021 10.004C3.75769 9.81389 3.64385 9.70987 3.58019 9.62691C3.37838 9.3639 3.28931 9.03149 3.33258 8.7028C3.34348 8.62001 3.37656 8.50375 3.4827 8.28707C3.59181 8.06431 3.75125 7.78734 3.98935 7.37493C4.22746 6.96253 4.3876 6.68596 4.52596 6.48009C4.66055 6.27983 4.74468 6.19305 4.81093 6.14222C5.07395 5.9404 5.40636 5.85133 5.73504 5.8946C5.83873 5.90825 5.98576 5.95483 6.30173 6.12184C7.00273 6.49235 7.86791 6.51962 8.59394 6.10045C9.31998 5.68128 9.72896 4.91837 9.75859 4.12602C9.77195 3.76889 9.80512 3.61827 9.84514 3.52165C9.97201 3.21536 10.2154 2.97202 10.5216 2.84515Z" fill="#ffffff"></path>
+                          </svg>
+                          {currentContent.customizeSettings}
+                        </span>
+                        <div
+                          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          style={{
+                            background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%)'
+                          }}
+                        />
+                      </motion.button>
+
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleDeclineAll}
+                        className={`w-full ${isMobile ? 'px-5 py-3 text-sm' : 'px-6 py-3.5'} text-white font-semibold rounded-2xl transition-all duration-300 relative overflow-hidden group`}
+                        style={{
+                          background: 'linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%)',
+                          boxShadow: '0 8px 20px -5px rgba(239, 68, 68, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <svg height="20px" width="20px" version="1.1" viewBox="0 0 401.374 401.374" xmlns="http://www.w3.org/2000/svg" fill="#ffffff">
+                            <g>
+                              <path d="M216.548,78.922l48.463-59.347l100.282,81.895l-67.906,83.155c-2.845,3.479-2.325,8.6,1.154,11.437 c1.512,1.236,3.333,1.837,5.137,1.837c2.357,0,4.698-1.016,6.3-2.991l73.043-89.455c2.845-3.479,2.325-8.6-1.154-11.437 L269.001,1.838c-1.674-1.366-3.837-2.016-5.958-1.796c-2.146,0.228-4.113,1.284-5.479,2.951l-53.608,65.646 c-2.845,3.479-2.325,8.6,1.154,11.437C208.582,82.921,213.711,82.392,216.548,78.922z"></path>
+                              <path d="M219.425,325.981c-2.829-3.479-7.958-4.007-11.437-1.154c-3.479,2.837-3.991,7.958-1.154,11.437 l50.722,62.119c1.366,1.666,3.333,2.731,5.479,2.951c0.268,0.024,0.545,0.041,0.821,0.041c1.861,0,3.682-0.642,5.145-1.837 l112.873-92.178c3.479-2.837,3.991-7.958,1.154-11.437l-73.425-89.918c-2.837-3.479-7.958-4.016-11.437-1.154 c-3.479,2.837-3.991,7.958-1.154,11.437l68.272,83.627L265.01,381.8L219.425,325.981z"></path>
+                              <path d="M132.376,399.529c1.512,1.236,3.333,1.837,5.137,1.837c2.357,0,4.698-1.016,6.3-2.991l52.129-63.834 c2.845-3.479,2.325-8.6-1.154-11.437c-3.487-2.853-8.616-2.325-11.437,1.154l-46.983,57.534L36.085,299.905l66.898-81.92 c2.845-3.479,2.325-8.6-1.154-11.437c-3.495-2.853-8.616-2.325-11.437,1.154l-72.044,88.219c-1.366,1.666-2.008,3.812-1.796,5.958 s1.276,4.113,2.943,5.479L132.376,399.529z"></path>
+                              <path d="M92.79,196.607c1.601,1.967,3.942,2.991,6.3,2.991c1.805,0,3.625-0.602,5.137-1.837 c3.479-2.837,3.991-7.958,1.154-11.437l-69.296-84.862l100.29-81.887l46.983,57.534c2.829,3.463,7.95,3.999,11.437,1.154 c3.479-2.845,3.991-7.958,1.154-11.437L143.821,3.001c-2.837-3.471-7.958-4.007-11.437-1.154L19.503,94.016 c-1.666,1.366-2.731,3.333-2.943,5.479c-0.211,2.146,0.431,4.292,1.796,5.958L92.79,196.607z"></path>
+                            </g>
+                          </svg>
+                          {currentContent.declineAll}
+                        </span>
+                        <div
+                          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          style={{
+                            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)'
+                          }}
+                        />
+                      </motion.button>
+                    </div>
+
+                    {/* Learn more link - Beautiful button style */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.35 }}
+                      className="pt-4"
                       style={{
-                        background: 'linear-gradient(90deg, rgba(177,255,8,1) 43%, rgba(87,199,133,1) 100%)',
-                        boxShadow: '0 10px 15px -3px rgba(177,255,8,0.15), 0 4px 6px -2px rgba(87,199,133,0.05)'
+                        borderTop: '1px solid rgba(226, 232, 240, 0.6)'
                       }}
                     >
-                      <span className="flex items-center justify-center gap-2">
-                        <Check className="w-4 h-4 flex-shrink-0" />
-                        {currentContent.acceptAll}
-                      </span>
-                    </button>
-                    
-                    <button
-                      onClick={() => setShowSettings(true)}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 hover:from-blue-400 hover:via-blue-500 hover:to-blue-600 text-white font-semibold rounded-2xl transition-colors duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-                    >
-                      <span className="flex items-center justify-center gap-2">
-                        <Settings className="w-4 h-4 flex-shrink-0" />
-                        {currentContent.customizeSettings}
-                      </span>
-                    </button>
-                    
-                    <button
-                      onClick={handleDeclineAll}
-                      className="w-full px-6 py-3 bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-semibold rounded-2xl transition-colors duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800"
-                    >
-                      <span className="flex items-center justify-center gap-2">
-                        <X className="w-4 h-4 flex-shrink-0" />
-                        {currentContent.declineAll}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Learn more link */}
-                  <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
-                    <a
-                      href="/legal/privacy-policy"
-                      className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium transition-colors"
-                    >
-                      {currentContent.learnMore}
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                </div>
-              </>
-            ) : (
-              // Settings Modal View
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className={`${isMobile ? 'mb-4' : 'mb-6'}`}>
-                  <h3 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-gray-900 dark:text-slate-100 ${isMobile ? 'mb-2' : 'mb-4'}`}>
-                    {currentContent.settings.title}
-                  </h3>
-                  <p className={`text-gray-600 dark:text-slate-300 ${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed ${isMobile ? 'hidden' : ''}`}>
-                    {currentContent.settings.description}
-                  </p>
-                </div>
-
-                {/* Cookie Categories */}
-                <div className={`space-y-3 mb-6 ${isMobile ? 'space-y-2' : 'space-y-4'}`}>
-                  {cookieCategories.map((category) => {
-                    const IconComponent = category.icon
-                    const isEnabled = category.enabled
-                    const isRequired = category.required
-                    const categoryContent = currentContent.settings[category.key as keyof typeof currentContent.settings]
-                    
-                    const colorClasses = {
-                      blue: {
-                        enabled: 'border-blue-300 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30',
-                        disabled: 'border-gray-200 bg-gray-50 dark:border-slate-600 dark:bg-slate-800/50',
-                        icon: 'bg-blue-500 text-white',
-                        iconDisabled: 'bg-gray-400 text-white dark:bg-slate-600 dark:text-slate-300',
-                        toggle: 'bg-blue-500',
-                        toggleDisabled: 'bg-gray-300 dark:bg-slate-500'
-                      },
-                      green: {
-                        enabled: 'border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-900/30',
-                        disabled: 'border-gray-200 bg-gray-50 dark:border-slate-600 dark:bg-slate-800/50',
-                        icon: 'text-white',
-                        iconDisabled: 'bg-gray-400 text-white dark:bg-slate-600 dark:text-slate-300',
-                        toggle: '',
-                        toggleDisabled: 'bg-gray-300 dark:bg-slate-500'
-                      },
-                      purple: {
-                        enabled: 'border-purple-300 bg-purple-50 dark:border-purple-600 dark:bg-purple-900/30',
-                        disabled: 'border-gray-200 bg-gray-50 dark:border-slate-600 dark:bg-slate-800/50',
-                        icon: 'bg-purple-500 text-white',
-                        iconDisabled: 'bg-gray-400 text-white dark:bg-slate-600 dark:text-slate-300',
-                        toggle: 'bg-purple-500',
-                        toggleDisabled: 'bg-gray-300 dark:bg-slate-500'
-                      },
-                      orange: {
-                        enabled: 'border-orange-300 bg-orange-50 dark:border-orange-600 dark:bg-orange-900/30',
-                        disabled: 'border-gray-200 bg-gray-50 dark:border-slate-600 dark:bg-slate-800/50',
-                        icon: 'bg-orange-500 text-white',
-                        iconDisabled: 'bg-gray-400 text-white dark:bg-slate-600 dark:text-slate-300',
-                        toggle: 'bg-orange-500',
-                        toggleDisabled: 'bg-gray-300 dark:bg-slate-500'
-                      }
-                    }
-                    
-                    const colors = colorClasses[category.color as keyof typeof colorClasses]
-                    
-                    return (
-                      <div
-                        key={category.key}
-                        className={`${isMobile ? 'p-3' : 'p-4'} rounded-2xl border-2 transition-all duration-300 ${
-                          isEnabled ? colors.enabled : colors.disabled
-                        }`}
+                      <a
+                        href="/privacy"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 group relative overflow-hidden"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.08) 100%)',
+                          border: '1px solid rgba(59, 130, 246, 0.2)',
+                          color: '#3b82f6',
+                          fontWeight: 600,
+                          fontSize: '14px',
+                          letterSpacing: '-0.01em',
+                          boxShadow: '0 2px 8px -2px rgba(59, 130, 246, 0.15)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.12) 100%)'
+                          e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'
+                          e.currentTarget.style.color = '#2563eb'
+                          e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.25)'
+                          e.currentTarget.style.transform = 'translateY(-1px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.08) 100%)'
+                          e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.2)'
+                          e.currentTarget.style.color = '#3b82f6'
+                          e.currentTarget.style.boxShadow = '0 2px 8px -2px rgba(59, 130, 246, 0.15)'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                        }}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div 
-                              className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                                isEnabled ? colors.icon : colors.iconDisabled
-                              }`}
-                              style={category.color === 'green' && isEnabled ? { backgroundColor: '#9ACD32' } : {}}
-                            >
-                              <IconComponent className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} flex-shrink-0`} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <h4 className={`font-semibold text-gray-900 dark:text-slate-100 ${isMobile ? 'text-xs' : 'text-sm'} mb-1`}>
-                                {typeof categoryContent === 'object' && 'title' in categoryContent ? categoryContent.title : ''}
-                              </h4>
-                              <p className={`${isMobile ? 'text-xs' : 'text-xs'} text-gray-600 dark:text-slate-400 leading-tight ${isMobile ? 'hidden' : ''}`}>
-                                {typeof categoryContent === 'object' && 'description' in categoryContent ? categoryContent.description : ''}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center ml-4 flex-shrink-0">
-                            {isRequired ? (
-                              <div className="flex items-center gap-2">
-                                <div 
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: '#9ACD32' }}
-                                ></div>
-                                <span 
-                                  className="text-xs font-medium"
-                                  style={{ color: '#9ACD32' }}
-                                >
-                                  {category.key === 'essential' ? currentContent.settings.essential.always : 'Always'}
-                                </span>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => togglePreference(category.key)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                                  isEnabled ? colors.toggle : colors.toggleDisabled
-                                }`}
-                                style={category.color === 'green' && isEnabled ? { backgroundColor: '#9ACD32' } : {}}
-                              >
-                                <span
-                                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
-                                    isEnabled ? 'translate-x-6' : 'translate-x-1'
-                                  }`}
-                                />
-                              </button>
-                            )}
-                          </div>
-                        </div>
+                        <span>{currentContent.learnMore}</span>
+                        <ExternalLink className="w-4 h-4 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:scale-110" />
+                      </a>
+                    </motion.div>
+                  </div>
+                ) : (
+                  // Settings Modal View - Premium Design
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {/* Header with back button */}
+                    <div className={`flex items-center gap-3 ${isMobile ? 'mb-4' : 'mb-6'}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowSettings(false)}
+                        className={`flex-shrink-0 ${isMobile ? 'w-9 h-9' : 'w-10 h-10'} rounded-xl flex items-center justify-center transition-all duration-200`}
+                        style={{
+                          background: 'rgba(241, 245, 249, 0.8)',
+                          border: '1px solid rgba(226, 232, 240, 0.8)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(226, 232, 240, 0.9)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(241, 245, 249, 0.8)'
+                        }}
+                      >
+                        <svg className={isMobile ? 'w-4 h-4' : 'w-5 h-5'} fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#475569' }}>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </motion.button>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold ${isMobile ? 'mb-1' : 'mb-2'} dark:text-slate-100`} style={{
+                          background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text'
+                        }}>
+                          {currentContent.settings.title}
+                        </h3>
+                        {!isMobile && (
+                          <p className="text-sm leading-relaxed dark:text-slate-300" style={{ color: '#64748b' }}>
+                            {currentContent.settings.description}
+                          </p>
+                        )}
                       </div>
-                    )
-                  })}
-                </div>
+                    </div>
 
-                {/* Settings Footer */}
-                <div className={`flex gap-3 ${isMobile ? 'mt-4' : 'mt-6'}`}>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className={`flex-1 ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'} bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600 font-semibold rounded-2xl transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-gray-300 dark:focus:ring-slate-600`}
-                  >
-                    {currentContent.settings.backToMain}
-                  </button>
-                  <button
-                    onClick={handleSaveSettings}
-                    className={`flex-1 ${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'} text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-4`}
-                    style={{
-                      background: 'linear-gradient(to right, #9ACD32, #8FBC2B)',
-                      boxShadow: '0 10px 15px -3px rgba(154, 205, 50, 0.3), 0 4px 6px -2px rgba(154, 205, 50, 0.05)'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, #8FBC2B, #7A9C24)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'linear-gradient(to right, #9ACD32, #8FBC2B)'
-                    }}
-                  >
-                    {currentContent.settings.saveSettings}
-                  </button>
-                </div>
-              </motion.div>
-            )}
+                    {/* Cookie Categories - Premium Cards */}
+                    <div className={`${isMobile ? 'space-y-2 mb-4' : 'space-y-3 mb-6'}`}>
+                      {cookieCategories.map((category, index) => {
+                        const IconComponent = category.icon
+                        const isEnabled = category.enabled
+                        const isRequired = category.required
+                        const categoryContent = currentContent.settings[category.key]
 
-            {/* Powered by AcronWeb Cookies Logo */}
-            <div className="mt-8 pt-4 border-t border-gray-100 dark:border-slate-800">
-              <div className="flex items-center justify-center gap-1 group cursor-pointer transition-all duration-300">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Powered by
-                </span>
+                        // Premium color configurations
+                        const colorStyles = {
+                          blue: {
+                            enabledBorder: 'rgba(59, 130, 246, 0.3)',
+                            enabledBg: 'linear-gradient(135deg, rgba(239, 246, 255, 0.8) 0%, rgba(219, 234, 254, 0.6) 100%)',
+                            iconBg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                            toggleBg: '#3b82f6',
+                            glow: 'rgba(59, 130, 246, 0.2)'
+                          },
+                          green: {
+                            enabledBorder: 'rgba(154, 205, 50, 0.3)',
+                            enabledBg: 'linear-gradient(135deg, rgba(240, 253, 244, 0.8) 0%, rgba(220, 252, 231, 0.6) 100%)',
+                            iconBg: 'linear-gradient(135deg, #9ACD32 0%, #7cb518 100%)',
+                            toggleBg: '#9ACD32',
+                            glow: 'rgba(154, 205, 50, 0.2)'
+                          },
+                          purple: {
+                            enabledBorder: 'rgba(168, 85, 247, 0.3)',
+                            enabledBg: 'linear-gradient(135deg, rgba(250, 245, 255, 0.8) 0%, rgba(243, 232, 255, 0.6) 100%)',
+                            iconBg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
+                            toggleBg: '#a855f7',
+                            glow: 'rgba(168, 85, 247, 0.2)'
+                          },
+                          orange: {
+                            enabledBorder: 'rgba(249, 115, 22, 0.3)',
+                            enabledBg: 'linear-gradient(135deg, rgba(255, 247, 237, 0.8) 0%, rgba(255, 237, 213, 0.6) 100%)',
+                            iconBg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                            toggleBg: '#f97316',
+                            glow: 'rgba(249, 115, 22, 0.2)'
+                          }
+                        }
 
-                <svg 
-                  viewBox="0 0 64 64" 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="w-4 h-4 inline-block align-middle flex-shrink-0"
-                  aria-hidden="true" 
-                  role="img" 
-                  preserveAspectRatio="xMidYMid meet" 
-                  fill="currentColor"
-                >
-                  <g id="SVGRepo_iconCarrier"> 
-                    <path d="M36.9 22.7l2.5-18.6C37 3.5 34.6 2 32 2c-2.6 0-5 1.5-7.5 2.2c-2.5.6-5.3.5-7.5 1.8s-3.6 3.8-5.4 5.6C9.8 13.4 7.3 14.8 6 17c-1.3 2.2-1.2 5-1.9 7.5C3.5 27 2 29.4 2 32c0 2.6 1.5 5 2.2 7.5c.6 2.5.5 5.3 1.8 7.5s3.8 3.6 5.6 5.4c1.8 1.8 3.1 4.3 5.4 5.6c2.2 1.3 5 1.2 7.5 1.9c2.5.6 4.9 2.1 7.5 2.1c2.6 0 5-1.5 7.5-2.2c2.5-.7 5.3-.6 7.5-1.9c2.2-1.3 3.6-3.8 5.4-5.6c1.8-1.8 4.3-3.1 5.6-5.4c1.3-2.2 1.2-5 1.9-7.5c.6-2.4 2.1-4.8 2.1-7.4c0-2.6-2.1-8.1-2.1-8.1l-23-1.2" fill="#dda85f"> </path> 
-                    <path d="M59.4 22.4c-1 .3-2.4.2-3.9-.4c-2.1-.8-3.4-2.5-3.8-4.5c-1 .3-3.4 0-5-1c-2.4-1.5-2.9-5.7-2.9-5.7c-2.7-.8-4.7-4-4.4-6.7c-2.2-.6-5-.5-7.4-.5c-2.4 0-4.6 1.4-6.8 2c-2.3.6-4.9.5-6.9 1.7s-3.3 3.5-4.9 5.1c-1.7 1.7-4 2.9-5.1 4.9c-1.2 2-1.1 4.6-1.7 6.9c-.6 2.2-2 4.4-2 6.8c0 2.4 1.4 4.6 2 6.8c.6 2.3.5 4.9 1.7 6.9s3.5 3.3 5.1 4.9c1.7 1.7 2.9 4 4.9 5.1c2 1.2 4.6 1.1 6.9 1.7c2.2.6 4.4 2 6.8 2c2.4 0 4.6-1.4 6.8-2c2.3-.6 4.9-.5 6.9-1.7s3.3-3.5 4.9-5.1c1.7-1.7 4-2.9 5.1-4.9c1.2-2 1.1-4.6 1.7-6.9c.6-2.2 3-4 3.3-6.4c.8-3.9-1.2-8.3-1.3-9" fill="#f2cb7d"> </path> 
-                    <g fill="#dda85f"> 
-                      <path d="M50.1 10.8l-1.4 1.4l-1.3-1.4l1.3-1.3z"> </path> 
-                      <path d="M55.8 17.8l-.6.7l-.7-.7l.7-.7z"> </path> 
-                      <path d="M50.8 13.2l-.7.7l-.7-.7l.7-.7z"> </path> 
-                      <path d="M44.6 7.1l-.7.7l-.7-.7l.7-.7z"> </path> 
-                      <path d="M57.2 20.3l-.7.7l-.7-.7l.7-.7z"> </path> 
-                      <path d="M57.8 17.8l-.7.7l-.7-.7l.7-.7z"> </path> 
-                    </g> 
-                    <path d="M11.8 20.6c-1 1.7.5 4.8 2.5 5.7c2.9 1.2 4.6 1.4 6.4-1.7c.6-1.1 1.4-4 1.1-4.7c-.4-1-2.1-3-3.2-3c-3.1.1-6.1 2.5-6.8 3.7" fill="#6d4934"> </path> 
-                    <path d="M12.3 20.6c-.7 1.2 1.1 4.8 3.5 4.5c3.3-.4 3-7.2 1.6-7.2c-2.4 0-4.6 1.8-5.1 2.7" fill="#a37f6a"> </path> 
-                    <path d="M45.2 39.1c1.4-.4 2.4-2.9 1.8-4.4c-.9-2.3-1.8-3.3-4.4-2.6c-.9.3-3 1.4-3.2 1.9c-.3.8-.5 2.8.1 3.4c1.7 1.7 4.7 2 5.7 1.7" fill="#6d4934"> </path> 
-                    <path d="M43.8 36.7c1.1-.3 2.8-3.7 1-3.9c-3.1-.5-5.5 1-5.2 2.7c.3 1.7 3.4 1.4 4.2 1.2" fill="#a37f6a"> </path> 
-                    <path d="M24.9 44.5c-.3-1.2-2.5-2.1-3.9-1.5c-2 .8-2.9 1.5-2.2 3.8c.2.8 1.2 2.6 1.7 2.7c.7.3 2.4.4 2.9-.1c1.5-1.4 1.7-4 1.5-4.9" fill="#6d4934"> </path> 
-                    <path d="M23.2 43.6c-.2-.9-4.4.4-4 2c.8 2.7.8 3.1 1.6 3c1.5-.4 2.5-4.3 2.4-5" fill="#a37f6a"> </path> 
-                    <path d="M51.1 25.5c-1.2.3-2.1 2.5-1.5 3.9c.8 2 2.7 2.3 4.8 1.2c1.8-.9 1.9-4.1 1.4-4.7c-1.5-1.5-3.8-.6-4.7-.4" fill="#6d4934"> </path> 
-                    <path d="M50.6 26.6c-.6.7-1.1 3.5.4 3.1c2.7-.8 4.6-3.5 3.4-3.9c-1.5-.5-3.1 0-3.8.8" fill="#a37f6a"> </path> 
-                    <path fill="#6d4934" d="M22.74 16.112l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                    <g fill="#dda85f"> 
-                      <path d="M14.706 33.483l1.979-1.98l1.98 1.979l-1.979 1.98z"> </path> 
-                      <path d="M34.698 44.811l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                      <path d="M32.038 39.289l2.687-2.687l2.687 2.687l-2.687 2.687z"> </path> 
-                      <path d="M24.696 9.827l2.687-2.687l2.687 2.687l-2.687 2.687z"> </path> 
-                    </g> 
-                    <g fill="#6d4934"> 
-                      <path d="M41.122 46.347l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                      <path d="M49.076 35.215l1.98-1.98l1.98 1.98l-1.98 1.98z"> </path> 
-                      <path d="M41.812 24.637l.99-.99l.99.99l-.99.99z"> </path> 
-                      <path d="M13.726 38.266l.99-.99l.99.99l-.99.99z"> </path> 
-                    </g> 
-                  </g>
-                </svg>
+                        const colorStyle = colorStyles[category.color]
 
-                <span 
-                  className="text-xs font-bold bg-gradient-to-r from-amber-800 via-amber-700 to-amber-900 dark:from-amber-300 dark:via-amber-200 dark:to-amber-400 bg-clip-text text-transparent group-hover:from-amber-900 group-hover:via-amber-800 group-hover:to-amber-950 dark:group-hover:from-amber-200 dark:group-hover:via-amber-100 dark:group-hover:to-amber-300 transition-all duration-300"
+                        return (
+                          <motion.div
+                            key={category.key}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`${isMobile ? 'p-3' : 'p-4'} rounded-2xl transition-all duration-300 relative overflow-hidden`}
+                            style={{
+                              border: `2px solid ${isEnabled ? colorStyle.enabledBorder : 'rgba(226, 232, 240, 0.6)'}`,
+                              background: isEnabled ? colorStyle.enabledBg : 'rgba(249, 250, 251, 0.8)',
+                              boxShadow: isEnabled
+                                ? `0 4px 12px -2px ${colorStyle.glow}, 0 0 0 1px rgba(255, 255, 255, 0.5) inset`
+                                : '0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.5) inset'
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className={`flex items-center ${isMobile ? 'gap-3' : 'gap-4'} min-w-0 flex-1`}>
+                                <div
+                                  className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-lg`}
+                                  style={{
+                                    background: isEnabled ? colorStyle.iconBg : 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',
+                                    color: 'white',
+                                    boxShadow: isEnabled
+                                      ? `0 4px 12px -2px ${colorStyle.glow}`
+                                      : '0 2px 8px -2px rgba(0, 0, 0, 0.1)'
+                                  }}
+                                >
+                                  <IconComponent className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} flex-shrink-0`} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <h4 className={`font-bold ${isMobile ? 'text-xs mb-0.5' : 'text-sm mb-1.5'} dark:text-slate-100`} style={{ color: '#1e293b' }}>
+                                    {categoryContent.title}
+                                  </h4>
+                                  {!isMobile && (
+                                    <p className="text-xs leading-relaxed dark:text-slate-300" style={{ color: '#64748b' }}>
+                                      {categoryContent.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className={`flex items-center ${isMobile ? 'ml-2' : 'ml-4'} flex-shrink-0`}>
+                                {isRequired ? (
+                                  <div className={`flex items-center gap-1.5 ${isMobile ? 'px-2 py-1' : 'px-3 py-1.5'} rounded-lg`} style={{
+                                    background: 'rgba(154, 205, 50, 0.1)',
+                                    border: '1px solid rgba(154, 205, 50, 0.2)'
+                                  }}>
+                                    <div
+                                      className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} rounded-full animate-pulse`}
+                                      style={{ backgroundColor: '#9ACD32' }}
+                                    />
+                                    <span
+                                      className={`${isMobile ? 'text-[10px]' : 'text-xs'} font-semibold`}
+                                      style={{ color: '#7cb518' }}
+                                    >
+                                      {category.key === 'essential' ? currentContent.settings.essential.always : 'Always'}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => togglePreference(category.key)}
+                                    className={`relative inline-flex ${isMobile ? 'h-6 w-11' : 'h-7 w-12'} items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                                    style={{
+                                      backgroundColor: isEnabled ? colorStyle.toggleBg : '#d1d5db',
+                                      boxShadow: isEnabled
+                                        ? `0 2px 8px -2px ${colorStyle.glow}`
+                                        : '0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (isEnabled) {
+                                        e.currentTarget.style.transform = 'scale(1.05)'
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.transform = 'scale(1)'
+                                    }}
+                                  >
+                                    <span
+                                      className={`inline-block ${isMobile ? 'h-4 w-4' : 'h-5 w-5'} transform rounded-full bg-white shadow-lg transition-all duration-300 ${isEnabled ? (isMobile ? 'translate-x-[22px]' : 'translate-x-6') : 'translate-x-1'
+                                        }`}
+                                      style={{
+                                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+                                      }}
+                                    />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Settings Footer - Premium Buttons */}
+                    <div className={`flex ${isMobile ? 'gap-2 mt-4' : 'gap-3 mt-6'}`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowSettings(false)}
+                        className={`flex-1 ${isMobile ? 'px-4 py-2.5 text-sm' : 'px-6 py-3.5'} font-semibold rounded-2xl transition-all duration-300 relative overflow-hidden`}
+                        style={{
+                          background: 'rgba(241, 245, 249, 0.9)',
+                          color: '#475569',
+                          border: '1px solid rgba(226, 232, 240, 0.8)',
+                          boxShadow: '0 2px 8px -2px rgba(0, 0, 0, 0.05)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(226, 232, 240, 0.95)'
+                          e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(0, 0, 0, 0.1)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(241, 245, 249, 0.9)'
+                          e.currentTarget.style.boxShadow = '0 2px 8px -2px rgba(0, 0, 0, 0.05)'
+                        }}
+                      >
+                        {currentContent.settings.backToMain}
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02, y: -1 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleSaveSettings}
+                        className={`flex-1 ${isMobile ? 'px-4 py-2.5 text-sm' : 'px-6 py-3.5'} text-white font-bold rounded-2xl transition-all duration-300 relative overflow-hidden group`}
+                        style={{
+                          background: 'linear-gradient(135deg, #9ACD32 0%, #7cb518 50%, #6b9a0f 100%)',
+                          boxShadow: '0 10px 25px -5px rgba(154, 205, 50, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <Check className={isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+                          {currentContent.settings.saveSettings}
+                        </span>
+                        <div
+                          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          style={{
+                            background: 'linear-gradient(135deg, #7cb518 0%, #6b9a0f 50%, #5a7f0d 100%)'
+                          }}
+                        />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Powered by AcronWeb Cookies Logo - Premium Footer */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="mt-6 pt-5"
                   style={{
-                    fontFamily: "'Inter', 'SF Pro Display', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    fontWeight: 800,
-                    letterSpacing: "-0.02em",
-                    lineHeight: 1.1,
-                    verticalAlign: 'baseline'
+                    borderTop: '1px solid rgba(226, 232, 240, 0.6)'
                   }}
                 >
-                  ACRON
-                </span>
-                <span 
-                  className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-300 -ml-0.5 md:-ml-1"
-                  style={{
-                    fontFamily: "'Geogola', 'Outfit', 'Space Grotesk', 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    fontWeight: 800,
-                    letterSpacing: "-0.02em",
-                    lineHeight: 1.1,
-                    verticalAlign: 'baseline'
-                  }}
-                >
-                  WEB
-                </span>
-                <span 
-                  className="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300"
-                  style={{
-                    fontFamily: "'Geogola', 'Outfit', 'Space Grotesk', 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
-                    fontWeight: 800,
-                    letterSpacing: "-0.02em",
-                    lineHeight: 1.1,
-                    verticalAlign: 'baseline'
-                  }}
-                >
-                  Cookies
-                </span>
+                  <div className="flex items-center justify-center gap-2 group">
+                    <span className="text-xs font-medium" style={{ color: '#94a3b8' }}>
+                      Powered by
+                    </span>
+                    <img
+                      src="/cookie.png"
+                      alt="Cookie"
+                      className="w-4 h-4 object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                    />
+                    <span className="flex items-baseline">
+                      <span
+                        className="text-xs transition-all duration-300"
+                        style={{
+                          fontFamily: "'Quizlo', 'Inter', 'SF Pro Display', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          fontWeight: 400,
+                          letterSpacing: "-0.01em",
+                          lineHeight: 1.1,
+                          color: '#92400e'
+                        }}
+                      >
+                        ACRON
+                      </span>
+                      <span
+                        className="text-xs font-bold transition-colors duration-300"
+                        style={{
+                          fontFamily: "'Gegola', 'Outfit', 'Space Grotesk', 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                          fontWeight: 800,
+                          letterSpacing: "-0.02em",
+                          lineHeight: 1.1,
+                          color: '#374151',
+                          transform: 'translateY(0px)'
+                        }}
+                      >
+                        WEB
+                      </span>
+                    </span>
+                    <span
+                      className="text-xs font-bold transition-colors duration-300"
+                      style={{
+                        fontFamily: "'Gegola', 'Outfit', 'Space Grotesk', 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+                        fontWeight: 800,
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.1,
+                        color: '#d97706'
+                      }}
+                    >
+                      Cookies
+                    </span>
+                  </div>
+                </motion.div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   )

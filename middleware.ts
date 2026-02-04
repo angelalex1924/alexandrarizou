@@ -54,8 +54,8 @@ export function middleware(request: NextRequest) {
   // Handle English routes with /en prefix
   if (pathname.startsWith('/en/')) {
     const englishPath = pathname.replace('/en', '');
-    // Check if it's a valid English route
-    if (englishPath === '/' || englishRoutes.includes(englishPath)) {
+    // Check if it's a valid English route or a dynamic location route
+    if (englishPath === '/' || englishRoutes.includes(englishPath) || englishPath.startsWith('/kommotirio/')) {
       // Rewrite /en/* to actual page
       const url = request.nextUrl.clone();
       url.pathname = englishPath || '/';

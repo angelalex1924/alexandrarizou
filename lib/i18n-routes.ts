@@ -47,6 +47,10 @@ export function getLocalizedPath(path: string, locale: Locale = 'el'): string {
     return routes[locale][routeKey];
   }
 
+  if (cleanPath.startsWith('kommotirio/')) {
+    return locale === 'en' ? `/en/${cleanPath}` : `/${cleanPath}`;
+  }
+
   const dualLanguageSlugs = ['privacy', 'terms', 'christmas-hours', 'newyear-hours', 'easter-hours', 'special-hours', 'summer-hours'];
   if (dualLanguageSlugs.includes(cleanPath)) {
     return locale === 'en' ? `/en/${cleanPath}` : `/${cleanPath}`;
@@ -98,7 +102,7 @@ export function getBasePath(localizedPath: string): string {
   if (basePaths.includes(localizedPath)) {
     return localizedPath;
   }
-  
+
   // Handle /en/privacy and /en/terms
   if (localizedPath === '/en/privacy' || localizedPath === '/en/terms') {
     return localizedPath.replace('/en', '');

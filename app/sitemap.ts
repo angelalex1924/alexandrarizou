@@ -2,135 +2,114 @@ import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://alexandrarizoucoiffure.gr'
-  
+  const now = new Date()
+
   return [
-    // Home page - Highest priority
+    // Greek Versions (Canonical for Greece)
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly',
       priority: 1,
     },
-    
-    // SEO-Friendly Greek URLs (High priority for SEO)
     {
       url: `${baseUrl}/ypiresies`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.95,
     },
     {
       url: `${baseUrl}/galeri`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.85,
     },
     {
       url: `${baseUrl}/sxetika`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.75,
     },
     {
       url: `${baseUrl}/epikoinonia`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.85,
     },
     {
       url: `${baseUrl}/apokrypsia`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/oroi`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
-    
-    // Standard English routes (for compatibility)
-    {
-      url: `${baseUrl}/services`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/gallery`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.3,
-    },
-    
-    // English version pages
+
+    // English version pages (Using /en prefix which is handled by middleware rewrite)
     {
       url: `${baseUrl}/en`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/en/services`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/en/gallery`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/en/about`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${baseUrl}/en/contact`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/en/privacy`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/en/terms`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+
+    // Location-based SEO pages (Hair Salon + Nails Near Me)
+    ...[
+      'agia-paraskevi', 'vrilissia', 'marousi', 'cholargos', 'psychiko',
+      'gerakas', 'melissia', 'pefki', 'nea-filadelfeia', 'filothei', 'chalandri'
+    ].flatMap(slug => [
+      {
+        url: `${baseUrl}/kommotirio/${slug}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      },
+      {
+        url: `${baseUrl}/en/kommotirio/${slug}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      }
+    ])
   ]
 }
-
